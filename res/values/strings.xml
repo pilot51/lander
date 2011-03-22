@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Lander</string>
+	<string name="menu_new">New</string>
+	<string name="menu_restart">Restart</string>
+	<string name="menu_options">Options</string>
+	<string name="menu_about">About</string>
+	<string name="mode_ready">Lander\nPress Up To Play</string>
+	<string name="mode_pause">Paused\nPress Up To Resume</string>
+	<string name="mode_lose">Game Over\nPress Up To Play</string>
+	<string name="mode_win_prefix">Congratulations!\nYou have landed safely.\n</string>
+	<string name="mode_win_suffix">in a row\nPress Up to Play</string>
+	<string name="message_off_pad">Missed the landing site. You must land on flat terrain.</string>
+	<string name="message_too_fast">Too Fast</string>
+	<string name="play_classic">Play Lander Classic</string>
+	<string name="play_enhanced">Play Lander Enhanced</string>
+	<string name="donate">Donate</string>
+</resources>
