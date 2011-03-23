@@ -1,5 +1,6 @@
 package com.pilot51.lander;
 
+import java.text.DecimalFormat;
 import java.util.Random;
 
 import android.content.Context;
@@ -7,16 +8,18 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.View.OnTouchListener;
+import android.widget.Button;
 import android.widget.TextView;
 
 /**
@@ -28,53 +31,106 @@ import android.widget.TextView;
  * ship, and does an invalidate() to prompt another draw() as soon as possible
  * by the system.
  */
-class LanderView extends SurfaceView implements SurfaceHolder.Callback {
+class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchListener {
+	/** Handle to the application context, used to e.g. fetch Drawables. */
+	private Context mContext;
+
+	private TextView mTextStatus, mTextAlt, mTextVelX, mTextVelY, mTextFuel;
+	private Button mBtnThrust, mBtnLeft, mBtnRight;
+
+	/** The thread that actually draws the animation */
+	private LanderThread thread;
+
 	class LanderThread extends Thread {
+		private static final byte FLAME_DELAY = 1;
+		private static final byte STATUS_DELAY = 5;
+		/** number of frames in explosion */
+		private static final byte EXPL_SEQUENCE = 10;
+		/** 50 milliseconds */
+		private static final byte UPDATE_TIME = 50;
+
+		/* Defaults */
+		private static final float DEF_GRAVITY = 3f, DEF_FUEL = 1000f, DEF_THRUST = 10000f;
+
+		/* Physical Settings & Options */
+		/** mass of the lander in kg */
+		private float fLanderMass = 1000f;
+		/** kg of fuel to start */
+		private float fInitFuel = DEF_FUEL;
+		/** main engine thrust in Newtons */
+		private float fMainForce = DEF_THRUST;
+		/** attitude thruster force in Newtons */
+		private float fAttitudeForce = 2000f;
+		/** main engine kg of fuel / second */
+		private float fMainBurn = 10f;
+		/** attitude thruster kg of fuel / second */
+		private float fAttitudeBurn = 2f;
+		/** gravity acceleration in m/s² */
+		private float fGravity = DEF_GRAVITY;
+		/** max horizontal velocity on landing */
+		private float fMaxLandingX = 1f;
+		/** max vertical velocity on landing */
+		private float fMaxLandingY = 10f;
+		/** Fuel in kilograms */
+		private float fFuel;
+
+		/** Lander position in meters */
+		private float fLanderX, fLanderY;
+		/** Lander velocity in meters */
+		private float fLanderVx, fLanderVy;
+		/** time increment in seconds */
+		private float dt = 0.5f;
+		/** Elapsed time */
+		private float t;
+
+		/* Other variables */
+		/** reverse side thrust buttons */
+		private boolean bReverseSideThrust = false;
+		/** draw flame on lander */
+		private boolean bDrawFlame = true;
+
+		/** size of full-screen window */
+		private short xClient, yClient;
+
+		/** lander bitmap */
+		private Drawable hLanderPict;
+		private Drawable hLFlamePict, hRFlamePict, hBFlamePict;
+
+		/** size of lander bitmap */
+		private long xLanderPict, yLanderPict;
+
+		private Drawable hCrash1, hCrash2, hCrash3;
+		//private Drawable hExpl[EXPL_SEQUENCE];
+
+		DecimalFormat df2 = new DecimalFormat("0.00"); // Fixed to 2 decimal places
+
+		private Resources res;
+
 		/*
 		 * Physics constants
 		 */
-		public static final int PHYS_DOWN_ACCEL_SEC = 35;
-		public static final int PHYS_FIRE_ACCEL_SEC = 80;
-		public static final int PHYS_FUEL_INIT = 60;
-		public static final int PHYS_FUEL_MAX = 100;
-		public static final int PHYS_FUEL_SEC = 10;
-		public static final int PHYS_SPEED_INIT = 30;
-		public static final int PHYS_SPEED_MAX = 120;
+		public static final int PHYS_DOWN_ACCEL_SEC = 35, PHYS_FIRE_ACCEL_SEC = 80, PHYS_FUEL_MAX = 3000, PHYS_SPEED_MAX = 120;
+
 		/*
 		 * State-tracking constants
 		 */
-		public static final int STATE_LOSE = 1;
-		public static final int STATE_PAUSE = 2;
-		public static final int STATE_READY = 3;
-		public static final int STATE_RUNNING = 4;
-		public static final int STATE_WIN = 5;
+		public static final int STATE_LOSE = 1, STATE_PAUSE = 2, STATE_READY = 3, STATE_RUNNING = 4, STATE_WIN = 5;
 
 		/*
 		 * Goal condition constants
 		 */
-		public static final int TARGET_BOTTOM_PADDING = 0; // px below gear
-		public static final int TARGET_PAD_HEIGHT = 8; // how high above ground
-		public static final int TARGET_SPEED = 28; // > this speed means crash
+		public static final int TARGET_BOTTOM_PADDING = 0, // px below gear
+				TARGET_PAD_HEIGHT = 8, // how high above ground
+				TARGET_SPEED = 28; // > this speed means crash
 		public static final double TARGET_WIDTH = 1.6; // width of target
 		/*
 		 * UI constants (i.e. the speed & fuel bars)
 		 */
-		public static final int UI_BAR = 100; // width of the bar(s)
-		public static final int UI_BAR_HEIGHT = 10; // height of the bar(s)
-		private static final String KEY_DX = "mDX";
+		public static final int UI_BAR = 100, // width of the bar(s)
+				UI_BAR_HEIGHT = 10; // height of the bar(s)
 
-		private static final String KEY_DY = "mDY";
-		private static final String KEY_FUEL = "mFuel";
-		private static final String KEY_GOAL_SPEED = "mGoalSpeed";
-		private static final String KEY_GOAL_WIDTH = "mGoalWidth";
-
-		private static final String KEY_GOAL_X = "mGoalX";
-		private static final String KEY_LANDER_HEIGHT = "mLanderHeight";
-		private static final String KEY_LANDER_WIDTH = "mLanderWidth";
-		private static final String KEY_WINS = "mWinsInARow";
-
-		private static final String KEY_X = "mX";
-		private static final String KEY_Y = "mY";
+		private static final String KEY_DX = "mDX", KEY_DY = "mDY", KEY_FUEL = "mFuel", KEY_GOAL_SPEED = "mGoalSpeed", KEY_GOAL_WIDTH = "mGoalWidth", KEY_GOAL_X = "mGoalX",
+				KEY_LANDER_HEIGHT = "mLanderHeight", KEY_LANDER_WIDTH = "mLanderWidth", KEY_X = "mX", KEY_Y = "mY";
 
 		/*
 		 * Member (state) fields
@@ -114,7 +170,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 		private Drawable mFiringRightImage;
 
 		/** Fuel remaining */
-		private double mFuel;
+		private float mFuel;
 
 		/** Allowed speed. */
 		private int mGoalSpeed;
@@ -143,29 +199,14 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 		/** Paint to draw the landing pad on screen. */
 		private Paint mLandingPad;
 
-		/** Paint to draw the fuel bar on screen. */
-		private Paint mFuelBar;
-
-		/** "Good" speed variant of the line color. */
-		private Paint mSpeedBarGood;
-
-		/** "Bad" speed-too-high variant of the line color. */
-		private Paint mSpeedBarBad;
-
 		/** The state of the game. One of READY, RUNNING, PAUSE, LOSE, or WIN */
 		private int mMode;
 
 		/** Indicate whether the surface has been created & is ready to draw */
 		private boolean mRun = false;
 
-		/** Scratch rect object. */
-		private RectF mScratchRect;
-
 		/** Handle to the surface manager object we interact with */
 		private SurfaceHolder mSurfaceHolder;
-
-		/** Number of wins in a row. */
-		private int mWinsInARow;
 
 		/** X of lander center. */
 		private double mX;
@@ -174,53 +215,28 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 		private double mY;
 
 		public LanderThread(SurfaceHolder surfaceHolder, Context context, Handler handler) {
-			// get handles to some important objects
 			mSurfaceHolder = surfaceHolder;
 			mHandler = handler;
 			mContext = context;
 
-			//Resources res = context.getResources();
-			// cache handles to our key sprites & other drawables
-			mLanderImage = context.getResources().getDrawable(R.drawable.lander);
-			mFiringMainImage = context.getResources().getDrawable(R.drawable.bflame);
-			mFiringLeftImage = context.getResources().getDrawable(R.drawable.lflame);
-			mFiringRightImage = context.getResources().getDrawable(R.drawable.rflame);
-			mCrashedImage = context.getResources().getDrawable(R.drawable.crash3);
+			res = context.getResources();
+			mLanderImage = res.getDrawable(R.drawable.lander);
+			mFiringMainImage = res.getDrawable(R.drawable.bflame);
+			mFiringLeftImage = res.getDrawable(R.drawable.lflame);
+			mFiringRightImage = res.getDrawable(R.drawable.rflame);
+			mCrashedImage = res.getDrawable(R.drawable.crash3);
 
-			// load background image as a Bitmap instead of a Drawable b/c
-			// we don't need to transform it and it's faster to draw this way
-			//mBackgroundImage = BitmapFactory.decodeResource(res,
-			//      R.drawable.earthrise);
-
-			// Use the regular lander image as the model size for all sprites
 			mLanderWidth = mLanderImage.getIntrinsicWidth();
 			mLanderHeight = mLanderImage.getIntrinsicHeight();
 
-			// Initialize paints for speedometer
 			mLandingPad = new Paint();
 			mLandingPad.setAntiAlias(false);
 			mLandingPad.setColor(Color.WHITE);
 
-			mFuelBar = new Paint();
-			mFuelBar.setAntiAlias(false);
-			mFuelBar.setARGB(255, 150, 150, 0);
-
-			mSpeedBarGood = new Paint();
-			mSpeedBarGood.setAntiAlias(false);
-			mSpeedBarGood.setColor(Color.GREEN);
-
-			mSpeedBarBad = new Paint();
-			mSpeedBarBad.setAntiAlias(false);
-			mSpeedBarBad.setARGB(255, 120, 180, 0);
-
-			mScratchRect = new RectF(0, 0, 0, 0);
-
-			mWinsInARow = 0;
-
 			// initial show-up of lander (not yet playing)
 			mX = mLanderWidth;
 			mY = mLanderHeight * 2;
-			mFuel = PHYS_FUEL_INIT;
+			mFuel = fInitFuel;
 			mDX = 0;
 			mDY = 0;
 			mFiringMain = true;
@@ -228,41 +244,45 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 			mFiringRight = true;
 		}
 
-		/**
-		 * Starts the game, setting parameters for the current difficulty.
-		 */
 		public void doStart() {
 			synchronized (mSurfaceHolder) {
-				// First set the game for Medium difficulty
-				mFuel = PHYS_FUEL_INIT;
+				mFuel = fInitFuel;
 				mFiringMain = false;
 				mFiringLeft = false;
 				mFiringRight = false;
 				mGoalWidth = (int) (mLanderWidth + new Random().nextInt(300));
 				mGoalSpeed = TARGET_SPEED;
-
 				// pick a convenient initial location for the lander sprite
 				mX = mCanvasWidth / 2;
 				mY = mCanvasHeight - mLanderHeight / 2;
-
 				mDY = 0;
 				mDX = 0;
-
 				// Figure initial spot for landing, not too near center
 				while (true) {
 					mGoalX = (int) (Math.random() * (mCanvasWidth - mGoalWidth));
 					//if (Math.abs(mGoalX - (mX - mLanderWidth / 2)) > mCanvasHeight / 6)
 					break;
 				}
-
 				mLastTime = System.currentTimeMillis() + 100;
 				setState(STATE_RUNNING);
 			}
 		}
 
-		/**
-		 * Pauses the physics update & animation.
-		 */
+		public void doRestart() {
+			synchronized (mSurfaceHolder) {
+				mFuel = fInitFuel;
+				mFiringMain = false;
+				mFiringLeft = false;
+				mFiringRight = false;
+				mX = mCanvasWidth / 2;
+				mY = mCanvasHeight - mLanderHeight / 2;
+				mDY = 0;
+				mDX = 0;
+				mLastTime = System.currentTimeMillis() + 100;
+				setState(STATE_RUNNING);
+			}
+		}
+
 		public void pause() {
 			synchronized (mSurfaceHolder) {
 				if (mMode == STATE_RUNNING)
@@ -294,8 +314,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 				mGoalX = savedState.getInt(KEY_GOAL_X);
 				mGoalSpeed = savedState.getInt(KEY_GOAL_SPEED);
 				mGoalWidth = savedState.getInt(KEY_GOAL_WIDTH);
-				mWinsInARow = savedState.getInt(KEY_WINS);
-				mFuel = savedState.getDouble(KEY_FUEL);
+				mFuel = savedState.getFloat(KEY_FUEL);
 			}
 		}
 
@@ -339,29 +358,30 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 					map.putInt(KEY_GOAL_X, Integer.valueOf(mGoalX));
 					map.putInt(KEY_GOAL_SPEED, Integer.valueOf(mGoalSpeed));
 					map.putInt(KEY_GOAL_WIDTH, Integer.valueOf(mGoalWidth));
-					map.putInt(KEY_WINS, Integer.valueOf(mWinsInARow));
-					map.putDouble(KEY_FUEL, Double.valueOf(mFuel));
+					map.putFloat(KEY_FUEL, Float.valueOf(mFuel));
 				}
 			}
 			return map;
 		}
 
-		/**
-		 * Sets if the engine is currently firing.
-		 */
 		public void setFiringMain(boolean firing) {
 			synchronized (mSurfaceHolder) {
 				mFiringMain = firing;
+				mBtnThrust.setPressed(firing);
 			}
 		}
+
 		public void setFiringLeft(boolean firing) {
 			synchronized (mSurfaceHolder) {
 				mFiringLeft = firing;
+				mBtnLeft.setPressed(firing);
 			}
 		}
+
 		public void setFiringRight(boolean firing) {
 			synchronized (mSurfaceHolder) {
 				mFiringRight = firing;
+				mBtnRight.setPressed(firing);
 			}
 		}
 
@@ -412,19 +432,12 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 			 */
 			synchronized (mSurfaceHolder) {
 				mMode = mode;
-
 				if (mMode == STATE_RUNNING) {
-					Message msg = mHandler.obtainMessage();
-					Bundle b = new Bundle();
-					b.putString("text", "");
-					b.putInt("viz", View.INVISIBLE);
-					msg.setData(b);
-					mHandler.sendMessage(msg);
+					setScreenText(0, "", View.INVISIBLE);
 				} else {
 					mFiringMain = false;
 					mFiringLeft = false;
 					mFiringRight = false;
-					Resources res = mContext.getResources();
 					CharSequence str = "";
 					if (mMode == STATE_READY)
 						str = res.getText(R.string.mode_ready);
@@ -433,21 +446,11 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 					else if (mMode == STATE_LOSE)
 						str = res.getText(R.string.mode_lose);
 					else if (mMode == STATE_WIN)
-						str = res.getString(R.string.mode_win_prefix) + mWinsInARow + " " + res.getString(R.string.mode_win_suffix);
-
+						str = res.getString(R.string.mode_win);
 					if (message != null) {
 						str = message + "\n" + str;
 					}
-
-					if (mMode == STATE_LOSE)
-						mWinsInARow = 0;
-
-					Message msg = mHandler.obtainMessage();
-					Bundle b = new Bundle();
-					b.putString("text", str.toString());
-					b.putInt("viz", View.VISIBLE);
-					msg.setData(b);
-					mHandler.sendMessage(msg);
+					setScreenText(0, str.toString(), View.VISIBLE);
 				}
 			}
 		}
@@ -458,16 +461,9 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 			synchronized (mSurfaceHolder) {
 				mCanvasWidth = width;
 				mCanvasHeight = height;
-
-				// don't forget to resize the background image
-				//mBackgroundImage = mBackgroundImage.createScaledBitmap(
-				//      mBackgroundImage, width, height, true);
 			}
 		}
 
-		/**
-		 * Resumes from a pause.
-		 */
 		public void unpause() {
 			// Move the real time clock up to now
 			synchronized (mSurfaceHolder) {
@@ -476,128 +472,111 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 			setState(STATE_RUNNING);
 		}
 
-		/**
-		 * Handles a key-down event.
-		 * 
-		 * @param keyCode
-		 *            the key that was pressed
-		 * @param msg
-		 *            the original event object
-		 * @return true
-		 */
-		boolean doKeyDown(int keyCode, KeyEvent msg) {
+		boolean doBtnTouch(View src, MotionEvent event) {
 			synchronized (mSurfaceHolder) {
-				boolean okStart = false;
-				if (keyCode == KeyEvent.KEYCODE_DPAD_UP)
-					okStart = true;
-				if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN)
-					okStart = true;
-				if (keyCode == KeyEvent.KEYCODE_S)
-					okStart = true;
-
-				if (okStart && (mMode == STATE_READY || mMode == STATE_LOSE || mMode == STATE_WIN)) {
-					// ready-to-start -> start
-					doStart();
-					return true;
-				} else if (mMode == STATE_PAUSE && okStart) {
-					// paused -> running
-					unpause();
-					return true;
-				} else if (mMode == STATE_RUNNING) {
-					// center/space -> fire
-					if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_SPACE) {
-						setFiringMain(true);
-						return true;
-						// left/q -> left
-					} else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_Q) {
-						//mRotating = -1;
-						setFiringLeft(true);
-						return true;
-						// right/w -> right
-					} else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_W) {
-						//mRotating = 1;
-						setFiringRight(true);
-						return true;
-						// up -> pause
-					} else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-						pause();
-						return true;
+				if (mMode == STATE_RUNNING) {
+					if (event.getAction() == MotionEvent.ACTION_DOWN) {
+						if (src == mBtnThrust) {
+							setFiringMain(true);
+							return true;
+						} else if (src == mBtnLeft) {
+							setFiringLeft(true);
+							return true;
+						} else if (src == mBtnRight) {
+							setFiringRight(true);
+							return true;
+						}
+					} else if (event.getAction() == MotionEvent.ACTION_UP) {
+						if (src == mBtnThrust) {
+							setFiringMain(false);
+							return true;
+						} else if (src == mBtnLeft) {
+							setFiringLeft(false);
+							return true;
+						} else if (src == mBtnRight) {
+							setFiringRight(false);
+							return true;
+						}
 					}
 				}
-
 				return false;
 			}
 		}
 
-		/**
-		 * Handles a key-up event.
-		 * 
-		 * @param keyCode
-		 *            the key that was pressed
-		 * @param msg
-		 *            the original event object
-		 * @return true if the key was handled and consumed, or else false
-		 */
-		boolean doKeyUp(int keyCode, KeyEvent msg) {
-			boolean handled = false;
-
+		boolean doKeyDown(int keyCode, KeyEvent msg) {
 			synchronized (mSurfaceHolder) {
-				if (mMode == STATE_RUNNING) {
-					if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_SPACE) {
-						setFiringMain(false);
-						handled = true;
-					} else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_Q || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_W) {
-						setFiringLeft(false);
-						setFiringRight(false);
-						handled = true;
+				boolean okStart = false;
+				if (keyCode == KeyEvent.KEYCODE_SPACE)
+					okStart = true;
+				if (okStart && (mMode == STATE_READY || mMode == STATE_LOSE || mMode == STATE_WIN)) {
+					doStart();
+					return true;
+				} else if (mMode == STATE_PAUSE && okStart) {
+					unpause();
+					return true;
+				} else if (mMode == STATE_RUNNING) {
+					if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+						setFiringMain(true);
+						return true;
+					} else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+						setFiringLeft(true);
+						return true;
+					} else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+						setFiringRight(true);
+						return true;
+					} else if (keyCode == KeyEvent.KEYCODE_SPACE) {
+						pause();
+						return true;
 					}
 				}
+				return false;
 			}
-
-			return handled;
 		}
 
-		/**
-		 * Draws the ship, fuel/speed bars, and background to the provided
-		 * Canvas.
-		 */
+		boolean doKeyUp(int keyCode, KeyEvent msg) {
+			synchronized (mSurfaceHolder) {
+				if (mMode == STATE_RUNNING) {
+					if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+						setFiringMain(false);
+						return true;
+					} else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+						setFiringLeft(false);
+						return true;
+					} else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+						setFiringRight(false);
+						return true;
+					}
+				}
+				return false;
+			}
+		}
+
+		private void setScreenText(int view, String text, int viz) {
+			Message msg = mHandler.obtainMessage();
+			Bundle b = new Bundle();
+			b.putInt("view", view);
+			b.putString("text", text);
+			b.putInt("viz", viz);
+			msg.setData(b);
+			mHandler.sendMessage(msg);
+		}
+
 		private void doDraw(Canvas canvas) {
 			// Draw the background image. Operations on the Canvas accumulate
 			// so this is like clearing the screen.
-			//canvas.drawBitmap(mBackgroundImage, 0, 0, null);
 			canvas.drawColor(Color.BLACK);
+
+			setScreenText(1, df2.format(mY - TARGET_PAD_HEIGHT - mLanderHeight / 2), 0);
+			setScreenText(2, df2.format(mDX), 0);
+			setScreenText(3, df2.format(mDY), 0);
+			setScreenText(4, df2.format(mFuel), 0);
 
 			int yTop = mCanvasHeight - ((int) mY + mLanderHeight / 2);
 			int xLeft = (int) mX - mLanderWidth / 2;
 
-			// Draw the fuel gauge
-			int fuelWidth = (int) (UI_BAR * mFuel / PHYS_FUEL_MAX);
-			mScratchRect.set(4, 4, 4 + fuelWidth, 4 + UI_BAR_HEIGHT);
-			canvas.drawRect(mScratchRect, mFuelBar);
-
-			// Draw the speed gauge, with a two-tone effect
-			double speed = Math.sqrt(mDX * mDX + mDY * mDY);
-			int speedWidth = (int) (UI_BAR * speed / PHYS_SPEED_MAX);
-
-			if (speed <= mGoalSpeed) {
-				mScratchRect.set(4 + UI_BAR + 4, 4, 4 + UI_BAR + 4 + speedWidth, 4 + UI_BAR_HEIGHT);
-				canvas.drawRect(mScratchRect, mSpeedBarGood);
-			} else {
-				// Draw the bad color in back, with the good color in front of
-				// it
-				mScratchRect.set(4 + UI_BAR + 4, 4, 4 + UI_BAR + 4 + speedWidth, 4 + UI_BAR_HEIGHT);
-				canvas.drawRect(mScratchRect, mSpeedBarBad);
-				int goalWidth = (UI_BAR * mGoalSpeed / PHYS_SPEED_MAX);
-				mScratchRect.set(4 + UI_BAR + 4, 4, 4 + UI_BAR + 4 + goalWidth, 4 + UI_BAR_HEIGHT);
-				canvas.drawRect(mScratchRect, mSpeedBarGood);
-			}
-
 			// Draw the landing pad
 			canvas.drawLine(mGoalX, 1 + mCanvasHeight - TARGET_PAD_HEIGHT, mGoalX + mGoalWidth, 1 + mCanvasHeight - TARGET_PAD_HEIGHT, mLandingPad);
-
-			// Draw the ship with its current rotation
 			canvas.save();
-			//canvas.rotate((float) mHeading, (float) mX, mCanvasHeight - (float) mY);
 			if (mFiringMain) {
 				int yTopF = mCanvasHeight - ((int) mY - 26 + mFiringMainImage.getIntrinsicHeight() / 2);
 				int xLeftF = (int) mX - mFiringMainImage.getIntrinsicWidth() / 2;
@@ -650,10 +629,9 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 				// taking 0 as up, 90 as to the right
 				// cos(deg) is ddy component, sin(deg) is ddx component
 				double elapsedFiring = elapsed;
-				double fuelUsed = elapsedFiring * PHYS_FUEL_SEC;
+				double fuelUsed = elapsedFiring * fMainBurn;
 
-				// tricky case where we run out of fuel partway through the
-				// elapsed
+				// tricky case where we run out of fuel partway through the elapsed
 				if (fuelUsed > mFuel) {
 					elapsedFiring = mFuel / fuelUsed * elapsed;
 					fuelUsed = mFuel;
@@ -671,10 +649,9 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 			}
 			if (mFiringLeft) {
 				double elapsedFiring = elapsed;
-				double fuelUsed = elapsedFiring * PHYS_FUEL_SEC;
+				double fuelUsed = elapsedFiring * fAttitudeBurn;
 
-				// tricky case where we run out of fuel partway through the
-				// elapsed
+				// tricky case where we run out of fuel partway through the elapsed
 				if (fuelUsed > mFuel) {
 					elapsedFiring = mFuel / fuelUsed * elapsed;
 					fuelUsed = mFuel;
@@ -688,13 +665,13 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 				// have this much acceleration from the engine
 				double accel = PHYS_FIRE_ACCEL_SEC * elapsedFiring;
 
-				ddx = accel;
-			} else if (mFiringRight) {
+				ddx += accel;
+			}
+			if (mFiringRight) {
 				double elapsedFiring = elapsed;
-				double fuelUsed = elapsedFiring * PHYS_FUEL_SEC;
+				double fuelUsed = elapsedFiring * fAttitudeBurn;
 
-				// tricky case where we run out of fuel partway through the
-				// elapsed
+				// tricky case where we run out of fuel partway through the elapsed
 				if (fuelUsed > mFuel) {
 					elapsedFiring = mFuel / fuelUsed * elapsed;
 					fuelUsed = mFuel;
@@ -708,7 +685,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 				// have this much acceleration from the engine
 				double accel = PHYS_FIRE_ACCEL_SEC * elapsedFiring;
 
-				ddx = -accel;
+				ddx += -accel;
 			}
 
 			double dxOld = mDX;
@@ -731,7 +708,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 
 				int result = STATE_LOSE;
 				CharSequence message = "";
-				Resources res = mContext.getResources();
 				double speed = Math.sqrt(mDX * mDX + mDY * mDY);
 				boolean onGoal = (mGoalX <= mX - mLanderWidth / 2 && mX + mLanderWidth / 2 <= mGoalX + mGoalWidth);
 
@@ -741,22 +717,12 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 					message = res.getText(R.string.message_too_fast);
 				} else {
 					result = STATE_WIN;
-					mWinsInARow++;
 				}
 
 				setState(result, message);
 			}
 		}
 	}
-
-	/** Handle to the application context, used to e.g. fetch Drawables. */
-	private Context mContext;
-
-	/** Pointer to the text view to display "Paused.." etc. */
-	private TextView mStatusText;
-
-	/** The thread that actually draws the animation */
-	private LanderThread thread;
 
 	public LanderView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -769,8 +735,18 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 		thread = new LanderThread(holder, context, new Handler() {
 			@Override
 			public void handleMessage(Message m) {
-				mStatusText.setVisibility(m.getData().getInt("viz"));
-				mStatusText.setText(m.getData().getString("text"));
+				if (m.getData().getInt("view") == 1) {
+					mTextAlt.setText(m.getData().getString("text"));
+				} else if (m.getData().getInt("view") == 2) {
+					mTextVelX.setText(m.getData().getString("text"));
+				} else if (m.getData().getInt("view") == 3) {
+					mTextVelY.setText(m.getData().getString("text"));
+				} else if (m.getData().getInt("view") == 4) {
+					mTextFuel.setText(m.getData().getString("text"));
+				} else {
+					mTextStatus.setVisibility(m.getData().getInt("viz"));
+					mTextStatus.setText(m.getData().getString("text"));
+				}
 			}
 		});
 
@@ -786,18 +762,11 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 		return thread;
 	}
 
-	/**
-	 * Standard override to get key-press events.
-	 */
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent msg) {
 		return thread.doKeyDown(keyCode, msg);
 	}
 
-	/**
-	 * Standard override for key-up. We actually care about these, so we can
-	 * turn off the engine or stop rotating.
-	 */
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent msg) {
 		return thread.doKeyUp(keyCode, msg);
@@ -816,8 +785,44 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 	/**
 	 * Installs a pointer to the text view used for messages.
 	 */
-	public void setTextView(TextView textView) {
-		mStatusText = textView;
+	public void setTextViewMain(TextView textView) {
+		mTextStatus = textView;
+	}
+
+	public void setTextViewAlt(TextView textView) {
+		mTextAlt = textView;
+	}
+
+	public void setTextViewVelX(TextView textView) {
+		mTextVelX = textView;
+	}
+
+	public void setTextViewVelY(TextView textView) {
+		mTextVelY = textView;
+	}
+
+	public void setTextViewFuel(TextView textView) {
+		mTextFuel = textView;
+	}
+
+	public void setButtonThrust(Button btn) {
+		mBtnThrust = btn;
+		btn.setOnTouchListener(this);
+	}
+
+	public void setButtonLeft(Button btn) {
+		mBtnLeft = btn;
+		btn.setOnTouchListener(this);
+	}
+
+	public void setButtonRight(Button btn) {
+		mBtnRight = btn;
+		btn.setOnTouchListener(this);
+	}
+
+	@Override
+	public boolean onTouch(View src, MotionEvent event) {
+		return thread.doBtnTouch(src, event);
 	}
 
 	/* Callback invoked when the surface dimensions change. */
@@ -825,10 +830,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback {
 		thread.setSurfaceSize(width, height);
 	}
 
-	/*
-	 * Callback invoked when the Surface has been created and is ready to be
-	 * used.
-	 */
+	/* Callback invoked when the Surface has been created and is ready to be used. */
 	public void surfaceCreated(SurfaceHolder holder) {
 		// start the thread here so that we don't busy-wait in run()
 		// waiting for the surface to be created

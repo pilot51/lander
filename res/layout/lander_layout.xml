@@ -11,6 +11,81 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 		<TextView
+			android:id="@+id/valueAlt"
+			android:text="vAlt"
+			android:layout_width="60dp"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:gravity="right" />
+		<TextView
+			android:id="@+id/valueVelX"
+			android:text="vVelX"
+			android:layout_width="60dp"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@+id/valueAlt"
+			android:gravity="right" />
+		<TextView
+			android:id="@+id/valueVelY"
+			android:text="vVelY"
+			android:layout_width="60dp"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@+id/valueVelX"
+			android:gravity="right" />
+		<TextView
+			android:id="@+id/valueFuel"
+			android:text="vFuel"
+			android:layout_width="60dp"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@+id/valueVelY"
+			android:gravity="right" />
+		<TextView
+			android:text="@string/hud_alt"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_toLeftOf="@+id/valueAlt" />
+		<TextView
+			android:text="@string/hud_velx"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/valueAlt"
+			android:layout_toLeftOf="@+id/valueVelX" />
+		<TextView
+			android:text="@string/hud_vely"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/valueVelX"
+			android:layout_toLeftOf="@+id/valueVelY" />
+		<TextView
+			android:text="@string/hud_fuel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/valueVelY"
+			android:layout_toLeftOf="@+id/valueFuel" />
+		<Button
+			android:id="@+id/btnRight"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@+id/valueFuel"
+			android:background="@drawable/btn_right" />
+		<Button
+			android:id="@+id/btnLeft"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/valueFuel"
+			android:layout_toLeftOf="@+id/btnRight"
+			android:background="@drawable/btn_left" />
+		<Button
+			android:id="@+id/btnThrust"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@+id/btnRight"
+			android:background="@drawable/btn_thrust" android:layout_marginRight="24px"/>
+		<TextView
 			android:id="@+id/text"
 			android:visibility="visible"
 			android:layout_width="wrap_content"

@@ -8,13 +8,19 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 public class Main extends Activity implements OnClickListener {
-	private Button btnClassic;
+	private Button btnClassic, btnEnhanced, btnDonate;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         btnClassic = (Button)findViewById(R.id.btnClassic);
+        btnEnhanced = (Button)findViewById(R.id.btnEnhanced);
+        btnDonate = (Button)findViewById(R.id.btnDonate);
         btnClassic.setOnClickListener(this);
+        btnEnhanced.setOnClickListener(this);
+        btnDonate.setOnClickListener(this);
+        btnEnhanced.setVisibility(Button.GONE);
+        btnDonate.setVisibility(Button.GONE);
     }
     
     @Override
