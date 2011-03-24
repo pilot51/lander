@@ -2,7 +2,6 @@ package com.pilot51.lander;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
@@ -39,9 +38,11 @@ public class Lander extends Activity {
 		switch (item.getItemId()) {
 		case MENU_NEW:
 			mLanderThread.doStart();
+			mLanderThread.setState(LanderThread.STATE_READY);
 			return true;
 		case MENU_RESTART:
 			mLanderThread.doRestart();
+			mLanderThread.setState(LanderThread.STATE_READY);
 			return true;
 		case MENU_OPTIONS:
 			return true;
@@ -56,17 +57,13 @@ public class Lander extends Activity {
 		setTheme(R.style.Fullscreen);
 		super.onCreate(savedInstanceState);
 
-		// turn off the window's title bar
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		// tell system to use the layout defined in our XML file
 		setContentView(R.layout.lander_layout);
 
-		// get handles to the LunarView from XML, and its LunarThread
 		mLanderView = (LanderView) findViewById(R.id.lander);
 		mLanderThread = mLanderView.getThread();
 
-		// give the LunarView a handle to the TextView used for messages
 		mLanderView.setTextViewMain((TextView) findViewById(R.id.text));
 		mLanderView.setTextViewAlt((TextView) findViewById(R.id.valueAlt));
 		mLanderView.setTextViewVelX((TextView) findViewById(R.id.valueVelX));
@@ -79,18 +76,10 @@ public class Lander extends Activity {
 		if (savedInstanceState == null) {
 			// we were just launched: set up a new game
 			mLanderThread.setState(LanderThread.STATE_READY);
-			Log.w(this.getClass().getName(), "SIS is null");
 		} else {
 			// we are being restored: resume a previous game
 			mLanderThread.restoreState(savedInstanceState);
-			Log.w(this.getClass().getName(), "SIS is nonnull");
 		}
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		mLanderView.getThread().pause(); // pause game when Activity pauses
 	}
 
 	@Override
@@ -98,6 +87,5 @@ public class Lander extends Activity {
 		// just have the View's thread save its state into our Bundle
 		super.onSaveInstanceState(outState);
 		mLanderThread.saveState(outState);
-		Log.w(this.getClass().getName(), "SIS called");
 	}
 }

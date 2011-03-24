@@ -5,8 +5,6 @@
 	<string name="menu_restart">Restart</string>
 	<string name="menu_options">Options</string>
 	<string name="menu_about">About</string>
-	<string name="mode_ready">Welcome to Lander!</string>
-	<string name="mode_pause">Paused</string>
 	<string name="mode_lose">Game Over</string>
 	<string name="mode_win">Congratulations!\nYou have landed safely.</string>
 	<string name="message_off_pad">Missed the landing site. You must land on flat terrain.</string>

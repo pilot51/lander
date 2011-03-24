@@ -25,8 +25,7 @@ import android.widget.TextView;
 /**
  * View that draws, takes keystrokes, etc. for a simple LunarLander game.
  * 
- * Has a mode which RUNNING, PAUSED, etc. Has a x, y, dx, dy, ... capturing the
- * current ship physics. All x/y etc. are measured with (0,0) at the lower left.
+ * All x/y etc. are measured with (0,0) at the lower left.
  * updatePhysics() advances the physics based on realtime. draw() renders the
  * ship, and does an invalidate() to prompt another draw() as soon as possible
  * by the system.
@@ -40,6 +39,126 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 	/** The thread that actually draws the animation */
 	private LanderThread thread;
+	
+	public LanderView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+
+		// register our interest in hearing about changes to our surface
+		SurfaceHolder holder = getHolder();
+		holder.addCallback(this);
+
+		// create thread only; it's started in surfaceCreated()
+		thread = new LanderThread(holder, context, new Handler() {
+			@Override
+			public void handleMessage(Message m) {
+				if (m.getData().getInt("view") == 1) {
+					mTextAlt.setText(m.getData().getString("text"));
+				} else if (m.getData().getInt("view") == 2) {
+					mTextVelX.setText(m.getData().getString("text"));
+				} else if (m.getData().getInt("view") == 3) {
+					mTextVelY.setText(m.getData().getString("text"));
+				} else if (m.getData().getInt("view") == 4) {
+					mTextFuel.setText(m.getData().getString("text"));
+				} else {
+					mTextStatus.setVisibility(m.getData().getInt("viz"));
+					mTextStatus.setText(m.getData().getString("text"));
+				}
+			}
+		});
+
+		setFocusable(true); // make sure we get key events
+	}
+
+	/**
+	 * Fetches the animation thread corresponding to this LunarView.
+	 * 
+	 * @return the animation thread
+	 */
+	public LanderThread getThread() {
+		return thread;
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent msg) {
+		return thread.doKeyDown(keyCode, msg);
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent msg) {
+		return thread.doKeyUp(keyCode, msg);
+	}
+
+	public void setTextViewMain(TextView textView) {
+		mTextStatus = textView;
+	}
+
+	public void setTextViewAlt(TextView textView) {
+		mTextAlt = textView;
+	}
+
+	public void setTextViewVelX(TextView textView) {
+		mTextVelX = textView;
+	}
+
+	public void setTextViewVelY(TextView textView) {
+		mTextVelY = textView;
+	}
+
+	public void setTextViewFuel(TextView textView) {
+		mTextFuel = textView;
+	}
+
+	public void setButtonThrust(Button btn) {
+		mBtnThrust = btn;
+		btn.setOnTouchListener(this);
+	}
+
+	public void setButtonLeft(Button btn) {
+		mBtnLeft = btn;
+		btn.setOnTouchListener(this);
+	}
+
+	public void setButtonRight(Button btn) {
+		mBtnRight = btn;
+		btn.setOnTouchListener(this);
+	}
+
+	@Override
+	public boolean onTouch(View src, MotionEvent event) {
+		return thread.doBtnTouch(src, event);
+	}
+
+	/* Callback invoked when the surface dimensions change. */
+	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+		thread.setSurfaceSize(width, height);
+	}
+
+	/* Callback invoked when the Surface has been created and is ready to be used. */
+	public void surfaceCreated(SurfaceHolder holder) {
+		// start the thread here so that we don't busy-wait in run()
+		// waiting for the surface to be created
+		thread.setRunning(true);
+		thread.start();
+	}
+
+	/*
+	 * Callback invoked when the Surface has been destroyed and must no longer
+	 * be touched. WARNING: after this method returns, the Surface/Canvas must
+	 * never be touched again!
+	 */
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		// we have to tell thread to shut down & wait for it to finish, or else
+		// it might touch the Surface after we return and explode
+		boolean retry = true;
+		thread.setRunning(false);
+		while (retry) {
+			try {
+				thread.join();
+				retry = false;
+			} catch (InterruptedException e) {
+			}
+		}
+	}
 
 	class LanderThread extends Thread {
 		private static final byte FLAME_DELAY = 1;
@@ -114,7 +233,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		/*
 		 * State-tracking constants
 		 */
-		public static final int STATE_LOSE = 1, STATE_PAUSE = 2, STATE_READY = 3, STATE_RUNNING = 4, STATE_WIN = 5;
+		public static final int STATE_READY = 1, STATE_RUNNING = 2, STATE_WIN = 3, STATE_LOSE = 4;
 
 		/*
 		 * Goal condition constants
@@ -131,12 +250,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 		private static final String KEY_DX = "mDX", KEY_DY = "mDY", KEY_FUEL = "mFuel", KEY_GOAL_SPEED = "mGoalSpeed", KEY_GOAL_WIDTH = "mGoalWidth", KEY_GOAL_X = "mGoalX",
 				KEY_LANDER_HEIGHT = "mLanderHeight", KEY_LANDER_WIDTH = "mLanderWidth", KEY_X = "mX", KEY_Y = "mY";
-
-		/*
-		 * Member (state) fields
-		 */
-		/** The drawable to use as the background of the animation canvas */
-		//private Bitmap mBackgroundImage;
 
 		/**
 		 * Current height of the surface/canvas.
@@ -199,7 +312,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		/** Paint to draw the landing pad on screen. */
 		private Paint mLandingPad;
 
-		/** The state of the game. One of READY, RUNNING, PAUSE, LOSE, or WIN */
+		/** The state of the game. One of READY, RUNNING, WIN, or LOSE */
 		private int mMode;
 
 		/** Indicate whether the surface has been created & is ready to draw */
@@ -233,60 +346,30 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			mLandingPad.setAntiAlias(false);
 			mLandingPad.setColor(Color.WHITE);
 
-			// initial show-up of lander (not yet playing)
-			mX = mLanderWidth;
-			mY = mLanderHeight * 2;
-			mFuel = fInitFuel;
-			mDX = 0;
-			mDY = 0;
-			mFiringMain = true;
-			mFiringLeft = true;
-			mFiringRight = true;
+			doStart();
 		}
 
 		public void doStart() {
 			synchronized (mSurfaceHolder) {
 				mFuel = fInitFuel;
-				mFiringMain = false;
-				mFiringLeft = false;
-				mFiringRight = false;
 				mGoalWidth = (int) (mLanderWidth + new Random().nextInt(300));
 				mGoalSpeed = TARGET_SPEED;
-				// pick a convenient initial location for the lander sprite
 				mX = mCanvasWidth / 2;
 				mY = mCanvasHeight - mLanderHeight / 2;
 				mDY = 0;
 				mDX = 0;
-				// Figure initial spot for landing, not too near center
-				while (true) {
-					mGoalX = (int) (Math.random() * (mCanvasWidth - mGoalWidth));
-					//if (Math.abs(mGoalX - (mX - mLanderWidth / 2)) > mCanvasHeight / 6)
-					break;
-				}
-				mLastTime = System.currentTimeMillis() + 100;
-				setState(STATE_RUNNING);
+				mGoalX = (int) (Math.random() * (mCanvasWidth - mGoalWidth));
+				//if (Math.abs(mGoalX - (mX - mLanderWidth / 2)) > mCanvasHeight / 6)
 			}
 		}
 
 		public void doRestart() {
 			synchronized (mSurfaceHolder) {
 				mFuel = fInitFuel;
-				mFiringMain = false;
-				mFiringLeft = false;
-				mFiringRight = false;
 				mX = mCanvasWidth / 2;
 				mY = mCanvasHeight - mLanderHeight / 2;
 				mDY = 0;
 				mDX = 0;
-				mLastTime = System.currentTimeMillis() + 100;
-				setState(STATE_RUNNING);
-			}
-		}
-
-		public void pause() {
-			synchronized (mSurfaceHolder) {
-				if (mMode == STATE_RUNNING)
-					setState(STATE_PAUSE);
 			}
 		}
 
@@ -300,10 +383,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		 */
 		public synchronized void restoreState(Bundle savedState) {
 			synchronized (mSurfaceHolder) {
-				setState(STATE_PAUSE);
-				mFiringMain = false;
-				mFiringLeft = false;
-				mFiringRight = false;
 				mX = savedState.getDouble(KEY_X);
 				mY = savedState.getDouble(KEY_Y);
 				mDX = savedState.getDouble(KEY_DX);
@@ -399,8 +478,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		}
 
 		/**
-		 * Sets the game mode. That is, whether we are running, paused, in the
-		 * failure state, in the victory state, etc.
+		 * Sets the game mode. That is, whether we are running,
+		 * in the failure state, in the victory state, etc.
 		 * 
 		 * @see #setState(int, CharSequence)
 		 * @param mode
@@ -413,8 +492,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		}
 
 		/**
-		 * Sets the game mode. That is, whether we are running, paused, in the
-		 * failure state, in the victory state, etc.
+		 * Sets the game mode. That is, whether we are running,
+		 * in the failure state, in the victory state, etc.
 		 * 
 		 * @param mode
 		 *            one of the STATE_* constants
@@ -439,11 +518,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					mFiringLeft = false;
 					mFiringRight = false;
 					CharSequence str = "";
-					if (mMode == STATE_READY)
-						str = res.getText(R.string.mode_ready);
-					else if (mMode == STATE_PAUSE)
-						str = res.getText(R.string.mode_pause);
-					else if (mMode == STATE_LOSE)
+					if (mMode == STATE_LOSE)
 						str = res.getText(R.string.mode_lose);
 					else if (mMode == STATE_WIN)
 						str = res.getString(R.string.mode_win);
@@ -461,15 +536,10 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			synchronized (mSurfaceHolder) {
 				mCanvasWidth = width;
 				mCanvasHeight = height;
+				// Set initial position of lander as soon as canvas size set
+				mX = mCanvasWidth / 2;
+				mY = mCanvasHeight - mLanderHeight / 2;
 			}
-		}
-
-		public void unpause() {
-			// Move the real time clock up to now
-			synchronized (mSurfaceHolder) {
-				mLastTime = System.currentTimeMillis() + 100;
-			}
-			setState(STATE_RUNNING);
 		}
 
 		boolean doBtnTouch(View src, MotionEvent event) {
@@ -505,14 +575,9 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 		boolean doKeyDown(int keyCode, KeyEvent msg) {
 			synchronized (mSurfaceHolder) {
-				boolean okStart = false;
-				if (keyCode == KeyEvent.KEYCODE_SPACE)
-					okStart = true;
-				if (okStart && (mMode == STATE_READY || mMode == STATE_LOSE || mMode == STATE_WIN)) {
-					doStart();
-					return true;
-				} else if (mMode == STATE_PAUSE && okStart) {
-					unpause();
+				if (mMode == STATE_READY & (keyCode == KeyEvent.KEYCODE_DPAD_DOWN | keyCode == KeyEvent.KEYCODE_DPAD_LEFT | keyCode == KeyEvent.KEYCODE_DPAD_RIGHT)) {
+					setState(STATE_RUNNING);
+					mLastTime = System.currentTimeMillis() + 100;
 					return true;
 				} else if (mMode == STATE_RUNNING) {
 					if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
@@ -523,9 +588,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						return true;
 					} else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
 						setFiringRight(true);
-						return true;
-					} else if (keyCode == KeyEvent.KEYCODE_SPACE) {
-						pause();
 						return true;
 					}
 				}
@@ -720,139 +782,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				}
 
 				setState(result, message);
-			}
-		}
-	}
-
-	public LanderView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-
-		// register our interest in hearing about changes to our surface
-		SurfaceHolder holder = getHolder();
-		holder.addCallback(this);
-
-		// create thread only; it's started in surfaceCreated()
-		thread = new LanderThread(holder, context, new Handler() {
-			@Override
-			public void handleMessage(Message m) {
-				if (m.getData().getInt("view") == 1) {
-					mTextAlt.setText(m.getData().getString("text"));
-				} else if (m.getData().getInt("view") == 2) {
-					mTextVelX.setText(m.getData().getString("text"));
-				} else if (m.getData().getInt("view") == 3) {
-					mTextVelY.setText(m.getData().getString("text"));
-				} else if (m.getData().getInt("view") == 4) {
-					mTextFuel.setText(m.getData().getString("text"));
-				} else {
-					mTextStatus.setVisibility(m.getData().getInt("viz"));
-					mTextStatus.setText(m.getData().getString("text"));
-				}
-			}
-		});
-
-		setFocusable(true); // make sure we get key events
-	}
-
-	/**
-	 * Fetches the animation thread corresponding to this LunarView.
-	 * 
-	 * @return the animation thread
-	 */
-	public LanderThread getThread() {
-		return thread;
-	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent msg) {
-		return thread.doKeyDown(keyCode, msg);
-	}
-
-	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent msg) {
-		return thread.doKeyUp(keyCode, msg);
-	}
-
-	/**
-	 * Standard window-focus override. Notice focus lost so we can pause on
-	 * focus lost. e.g. user switches to take a call.
-	 */
-	@Override
-	public void onWindowFocusChanged(boolean hasWindowFocus) {
-		if (!hasWindowFocus)
-			thread.pause();
-	}
-
-	/**
-	 * Installs a pointer to the text view used for messages.
-	 */
-	public void setTextViewMain(TextView textView) {
-		mTextStatus = textView;
-	}
-
-	public void setTextViewAlt(TextView textView) {
-		mTextAlt = textView;
-	}
-
-	public void setTextViewVelX(TextView textView) {
-		mTextVelX = textView;
-	}
-
-	public void setTextViewVelY(TextView textView) {
-		mTextVelY = textView;
-	}
-
-	public void setTextViewFuel(TextView textView) {
-		mTextFuel = textView;
-	}
-
-	public void setButtonThrust(Button btn) {
-		mBtnThrust = btn;
-		btn.setOnTouchListener(this);
-	}
-
-	public void setButtonLeft(Button btn) {
-		mBtnLeft = btn;
-		btn.setOnTouchListener(this);
-	}
-
-	public void setButtonRight(Button btn) {
-		mBtnRight = btn;
-		btn.setOnTouchListener(this);
-	}
-
-	@Override
-	public boolean onTouch(View src, MotionEvent event) {
-		return thread.doBtnTouch(src, event);
-	}
-
-	/* Callback invoked when the surface dimensions change. */
-	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-		thread.setSurfaceSize(width, height);
-	}
-
-	/* Callback invoked when the Surface has been created and is ready to be used. */
-	public void surfaceCreated(SurfaceHolder holder) {
-		// start the thread here so that we don't busy-wait in run()
-		// waiting for the surface to be created
-		thread.setRunning(true);
-		thread.start();
-	}
-
-	/*
-	 * Callback invoked when the Surface has been destroyed and must no longer
-	 * be touched. WARNING: after this method returns, the Surface/Canvas must
-	 * never be touched again!
-	 */
-	public void surfaceDestroyed(SurfaceHolder holder) {
-		// we have to tell thread to shut down & wait for it to finish, or else
-		// it might touch the Surface after we return and explode
-		boolean retry = true;
-		thread.setRunning(false);
-		while (retry) {
-			try {
-				thread.join();
-				retry = false;
-			} catch (InterruptedException e) {
 			}
 		}
 	}
