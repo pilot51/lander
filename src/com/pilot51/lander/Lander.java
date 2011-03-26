@@ -37,12 +37,12 @@ public class Lander extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case MENU_NEW:
+			mLanderThread.byLanderState = LanderThread.LND_NEW;
 			mLanderThread.doStart();
-			mLanderThread.setState(LanderThread.STATE_READY);
 			return true;
 		case MENU_RESTART:
-			mLanderThread.doRestart();
-			mLanderThread.setState(LanderThread.STATE_READY);
+			mLanderThread.byLanderState = LanderThread.LND_RESTART;
+			mLanderThread.doStart();
 			return true;
 		case MENU_OPTIONS:
 			return true;
@@ -73,10 +73,7 @@ public class Lander extends Activity {
 		mLanderView.setButtonLeft((Button) findViewById(R.id.btnLeft));
 		mLanderView.setButtonRight((Button) findViewById(R.id.btnRight));
 
-		if (savedInstanceState == null) {
-			// we were just launched: set up a new game
-			mLanderThread.setState(LanderThread.STATE_READY);
-		} else {
+		if (savedInstanceState != null) {
 			// we are being restored: resume a previous game
 			mLanderThread.restoreState(savedInstanceState);
 		}
