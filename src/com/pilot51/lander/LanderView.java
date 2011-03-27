@@ -1,8 +1,6 @@
 package com.pilot51.lander;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import android.content.Context;
@@ -10,12 +8,12 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -28,10 +26,9 @@ import android.widget.TextView;
 /**
  * View that draws, takes keystrokes, etc. for a simple LunarLander game.
  * 
- * All x/y etc. are measured with (0,0) at the lower left.
- * updatePhysics() advances the physics based on realtime. draw() renders the
- * ship, and does an invalidate() to prompt another draw() as soon as possible
- * by the system.
+ * All x/y etc. are measured with (0,0) at the lower left. updatePhysics()
+ * advances the physics based on realtime. draw() renders the ship, and does an
+ * invalidate() to prompt another draw() as soon as possible by the system.
  */
 class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchListener {
 	/** Handle to the application context, used to e.g. fetch Drawables. */
@@ -42,7 +39,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 	/** The thread that actually draws the animation */
 	private LanderThread thread;
-	
+
 	public LanderView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
@@ -170,7 +167,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		private static final int EXPL_SEQUENCE = 10;
 		/** 50 milliseconds */
 		private static final int UPDATE_TIME = 50;
-		
+
 		private static final int EXP_INTERVAL = 10;
 		private static final int EXP_MAXRADIUS = 100;
 		private static final int MAX_TIMER = 10;
@@ -197,7 +194,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		private static final byte LND_INACTIVE = 12;
 		/** Inactive state: lander not doing anything */
 		private static final byte LND_HOLD = 13;
-		
+
 		/* EndGame states */
 		/** landed safely */
 		private static final byte END_SAFE = 1;
@@ -211,7 +208,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		private static final byte END_OUTOFRANGE = 5;
 		/** about box */
 		private static final byte END_ABOUT = 6;
-		
+
 		/* Defaults */
 		private static final float DEF_GRAVITY = 3f, DEF_FUEL = 1000f, DEF_THRUST = 10000f;
 
@@ -264,7 +261,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 		private Drawable hCrash1, hCrash2, hCrash3;
 		//private Drawable hExpl[EXPL_SEQUENCE];
-		
+
 		private int xGroundZero, yGroundZero;
 		/** Lander window state */
 		protected byte byLanderState;
@@ -275,8 +272,10 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		private DecimalFormat df2 = new DecimalFormat("0.00"); // Fixed to 2 decimal places
 
 		private Resources res;
-		
-		private List<Line> groundPlot, landingPlot;
+
+		private Path path;
+		private Paint paintWhite = new Paint();
+		private LandingPad padCoords = new LandingPad();
 
 		/*
 		 * Physics constants
@@ -331,7 +330,10 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			mLandingPad = new Paint();
 			mLandingPad.setAntiAlias(false);
 			mLandingPad.setColor(Color.WHITE);
-			
+
+			paintWhite.setColor(android.graphics.Color.WHITE);
+			paintWhite.setStyle(Paint.Style.FILL);
+
 			byLanderState = LND_NEW;
 			doStart();
 		}
@@ -396,7 +398,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			}
 			return map;
 		}
-		
+
 		/**
 		 * Restores game state from the indicated Bundle. Typically called when
 		 * the Activity is being restored after having been previously
@@ -452,7 +454,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		public void setRunning(boolean b) {
 			mRun = b;
 		}
-		
+
 		public void endGame() {
 			/*
 			 * This method optionally can cause a text message to be displayed
@@ -610,11 +612,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			int xLeft = (int) LanderX - xLanderPict / 2;
 
 			// Draw the landing pad
-			Line line;
-			for(int i = 0; i < groundPlot.size(); i++) {
-				line = groundPlot.get(i);
-				canvas.drawLine(line.xStart, line.yStart, line.xEnd, line.yEnd, mLandingPad);
-			}
+			canvas.drawPath(path, paintWhite);
 			if (mFiringMain) {
 				int yTopF = yClient - ((int) LanderY - 26 + hBFlamePict.getIntrinsicHeight() / 2);
 				int xLeftF = (int) LanderX - hBFlamePict.getIntrinsicWidth() / 2;
@@ -641,7 +639,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				hLanderPict.draw(canvas);
 			}
 		}
-		
+
 		/**
 		 * Figures the lander state (x, y, fuel, ...) based on the passage of
 		 * realtime. Does not invalidate(). Called at the start of draw().
@@ -658,8 +656,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			}
 			boolean outOfRange = (LanderY - yGroundZero - yLanderPict / 2 > 5000f) || (LanderY < -500f) || (Math.abs(LanderX) > 1000f);
 			if (bTouchDown || outOfRange) {
-				Line pad = landingPlot.get(0);
-				boolean onGoal = pad.xStart <= LanderX - xLanderPict / 2 && LanderX + xLanderPict / 2 <= pad.xEnd;
+				boolean onGoal = padCoords.xStart <= LanderX - xLanderPict / 2 && LanderX + xLanderPict / 2 <= padCoords.xEnd;
 				if (outOfRange)
 					byEndGameState = END_OUTOFRANGE;
 				else if (!onGoal)
@@ -674,7 +671,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				endGame();
 			}
 		}
-		
+
 		private void LanderMotion() {
 			dt = 0.1f;
 			float fMass, fBurn;
@@ -705,24 +702,28 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			LanderY = LanderY + (LanderVy * dt);
 			LanderX = LanderX + (LanderVx * dt);
 		}
-		
-		/** number of points across including two end-points (must be greater than one). */
+
+		/**
+		 * number of points across including two end-points (must be greater
+		 * than one).
+		 */
 		private static final int CRG_POINTS = 31;
 		/** maximum y-variation of terrain */
 		private static final int CRG_STEEPNESS = 25;
-		
+
 		void createGround() {
-			groundPlot = new ArrayList<Line>();
-			landingPlot = new ArrayList<Line>();
+			path = new Path();
+			path.setFillType(Path.FillType.EVEN_ODD);
 			/** Maximum height of terrain. (less than ySize) */
 			int nMaxHeight = 120;
 			/** size of landing pad in points. (less than CRG_POINTS) */
 			int nPadSize = 4;
-			int newX, newY = 0, oldX = 0, oldY = yClient - 20 - new Random().nextInt(nMaxHeight), nDy, mctySize = yClient - 20;
-			int nLandingStart = new Random().nextInt(CRG_POINTS - nPadSize) + 1;
 			int nInc = xClient / (CRG_POINTS - 1);
 			int nIncExtra = xClient % (CRG_POINTS - 1);
-			oldX = (-1 * nInc) + ((-1 * nIncExtra) / (CRG_POINTS - 1));
+			int newX = 0, newY = 0, oldX = (-1 * nInc) + ((-1 * nIncExtra) / (CRG_POINTS - 1)), oldY = yClient - 20 - new Random().nextInt(nMaxHeight), nDy, mctySize = yClient - 20;
+			int firstX = oldX, firstY = oldY;
+			int nLandingStart = new Random().nextInt(CRG_POINTS - nPadSize) + 1;
+			path.moveTo(firstX, firstY);
 			for (int i = 1; i <= CRG_POINTS; i++) {
 				newX = ((i - 1) * nInc) + (((i - 1) * nIncExtra) / (CRG_POINTS - 1));
 				if ((i < nLandingStart) || (i >= (nLandingStart + nPadSize))) {
@@ -731,37 +732,31 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						newY = oldY + nDy;
 					else
 						newY = oldY - nDy;
+					path.lineTo(newX, newY);
 				} else if (i == nLandingStart) {
 					yGroundZero = yClient - oldY;
-					Line line = new Line();
-					line.xStart = oldX;
-					line.yStart = oldY;
-					line.xEnd = oldX + (nInc * nPadSize);
-					line.yEnd = oldY;
-					//Log.d("Lander", line.toString());
-					landingPlot.add(line);
+					path.lineTo(oldX + (nInc * nPadSize), oldY);
+					padCoords.xStart = oldX;
+					padCoords.yStart = oldY;
+					padCoords.xEnd = oldX + (nInc * nPadSize);
+					padCoords.yEnd = oldY;
 				}
-				Line line = new Line();
-				line.xStart = oldX;
-				line.yStart = oldY;
-				line.xEnd = newX;
-				line.yEnd = newY;
-				groundPlot.add(line);
 				oldX = newX;
 				oldY = newY;
 			}
+			path.lineTo(newX, yClient);
+			path.lineTo(firstX, yClient);
+			path.lineTo(firstX, firstY);
+			path.close();
 		}
 	}
-	
-	class Line {
-		private int xStart, yStart, xEnd, yEnd, yStartPos, yEndPos;
+
+	class LandingPad {
+		private int xStart, yStart, xEnd, yEnd;
+
 		@Override
 		public String toString() {
 			return "xStart: " + xStart + " | yStart: " + yStart + " | xEnd: " + xEnd + " | yEnd: " + yEnd;
-		}
-		public void translateY(int yScreen) {
-			yStartPos = yScreen - yStart;
-			yEndPos = yScreen - yEnd;
 		}
 	}
 }
