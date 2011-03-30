@@ -297,17 +297,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		private LandingPad padCoords = new LandingPad();
 		private ArrayList<Point> groundPlot;
 
-		private static final String
-			KEY_STATE = "byLanderState",
-			KEY_END_STATE = "byEndGameState",
-			KEY_DX = "landerVx",
-			KEY_DY = "landerVy",
-			KEY_LANDER_HEIGHT = "yLanderPict",
-			KEY_LANDER_WIDTH = "xLanderPict",
-			KEY_X = "landerX",
-			KEY_Y = "landerY",
-			KEY_FUEL = "fFuel";
-
 		private boolean mFiringMain;
 		private boolean mFiringLeft;
 		private boolean mFiringRight;
@@ -378,51 +367,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						mSurfaceHolder.unlockCanvasAndPost(c);
 					}
 				}
-			}
-		}
-
-		/**
-		 * Dump game state to the provided Bundle. Typically called when the
-		 * Activity is being suspended.
-		 * 
-		 * @return Bundle with this view's state
-		 */
-		public Bundle saveState(Bundle map) {
-			synchronized (mSurfaceHolder) {
-				if (map != null) {
-					map.putByte(KEY_STATE, Byte.valueOf(byLanderState));
-					map.putByte(KEY_END_STATE, Byte.valueOf(byEndGameState));
-					map.putFloat(KEY_X, Float.valueOf(landerX));
-					map.putFloat(KEY_Y, Float.valueOf(landerY));
-					map.putFloat(KEY_DX, Float.valueOf(landerVx));
-					map.putFloat(KEY_DY, Float.valueOf(landerVy));
-					map.putInt(KEY_LANDER_WIDTH, Integer.valueOf(xLanderPict));
-					map.putInt(KEY_LANDER_HEIGHT, Integer.valueOf(yLanderPict));
-					map.putFloat(KEY_FUEL, Float.valueOf(fFuel));
-				}
-			}
-			return map;
-		}
-
-		/**
-		 * Restores game state from the indicated Bundle. Typically called when
-		 * the Activity is being restored after having been previously
-		 * destroyed.
-		 * 
-		 * @param savedState
-		 *            Bundle containing the game state
-		 */
-		public synchronized void restoreState(Bundle savedState) {
-			synchronized (mSurfaceHolder) {
-				byLanderState = savedState.getByte(KEY_STATE);
-				byEndGameState = savedState.getByte(KEY_END_STATE);
-				landerX = savedState.getFloat(KEY_X);
-				landerY = savedState.getFloat(KEY_Y);
-				landerVx = savedState.getFloat(KEY_DX);
-				landerVy = savedState.getFloat(KEY_DY);
-				xLanderPict = savedState.getInt(KEY_LANDER_WIDTH);
-				yLanderPict = savedState.getInt(KEY_LANDER_HEIGHT);
-				fFuel = savedState.getFloat(KEY_FUEL);
 			}
 		}
 
