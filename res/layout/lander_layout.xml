@@ -85,14 +85,5 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@+id/btnRight"
 			android:background="@drawable/btn_thrust" android:layout_marginRight="24px"/>
-		<TextView
-			android:id="@+id/text"
-			android:visibility="visible"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_centerInParent="true"
-			android:gravity="center_horizontal"
-			android:textColor="#88ffffff"
-			android:textSize="24sp" />
 	</RelativeLayout>
 </FrameLayout>

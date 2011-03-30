@@ -12,7 +12,7 @@
 	<string name="end_crashv3">You just dug a hole half way to Clavius.</string>
 	<string name="end_crashh">Too much horizontal velocity. Your horizontal motion must be less than 1 m/sec.</string>
 	<string name="end_crashs">Missed the landing site. You must land on flat terrain.</string>
-	<string name="end_outofrange">You are out of range of the command module and presumed lost.</string>
+	<string name="end_outofrange">Lander Lost!\nYou are out of range of the command module and presumed lost.</string>
 	<string name="hud_alt">Altitude</string>
 	<string name="hud_velx">Velocity X</string>
 	<string name="hud_vely">Velocity Y</string>

@@ -4,7 +4,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -25,13 +27,22 @@ import android.widget.Button;
 import android.widget.TextView;
 
 class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchListener {
-	private TextView mTextStatus, mTextAlt, mTextVelX, mTextVelY, mTextFuel;
+	private static final int
+		HANDLE_ALT = 1,
+		HANDLE_VELX = 2,
+		HANDLE_VELY = 3,
+		HANDLE_FUEL = 4,
+		HANDLE_DIALOG = 5,
+		HANDLE_THRUST = 6,
+		HANDLE_LEFT = 7,
+		HANDLE_RIGHT = 8;
+	private TextView mTextAlt, mTextVelX, mTextVelY, mTextFuel;
 	private Button mBtnThrust, mBtnLeft, mBtnRight;
 
 	/** The thread that actually draws the animation */
 	private LanderThread thread;
 
-	public LanderView(Context context, AttributeSet attrs) {
+	public LanderView(final Context context, AttributeSet attrs) {
 		super(context, attrs);
 
 		// register our interest in hearing about changes to our surface
@@ -42,17 +53,36 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		thread = new LanderThread(holder, context, new Handler() {
 			@Override
 			public void handleMessage(Message m) {
-				if (m.getData().getInt("view") == 1) {
-					mTextAlt.setText(m.getData().getString("text"));
-				} else if (m.getData().getInt("view") == 2) {
-					mTextVelX.setText(m.getData().getString("text"));
-				} else if (m.getData().getInt("view") == 3) {
-					mTextVelY.setText(m.getData().getString("text"));
-				} else if (m.getData().getInt("view") == 4) {
-					mTextFuel.setText(m.getData().getString("text"));
-				} else {
-					mTextStatus.setVisibility(m.getData().getInt("viz"));
-					mTextStatus.setText(m.getData().getString("text"));
+				Bundle data = m.getData();
+				int id = data.getInt("id");
+				if (id == HANDLE_ALT) {
+					mTextAlt.setText(data.getString("text"));
+				} else if (id == HANDLE_VELX) {
+					mTextVelX.setText(data.getString("text"));
+				} else if (id == HANDLE_VELY) {
+					mTextVelY.setText(data.getString("text"));
+				} else if (id == HANDLE_FUEL) {
+					mTextFuel.setText(data.getString("text"));
+				} else if (id == HANDLE_DIALOG) {
+					String msg = data.getString("text"),
+						title = msg.substring(0, msg.indexOf("\n")),
+						message = msg.substring(msg.indexOf("\n") + 1, msg.length());
+					new AlertDialog.Builder(context)
+						.setIcon(getResources().getDrawable(R.drawable.icon))
+						.setTitle(title)
+						.setMessage(message)
+						.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+				            public void onClick(DialogInterface dialog, int which) {
+				            	dialog.cancel();
+				            }})
+						.create()
+						.show();
+				} else if (id == HANDLE_THRUST) {
+					mBtnThrust.setPressed(data.getBoolean("pressed"));
+				} else if (id == HANDLE_LEFT) {
+					mBtnLeft.setPressed(data.getBoolean("pressed"));
+				} else if (id == HANDLE_RIGHT) {
+					mBtnRight.setPressed(data.getBoolean("pressed"));
 				}
 			}
 		});
@@ -76,10 +106,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent msg) {
 		return thread.doKeyUp(keyCode, msg);
-	}
-
-	public void setTextViewMain(TextView textView) {
-		mTextStatus = textView;
 	}
 
 	public void setTextViewAlt(TextView textView) {
@@ -158,10 +184,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		/** 50 milliseconds */
 		private static final int UPDATE_TIME = 50;
 
-		private static final int EXP_INTERVAL = 10;
-		private static final int EXP_MAXRADIUS = 100;
-		private static final int MAX_TIMER = 10;
-
 		/** New: begin new game */
 		protected static final byte LND_NEW = 1;
 		/** Timing: timing loop to determine time interval */
@@ -181,7 +203,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		/** Out of range: lander out of bounds */
 		private static final byte LND_OUTOFRANGE = 11;
 		/** Inactive state: lander on the ground */
-		private static final byte LND_INACTIVE = 12;
+		protected static final byte LND_INACTIVE = 12;
 		/** Inactive state: lander not doing anything */
 		private static final byte LND_HOLD = 13;
 
@@ -224,14 +246,16 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		/** Fuel in kilograms */
 		private float fFuel;
 
-		/** Lander position in meters */
+		/**
+		 * Lander position in meters
+		 * @param landerY
+		 * 		altitude
+		 */
 		private float landerX, landerY;
 		/** Lander velocity in meters/sec */
 		private float landerVx, landerVy;
 		/** time increment in seconds */
 		private float dt = 0.5f;
-		/** Elapsed time */
-		private float t;
 
 		/* Other variables */
 		/** reverse side thrust buttons */
@@ -250,6 +274,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		private int xLanderPict, yLanderPict;
 
 		private Drawable hCrash1, hCrash2, hCrash3;
+		private Drawable[] hExpl;
 		//private Drawable hExpl[EXPL_SEQUENCE];
 
 		private int xGroundZero, yGroundZero;
@@ -258,11 +283,15 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		/** EndGame dialog state */
 		private byte byEndGameState;
 		private byte nExplCount;
-
+		
+		private int nFlameCount = FLAME_DELAY;
+		private int nCount = 0;
+		private long lastUpdate, lastDraw;
+		
 		private DecimalFormat df2 = new DecimalFormat("0.00"); // Fixed to 2 decimal places
 
 		private Resources res;
-
+		private Drawable landerPict;
 		private Path path;
 		private Paint paintWhite = new Paint();
 		private LandingPad padCoords = new LandingPad();
@@ -286,9 +315,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		/** Message handler used by thread to interact with TextView */
 		private Handler mHandler;
 
-		/** Paint to draw the landing pad on screen. */
-		private Paint mLandingPad;
-
 		/** Indicate whether the surface has been created & is ready to draw */
 		private boolean mRun = false;
 
@@ -304,36 +330,28 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			hBFlamePict = res.getDrawable(R.drawable.bflame);
 			hLFlamePict = res.getDrawable(R.drawable.lflame);
 			hRFlamePict = res.getDrawable(R.drawable.rflame);
+			hCrash1 = res.getDrawable(R.drawable.crash1);
+			hCrash2 = res.getDrawable(R.drawable.crash2);
 			hCrash3 = res.getDrawable(R.drawable.crash3);
+			hExpl = new Drawable[] {res.getDrawable(R.drawable.expl1),
+					res.getDrawable(R.drawable.expl2),
+					res.getDrawable(R.drawable.expl3),
+					res.getDrawable(R.drawable.expl4),
+					res.getDrawable(R.drawable.expl5),
+					res.getDrawable(R.drawable.expl6),
+					res.getDrawable(R.drawable.expl7),
+					res.getDrawable(R.drawable.expl8),
+					res.getDrawable(R.drawable.expl9),
+					res.getDrawable(R.drawable.expl10)};
+			landerPict = hLanderPict;
 
 			xLanderPict = hLanderPict.getIntrinsicWidth();
 			yLanderPict = hLanderPict.getIntrinsicHeight();
-
-			mLandingPad = new Paint();
-			mLandingPad.setAntiAlias(false);
-			mLandingPad.setColor(Color.WHITE);
 
 			paintWhite.setColor(Color.WHITE);
 			paintWhite.setStyle(Paint.Style.FILL);
 
 			byLanderState = LND_NEW;
-			doStart();
-		}
-
-		public void doStart() {
-			synchronized (mSurfaceHolder) {
-				fFuel = fInitFuel;
-				landerX = xClient / 2;
-				landerY = invertY(yLanderPict / 2);
-				landerVy = 0;
-				landerVx = 0;
-				if (byLanderState == LND_NEW) {
-					createGround();
-				}
-				byLanderState = LND_HOLD;
-				byEndGameState = 0;
-				setScreenText(0, "", View.INVISIBLE);
-			}
 		}
 
 		@Override
@@ -343,8 +361,13 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				try {
 					c = mSurfaceHolder.lockCanvas(null);
 					synchronized (mSurfaceHolder) {
-						if (byLanderState == LND_ACTIVE)
-							updatePhysics();
+						//if (byLanderState == LND_ACTIVE)
+						//	updatePhysics();
+						long now = System.currentTimeMillis();
+						if (now - lastUpdate >= UPDATE_TIME) {
+							updateLander();
+							lastUpdate = now;
+						}
 						doDraw(c);
 					}
 				} finally {
@@ -403,25 +426,34 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			}
 		}
 
-		private void setFiringMain(boolean firing) {
+		private void setFiringThrust(boolean firing) {
 			synchronized (mSurfaceHolder) {
 				mFiringMain = firing;
-				mBtnThrust.setPressed(firing);
+				setBtnState(HANDLE_THRUST, firing);
 			}
 		}
 
 		private void setFiringLeft(boolean firing) {
 			synchronized (mSurfaceHolder) {
 				mFiringLeft = firing;
-				mBtnLeft.setPressed(firing);
+				setBtnState(HANDLE_LEFT, firing);
 			}
 		}
 
 		private void setFiringRight(boolean firing) {
 			synchronized (mSurfaceHolder) {
 				mFiringRight = firing;
-				mBtnRight.setPressed(firing);
+				setBtnState(HANDLE_RIGHT, firing);
 			}
+		}
+		
+		private void setBtnState(int handleId, boolean pressed) {
+			Message msg = mHandler.obtainMessage();
+			Bundle b = new Bundle();
+			b.putInt("id", handleId);
+			b.putBoolean("pressed", pressed);
+			msg.setData(b);
+			mHandler.sendMessage(msg);
 		}
 
 		/**
@@ -437,51 +469,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			mRun = b;
 		}
 
-		private void endGame() {
-			/*
-			 * This method optionally can cause a text message to be displayed
-			 * to the user when the mode changes. Since the View that actually
-			 * renders that text is part of the main View hierarchy and not
-			 * owned by this thread, we can't touch the state of that View.
-			 * Instead we use a Message + Handler to relay commands to the main
-			 * thread, which updates the user-text View.
-			 */
-			synchronized (mSurfaceHolder) {
-				mFiringMain = false;
-				mFiringLeft = false;
-				mFiringRight = false;
-				String str = res.getString(R.string.end_crash) + "\n";
-				switch (byEndGameState) {
-				case END_CRASHV:
-					switch (new Random().nextInt(3)) {
-					case 0:
-						str += res.getString(R.string.end_crashv1);
-						break;
-					case 1:
-						str += res.getString(R.string.end_crashv2);
-						break;
-					case 2:
-						str += res.getString(R.string.end_crashv3);
-						break;
-					}
-					break;
-				case END_CRASHH:
-					str += res.getString(R.string.end_crashh);
-					break;
-				case END_CRASHS:
-					str += res.getString(R.string.end_crashs);
-					break;
-				case END_OUTOFRANGE:
-					str = res.getString(R.string.end_outofrange);
-					break;
-				case END_SAFE:
-					str = res.getString(R.string.end_safe);
-					break;
-				}
-				setScreenText(0, str.toString(), View.VISIBLE);
-			}
-		}
-
 		/* Callback invoked when the surface dimensions change. */
 		private void setSurfaceSize(int width, int height) {
 			// synchronized to make sure these all change atomically
@@ -490,7 +477,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				yClient = height;
 				// Set initial position of lander as soon as canvas size set
 				landerX = xClient / 2;
-				landerY = yClient - yLanderPict / 2;
+				landerY = invertY(yLanderPict);
 				createGround();
 			}
 		}
@@ -503,7 +490,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				if (byLanderState == LND_ACTIVE) {
 					if (event.getAction() == MotionEvent.ACTION_DOWN) {
 						if (src == mBtnThrust) {
-							setFiringMain(true);
+							setFiringThrust(true);
 							return true;
 						} else if (src == mBtnLeft) {
 							setFiringLeft(true);
@@ -514,7 +501,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						}
 					} else if (event.getAction() == MotionEvent.ACTION_UP) {
 						if (src == mBtnThrust) {
-							setFiringMain(false);
+							setFiringThrust(false);
 							return true;
 						} else if (src == mBtnLeft) {
 							setFiringLeft(false);
@@ -533,7 +520,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			synchronized (mSurfaceHolder) {
 				if (byLanderState == LND_ACTIVE) {
 					if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-						setFiringMain(true);
+						setFiringThrust(true);
 						return true;
 					} else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
 						setFiringLeft(true);
@@ -554,7 +541,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					return true;
 				} else if (byLanderState == LND_ACTIVE) {
 					if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-						setFiringMain(false);
+						setFiringThrust(false);
 						return true;
 					} else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
 						setFiringLeft(false);
@@ -567,15 +554,61 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				return false;
 			}
 		}
-
-		private void setScreenText(int view, String text, int viz) {
+		
+		private void endGameDialog() {
+			synchronized (mSurfaceHolder) {
+				setFiringThrust(false);
+				setFiringLeft(false);
+				setFiringRight(false);
+				String msg = res.getString(R.string.end_crash) + "\n";
+				switch (byEndGameState) {
+				case END_SAFE:
+					msg = res.getString(R.string.end_safe);
+					break;
+				case END_CRASHV:
+					switch (new Random().nextInt(3)) {
+					case 0:
+						msg += res.getString(R.string.end_crashv1);
+						break;
+					case 1:
+						msg += res.getString(R.string.end_crashv2);
+						break;
+					case 2:
+						msg += res.getString(R.string.end_crashv3);
+						break;
+					}
+					break;
+				case END_CRASHH:
+					msg += res.getString(R.string.end_crashh);
+					break;
+				case END_CRASHS:
+					msg += res.getString(R.string.end_crashs);
+					break;
+				case END_OUTOFRANGE:
+					msg = res.getString(R.string.end_outofrange);
+					break;
+				}
+				setScreenText(HANDLE_DIALOG, msg);
+			}
+		}
+		
+		private void setScreenText(int handleId, String text) {
 			Message msg = mHandler.obtainMessage();
 			Bundle b = new Bundle();
-			b.putInt("view", view);
+			b.putInt("id", handleId);
 			b.putString("text", text);
-			b.putInt("viz", viz);
 			msg.setData(b);
 			mHandler.sendMessage(msg);
+		}
+		
+		private void drawStatus(boolean bOverride) {
+			if ((nCount >= STATUS_DELAY) | bOverride) {
+				setScreenText(HANDLE_ALT, df2.format(landerY - yGroundZero));
+				setScreenText(HANDLE_VELX, df2.format(landerVx));
+				setScreenText(HANDLE_VELY, df2.format(landerVy));
+				setScreenText(HANDLE_FUEL, df2.format(fFuel));
+				nCount = 0;
+			} else nCount++;
 		}
 
 		private void doDraw(Canvas canvas) {
@@ -583,77 +616,48 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			// so this is like clearing the screen.
 			canvas.drawColor(Color.BLACK);
 
-			setScreenText(1, df2.format(landerY - yGroundZero - yLanderPict / 2), 0);
-			setScreenText(2, df2.format(landerVx), 0);
-			setScreenText(3, df2.format(landerVy), 0);
-			setScreenText(4, df2.format(fFuel), 0);
+			xLanderPict = landerPict.getIntrinsicWidth();
+			yLanderPict = landerPict.getIntrinsicHeight();
 
-			int yTop = invertY((int)landerY + yLanderPict / 2);
+			int yTop = invertY((int)landerY + yLanderPict);
 			int xLeft = (int)landerX - xLanderPict / 2;
 
 			// Draw the landing pad
 			canvas.drawPath(path, paintWhite);
-			int yTopF, xLeftF;
-			if (mFiringMain) {
-				yTopF = invertY((int)landerY - 26 + hBFlamePict.getIntrinsicHeight() / 2);
-				xLeftF = (int)landerX - hBFlamePict.getIntrinsicWidth() / 2;
-				hBFlamePict.setBounds(xLeftF, yTopF, xLeftF + hBFlamePict.getIntrinsicWidth(), yTopF + hBFlamePict.getIntrinsicHeight());
-				hBFlamePict.draw(canvas);
+			if (nFlameCount == 0 & bDrawFlame & fFuel > 0f & byLanderState == LND_ACTIVE) {
+				int yTopF, xLeftF;
+				if (mFiringMain) {
+					yTopF = invertY((int)landerY - 11 + hBFlamePict.getIntrinsicHeight() / 2);
+					xLeftF = (int)landerX - hBFlamePict.getIntrinsicWidth() / 2;
+					hBFlamePict.setBounds(xLeftF, yTopF, xLeftF + hBFlamePict.getIntrinsicWidth(), yTopF + hBFlamePict.getIntrinsicHeight());
+					hBFlamePict.draw(canvas);
+				}
+				if (mFiringLeft) {
+					yTopF = invertY((int)landerY + 21 + hLFlamePict.getIntrinsicHeight() / 2);
+					xLeftF = (int)landerX - 27 - hLFlamePict.getIntrinsicWidth() / 2;
+					hLFlamePict.setBounds(xLeftF, yTopF, xLeftF + hLFlamePict.getIntrinsicWidth(), yTopF + hLFlamePict.getIntrinsicHeight());
+					hLFlamePict.draw(canvas);
+				}
+				if (mFiringRight) {
+					yTopF = invertY((int)landerY + 21 + hRFlamePict.getIntrinsicHeight() / 2);
+					xLeftF = (int)landerX + 27 - hRFlamePict.getIntrinsicWidth() / 2;
+					hRFlamePict.setBounds(xLeftF, yTopF, xLeftF + hRFlamePict.getIntrinsicWidth(), yTopF + hRFlamePict.getIntrinsicHeight());
+					hRFlamePict.draw(canvas);
+				}
 			}
-			if (mFiringLeft) {
-				yTopF = invertY((int)landerY + 6 + hLFlamePict.getIntrinsicHeight() / 2);
-				xLeftF = (int)landerX - 27 - hLFlamePict.getIntrinsicWidth() / 2;
-				hLFlamePict.setBounds(xLeftF, yTopF, xLeftF + hLFlamePict.getIntrinsicWidth(), yTopF + hLFlamePict.getIntrinsicHeight());
-				hLFlamePict.draw(canvas);
+			long now = System.currentTimeMillis();
+			if (now - lastDraw >= UPDATE_TIME) {
+				if (nFlameCount == 0) nFlameCount = FLAME_DELAY;
+				else nFlameCount--;
+				lastDraw = now;
 			}
-			if (mFiringRight) {
-				yTopF = invertY((int)landerY + 6 + hRFlamePict.getIntrinsicHeight() / 2);
-				xLeftF = (int)landerX + 27 - hRFlamePict.getIntrinsicWidth() / 2;
-				hRFlamePict.setBounds(xLeftF, yTopF, xLeftF + hRFlamePict.getIntrinsicWidth(), yTopF + hRFlamePict.getIntrinsicHeight());
-				hRFlamePict.draw(canvas);
-			}
-			if (byEndGameState == END_CRASHV || byEndGameState == END_CRASHH || byEndGameState == END_CRASHS) {
-				hCrash3.setBounds(xLeft, yTop, xLeft + xLanderPict, yTop + yLanderPict);
-				hCrash3.draw(canvas);
-			} else {
-				hLanderPict.setBounds(xLeft, yTop, xLeft + xLanderPict, yTop + yLanderPict);
-				hLanderPict.draw(canvas);
-			}
+			
+			landerPict.setBounds(xLeft, yTop, xLeft + xLanderPict, yTop + yLanderPict);
+			landerPict.draw(canvas);
 		}
 
-		private void updatePhysics() {
-			LanderMotion();
-			boolean bTouchDown = false;
-			for(int i = 0; i < groundPlot.size(); i++) {
-				Point point = groundPlot.get(i);
-				if (landerX - xLanderPict / 2 <= point.x & landerX + xLanderPict / 2 >= point.x) {
-					if (landerY <= invertY(point.y) + yLanderPict / 2) {
-						landerY = invertY(point.y) + yLanderPict / 2;
-						byLanderState = LND_ENDGAME;
-						bTouchDown = true;
-					}
-				} else if (landerX + xLanderPict / 2 < point.x) break;
-			}
-			boolean outOfRange = (landerY - yGroundZero - yLanderPict / 2 > 5000f) || (landerY < -500f) || (Math.abs(landerX) > 1000f);
-			if (bTouchDown || outOfRange) {
-				boolean onGoal = padCoords.xStart <= landerX - xLanderPict / 2 && landerX + xLanderPict / 2 <= padCoords.xEnd;
-				if (outOfRange)
-					byEndGameState = END_OUTOFRANGE;
-				else if (!onGoal)
-					byEndGameState = END_CRASHS;
-				else if (Math.abs(landerVy) > fMaxLandingY)
-					byEndGameState = END_CRASHV;
-				else if (Math.abs(landerVx) > fMaxLandingX)
-					byEndGameState = END_CRASHH;
-				else
-					byEndGameState = END_SAFE;
-				byLanderState = LND_INACTIVE;
-				endGame();
-			}
-		}
-
-		private void LanderMotion() {
-			dt = 0.1f;
+		private void landerMotion() {
+			//dt = 0.1f;
 			float fMass, fBurn;
 			float dVx, dVy;
 			fMass = fLanderMass + fFuel;
@@ -682,17 +686,170 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			landerY = landerY + (landerVy * dt);
 			landerX = landerX + (landerVx * dt);
 		}
+		
+		private static final int MAX_TIMER = 10;
+		
+		private void updateLander() {
+			boolean bTouchDown = false;
+			for(int i = 0; i < groundPlot.size(); i++) {
+				Point point = groundPlot.get(i);
+				if (landerX - xLanderPict / 2 <= point.x & landerX + xLanderPict / 2 >= point.x) {
+					if (landerY <= invertY(point.y)) {
+						landerY = invertY(point.y);
+						bTouchDown = true;
+					}
+				} else if (landerX + xLanderPict / 2 < point.x) break;
+			}
+			int x = 0, y = 0, z;
+			int nTimerLoop = 0;
+			long dwTickCount = 0;
+			boolean bTimed = false;
+			switch (byLanderState) {
+				case LND_NEW:
+					fFuel = fInitFuel;
+					//landerX = 0f;
+					landerX = xClient / 2;
+					//landerY = 1000f;
+					landerY = invertY(yLanderPict);
+					landerVx = 0f;
+					landerVy = 0f;
+					xGroundZero = xClient / 2;
+					yGroundZero = yClient - 100;
+					createGround();
+					landerPict = hLanderPict;
+					if (!bTimed) {
+						nTimerLoop = 0;
+						dwTickCount = System.currentTimeMillis();
+						byLanderState = LND_TIMING;
+					} else {
+						drawStatus(false);
+						byLanderState = LND_HOLD;
+					}
+					drawStatus(true);
+					byLanderState = LND_HOLD;
+					break;
+				case LND_TIMING:
+					drawStatus(false);
+					nTimerLoop++;
+					if (nTimerLoop == MAX_TIMER) {
+						dt = (float)(7.5 * (System.currentTimeMillis() - dwTickCount) / (1000 * nTimerLoop));
+						bTimed = true;
+						byLanderState = LND_HOLD;
+					}
+					break;
+				case LND_RESTART:
+					fFuel = fInitFuel;
+					//landerX = 0f;
+					landerX = xClient / 2;
+					//landerY = 1000f;
+					landerY = invertY(yLanderPict);
+					landerVx = 0f;
+					landerVy = 0f;
+					landerPict = hLanderPict;
+					byLanderState = LND_HOLD;
+					break;
+				case LND_HOLD:
+					break;
+				case LND_ACTIVE:
+					landerMotion();
+					drawStatus(false);
+					if (bTouchDown) {
+						drawStatus(true);
+						byLanderState = LND_ENDGAME;
+					} else if ((landerY > 5000f)
+						|| (landerY < -500f)
+						|| (Math.abs(landerX) > 1000f)) {
+						byLanderState = LND_OUTOFRANGE;
+						drawStatus(true);
+					}
+					break;
+				case LND_OUTOFRANGE:
+					setFiringThrust(false);
+					setFiringLeft(false);
+					setFiringRight(false);
+					byEndGameState = END_OUTOFRANGE;
+					byLanderState = LND_INACTIVE;
+					endGameDialog();
+					break;
+				case LND_ENDGAME:
+					x = xGroundZero + (int)(xGroundZero * (landerX / 600));
+					y = yGroundZero - (int)(yGroundZero * (landerY / 1200));
+					if (/*PtInRegion (hTerrainRgn, x + (xLanderPict / 2), y + yLanderPict)
+						 && PtInRegion (hTerrainRgn, x, y + yLanderPict)
+						 && PtInRegion (hTerrainRgn, x + xLanderPict, y + yLanderPict)
+						 &&*/padCoords.xStart <= landerX - xLanderPict / 2
+						 && landerX + xLanderPict / 2 <= padCoords.xEnd
+						 && (Math.abs(landerVy) <= fMaxLandingY)
+						 && (Math.abs(landerVx) <= fMaxLandingX)) {
+						byLanderState = LND_SAFE;
+					} else {
+						byLanderState = LND_CRASH1;
+					}
+					break;
+				case LND_SAFE:
+					setFiringThrust(false);
+					setFiringLeft(false);
+					setFiringRight(false);
+					byEndGameState = END_SAFE;
+					byLanderState = LND_INACTIVE;
+					endGameDialog();
+					break;
+				case LND_CRASH1:
+					while ((y < yClient)/* && (!PtInRegion (hTerrainRgn, x + (xLanderPict /2), y + yLanderPict))*/) {
+						y++;
+					}
+					landerPict = hCrash1;
+					byLanderState = LND_CRASH2;
+					break;
+				case LND_CRASH2:
+					landerPict = hCrash2;
+					byLanderState = LND_CRASH3;
+					break;
+				case LND_CRASH3:
+					landerPict = hCrash3;
+					nExplCount = 0;
+					byLanderState = LND_EXPLODE;
+					break;
+				case LND_EXPLODE:
+					z = y - 34;
+					if (nExplCount < 2*EXPL_SEQUENCE) {
+						landerPict = hExpl[nExplCount/2];
+						nExplCount++;
+					} else if (nExplCount < 2*(EXPL_SEQUENCE+6)) {
+						if (nExplCount % 2 == 0) {
+							landerPict = hExpl[9];
+						} else {
+							landerPict = hExpl[8];
+						}
+						nExplCount++;
+					} else {
+						landerPict = hCrash3;
+						setFiringThrust(false);
+						setFiringLeft(false);
+						setFiringRight(false);
+						if (Math.abs(landerVy) > fMaxLandingY)
+							byEndGameState = END_CRASHV;
+						else if (Math.abs(landerVx) > fMaxLandingX)
+							byEndGameState = END_CRASHH;
+						else byEndGameState = END_CRASHS;
+						byLanderState = LND_INACTIVE;
+						endGameDialog();
+					}
+					break;
+				case LND_INACTIVE:
+					break;
+			}
+		}
 
-		/**
-		 * number of points across including two end-points (must be greater
-		 * than one).
-		 */
+		/** number of points across including two end-points (must be greater than one). */
 		private static final int CRG_POINTS = 31;
 		/** maximum y-variation of terrain */
 		private static final int CRG_STEEPNESS = 25;
 		
 		private void createGround() {
+			/** size of landing pad in points. (less than CRG_POINTS) */
 			int nPadSize = 4;
+			/** Maximum height of terrain. (less than ySize) */
 			int nMaxHeight = 120;
 			/** point at which landing pad starts */
 			int nLandingStart;

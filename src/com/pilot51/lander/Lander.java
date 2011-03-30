@@ -38,15 +38,20 @@ public class Lander extends Activity {
 		switch (item.getItemId()) {
 		case MENU_NEW:
 			mLanderThread.byLanderState = LanderThread.LND_NEW;
-			mLanderThread.doStart();
 			return true;
 		case MENU_RESTART:
 			mLanderThread.byLanderState = LanderThread.LND_RESTART;
-			mLanderThread.doStart();
 			return true;
 		case MENU_OPTIONS:
+			mLanderThread.byLanderState = LanderThread.LND_INACTIVE;
+			//OptionsDialog (hWnd);
+			mLanderThread.byLanderState = LanderThread.LND_RESTART;
 			return true;
 		case MENU_ABOUT:
+			byte byOldState = mLanderThread.byLanderState;
+			mLanderThread.byLanderState = LanderThread.LND_INACTIVE;
+			//AboutDialog (hWnd);
+			mLanderThread.byLanderState = byOldState;
 			return true;
 		}
 		return false;
@@ -64,7 +69,6 @@ public class Lander extends Activity {
 		mLanderView = (LanderView) findViewById(R.id.lander);
 		mLanderThread = mLanderView.getThread();
 
-		mLanderView.setTextViewMain((TextView) findViewById(R.id.text));
 		mLanderView.setTextViewAlt((TextView) findViewById(R.id.valueAlt));
 		mLanderView.setTextViewVelX((TextView) findViewById(R.id.valueVelX));
 		mLanderView.setTextViewVelY((TextView) findViewById(R.id.valueVelY));
