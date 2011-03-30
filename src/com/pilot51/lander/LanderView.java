@@ -294,7 +294,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		private Drawable landerPict;
 		private Path path;
 		private Paint paintWhite = new Paint();
-		private LandingPad padCoords = new LandingPad();
 		private ArrayList<Point> groundPlot;
 
 		private boolean mFiringMain;
@@ -637,21 +636,18 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			boolean bTouchDown = false;
 			for(int i = 0; i < groundPlot.size(); i++) {
 				Point point = groundPlot.get(i);
-				if (landerX - xLanderPict / 2 <= point.x & landerX + xLanderPict / 2 >= point.x) {
-					if (landerY <= invertY(point.y)) {
-						landerY = invertY(point.y);
+				if (landerX - xLanderPict / 2 <= point.x
+						& landerX + xLanderPict / 2 >= point.x) {
+					if (landerY <= invertY(point.y))
 						bTouchDown = true;
-					}
 				} else if (landerX + xLanderPict / 2 < point.x) break;
 			}
-			int x = 0, y = 0, z;
 			int nTimerLoop = 0;
 			long dwTickCount = 0;
 			boolean bTimed = false;
 			switch (byLanderState) {
 				case LND_NEW:
 					fFuel = fInitFuel;
-					//landerX = 0f;
 					landerX = xClient / 2;
 					//landerY = 1000f;
 					landerY = invertY(yLanderPict);
@@ -683,7 +679,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					break;
 				case LND_RESTART:
 					fFuel = fInitFuel;
-					//landerX = 0f;
 					landerX = xClient / 2;
 					//landerY = 1000f;
 					landerY = invertY(yLanderPict);
@@ -700,9 +695,9 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					if (bTouchDown) {
 						drawStatus(true);
 						byLanderState = LND_ENDGAME;
-					} else if ((landerY > 5000f)
-						|| (landerY < -500f)
-						|| (Math.abs(landerX) > 1000f)) {
+					} else if (landerY > 5000f
+							| landerY < -500f
+							| Math.abs(landerX) > 1000f) {
 						byLanderState = LND_OUTOFRANGE;
 						drawStatus(true);
 					}
@@ -716,19 +711,11 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					endGameDialog();
 					break;
 				case LND_ENDGAME:
-					x = xGroundZero + (int)(xGroundZero * (landerX / 600));
-					y = yGroundZero - (int)(yGroundZero * (landerY / 1200));
-					if (/*PtInRegion (hTerrainRgn, x + (xLanderPict / 2), y + yLanderPict)
-						 && PtInRegion (hTerrainRgn, x, y + yLanderPict)
-						 && PtInRegion (hTerrainRgn, x + xLanderPict, y + yLanderPict)
-						 &&*/padCoords.xStart <= landerX - xLanderPict / 2
-						 && landerX + xLanderPict / 2 <= padCoords.xEnd
-						 && (Math.abs(landerVy) <= fMaxLandingY)
-						 && (Math.abs(landerVx) <= fMaxLandingX)) {
+					if (landedFlat() && (Math.abs(landerVy) <= fMaxLandingY)
+							&& (Math.abs(landerVx) <= fMaxLandingX))
 						byLanderState = LND_SAFE;
-					} else {
+					else
 						byLanderState = LND_CRASH1;
-					}
 					break;
 				case LND_SAFE:
 					setFiringThrust(false);
@@ -739,9 +726,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					endGameDialog();
 					break;
 				case LND_CRASH1:
-					while ((y < yClient)/* && (!PtInRegion (hTerrainRgn, x + (xLanderPict /2), y + yLanderPict))*/) {
-						y++;
-					}
 					landerPict = hCrash1;
 					byLanderState = LND_CRASH2;
 					break;
@@ -755,16 +739,14 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					byLanderState = LND_EXPLODE;
 					break;
 				case LND_EXPLODE:
-					z = y - 34;
 					if (nExplCount < 2*EXPL_SEQUENCE) {
 						landerPict = hExpl[nExplCount/2];
 						nExplCount++;
 					} else if (nExplCount < 2*(EXPL_SEQUENCE+6)) {
-						if (nExplCount % 2 == 0) {
+						if (nExplCount % 2 == 0)
 							landerPict = hExpl[9];
-						} else {
+						else
 							landerPict = hExpl[8];
-						}
 						nExplCount++;
 					} else {
 						landerPict = hCrash3;
@@ -783,6 +765,24 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				case LND_INACTIVE:
 					break;
 			}
+		}
+		
+		private boolean landedFlat() {
+			boolean flat = true;
+			float left = landerX - xLanderPict / 2,
+				right = landerX + xLanderPict / 2;
+			Point point, lastPoint = groundPlot.get(0);
+			for(int i = 1; i < groundPlot.size(); i++) {
+				point = groundPlot.get(i);
+				if (left < point.x) {
+					if (lastPoint.y != point.y)
+						flat = false;
+					if (point.x >= right)
+						break;
+				}
+				lastPoint = point;
+			}
+			return flat;
 		}
 
 		/** number of points across including two end-points (must be greater than one). */
@@ -828,9 +828,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						y = y - nDy;
 				} else if (i == nLandingStart) {
 					yGroundZero = invertY(y);
-					padCoords.xStart = x;
-					padCoords.xEnd = x + (nInc * nPadSize);
-					padCoords.y = y;
 				}
 			}
 			point = new Point();
@@ -844,14 +841,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		
 		private int invertY(int y) {
 			return yClient - y;
-		}
-	}
-
-	private class LandingPad {
-		private int xStart, xEnd, y;
-		@Override
-		public String toString() {
-			return "start: " + xStart + " | end: " + xEnd + " | y: " + y;
 		}
 	}
 	
