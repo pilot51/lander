@@ -555,18 +555,11 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		}
 
 		private void doDraw(Canvas canvas) {
-			// Draw the background image. Operations on the Canvas accumulate
-			// so this is like clearing the screen.
 			canvas.drawColor(Color.BLACK);
 
-			xLanderPict = landerPict.getIntrinsicWidth();
-			yLanderPict = landerPict.getIntrinsicHeight();
-
-			int yTop = invertY((int)landerY + yLanderPict);
-			int xLeft = (int)landerX - xLanderPict / 2;
-
-			// Draw the landing pad
+			// Draw the ground
 			canvas.drawPath(path, paintWhite);
+			
 			if (nFlameCount == 0 & bDrawFlame & fFuel > 0f & byLanderState == LND_ACTIVE) {
 				int yTopF, xLeftF;
 				if (mFiringMain) {
@@ -595,39 +588,42 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				lastDraw = now;
 			}
 			
+			xLanderPict = landerPict.getIntrinsicWidth();
+			yLanderPict = landerPict.getIntrinsicHeight();
+			int yTop = invertY((int)landerY + yLanderPict);
+			int xLeft = (int)landerX - xLanderPict / 2;
 			landerPict.setBounds(xLeft, yTop, xLeft + xLanderPict, yTop + yLanderPict);
 			landerPict.draw(canvas);
 		}
 
 		private void landerMotion() {
 			//dt = 0.1f;
-			float fMass, fBurn;
+			float fMass, fBurn = 0f;
 			float dVx, dVy;
 			fMass = fLanderMass + fFuel;
 			dVx = 0f;
 			dVy = -fGravity;
 			if (fFuel > 0f) {
-				fBurn = 0f;
 				if (mFiringMain) {
-					fBurn = fBurn + fMainBurn;
+					fBurn += fMainBurn;
 					dVy += (fMainForce / fMass);
 				}
 				if (mFiringLeft) {
-					fBurn = fBurn + fAttitudeBurn;
+					fBurn += fAttitudeBurn;
 					dVx += (fAttitudeForce / fMass);
 				}
 				if (mFiringRight) {
-					fBurn = fBurn + fAttitudeBurn;
+					fBurn += fAttitudeBurn;
 					dVx -= (fAttitudeForce / fMass);
 				}
 				fBurn = fBurn * dt;
 				if (fBurn > fFuel) fFuel = 0f;
-				else fFuel = fFuel - fBurn;
+				else fFuel -= fBurn;
 			}
-			landerVy = landerVy + (dVy * dt);
-			landerVx = landerVx + (dVx * dt);
-			landerY = landerY + (landerVy * dt);
-			landerX = landerX + (landerVx * dt);
+			landerVy += dVy * dt;
+			landerVx += dVx * dt;
+			landerY += landerVy * dt;
+			landerX += landerVx * dt;
 		}
 		
 		private static final int MAX_TIMER = 10;
@@ -800,7 +796,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			/** number of pixels per point interval */
 			int nInc, nIncExtra;
 			int i, x, y, nDy, mctySize;
-			mctySize = yClient - 20;
+			mctySize = invertY(20);
 			groundPlot = new ArrayList<Point>();
 			Point point = new Point();
 			point.x = 0;
@@ -822,7 +818,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				path.lineTo(x, y);
 				if ((i < nLandingStart) || (i >= (nLandingStart + nPadSize))) {
 					nDy = (new Random().nextInt(32767) % (2 * CRG_STEEPNESS)) - CRG_STEEPNESS;
-					if (((y + nDy) < mctySize) && ((y + nDy) > (yClient - nMaxHeight)))
+					if (((y + nDy) < mctySize) && ((y + nDy) > (invertY(nMaxHeight))))
 						y = y + nDy;
 					else
 						y = y - nDy;
