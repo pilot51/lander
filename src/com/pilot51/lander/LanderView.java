@@ -287,6 +287,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		private int nFlameCount = FLAME_DELAY;
 		private int nCount = 0;
 		private long lastUpdate, lastDraw;
+		private Random rand;
 		
 		private DecimalFormat df2 = new DecimalFormat("0.00"); // Fixed to 2 decimal places
 
@@ -313,6 +314,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			mSurfaceHolder = surfaceHolder;
 			mHandler = handler;
 
+			rand = new Random(System.currentTimeMillis());
+			
 			res = context.getResources();
 			hLanderPict = res.getDrawable(R.drawable.lander);
 			hBFlamePict = res.getDrawable(R.drawable.bflame);
@@ -805,8 +808,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			path = new Path();
 			path.setFillType(Path.FillType.EVEN_ODD);
 			path.moveTo(point.x, point.y);
-			nLandingStart = (new Random().nextInt(32767) % (CRG_POINTS - nPadSize)) + 1;
-			y = mctySize - (new Random().nextInt(32767) % nMaxHeight);
+			nLandingStart = rand.nextInt(CRG_POINTS - nPadSize) + 1;
+			y = mctySize - rand.nextInt(nMaxHeight);
 			nInc = xClient / (CRG_POINTS - 1);
 			nIncExtra = xClient % (CRG_POINTS - 1);
 			for (i = 1; i <= CRG_POINTS; i++) {
@@ -817,7 +820,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				groundPlot.add(point);
 				path.lineTo(x, y);
 				if ((i < nLandingStart) || (i >= (nLandingStart + nPadSize))) {
-					nDy = (new Random().nextInt(32767) % (2 * CRG_STEEPNESS)) - CRG_STEEPNESS;
+					nDy = rand.nextInt(2 * CRG_STEEPNESS) - CRG_STEEPNESS;
 					if (((y + nDy) < mctySize) && ((y + nDy) > (invertY(nMaxHeight))))
 						y = y + nDy;
 					else
