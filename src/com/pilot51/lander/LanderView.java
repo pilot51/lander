@@ -7,6 +7,7 @@ import java.util.Random;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -16,7 +17,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -39,8 +42,16 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	private TextView mTextAlt, mTextVelX, mTextVelY, mTextFuel;
 	private Button mBtnThrust, mBtnLeft, mBtnRight;
 
+	private Context mContext;
+	
 	/** The thread that actually draws the animation */
 	private LanderThread thread;
+	
+	/** Message handler used by thread to interact with TextView */
+	private Handler mHandler;
+	
+	/** Handle to the surface manager object we interact with */
+	private SurfaceHolder mSurfaceHolder;
 
 	public LanderView(final Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -153,8 +164,14 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	public void surfaceCreated(SurfaceHolder holder) {
 		// start the thread here so that we don't busy-wait in run()
 		// waiting for the surface to be created
-		thread.setRunning(true);
-		thread.start();
+		if (thread.getState() == Thread.State.TERMINATED) {
+			thread = new LanderThread(mSurfaceHolder, mContext, mHandler);
+			thread.setRunning(true);
+			thread.start();
+		} else {
+			thread.setRunning(true);
+			thread.start();
+		}
 	}
 
 	/*
@@ -175,144 +192,147 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			}
 		}
 	}
+	
+	private static final int FLAME_DELAY = 1;
+	private static final int STATUS_DELAY = 5;
+	/** number of frames in explosion */
+	private static final int EXPL_SEQUENCE = 10;
+	/** 50 milliseconds */
+	private static final int UPDATE_TIME = 50;
+
+	/** New: begin new game */
+	protected static final byte LND_NEW = 1;
+	/** Timing: timing loop to determine time interval */
+	private static final byte LND_TIMING = 2;
+	/** Restart: same terrain, start again */
+	protected static final byte LND_RESTART = 3;
+	/** Active state: lander is in the air */
+	private static final byte LND_ACTIVE = 4;
+	/** End: lander touches ground */
+	private static final byte LND_ENDGAME = 5;
+	/** Safe state: lander touches down safely */
+	private static final byte LND_SAFE = 6;
+	/** Crash state: lander crashed on surface */
+	private static final byte LND_CRASH1 = 7, LND_CRASH2 = 8, LND_CRASH3 = 9;
+	/** Explode state: lander has crashed, explosion */
+	private static final byte LND_EXPLODE = 10;
+	/** Out of range: lander out of bounds */
+	private static final byte LND_OUTOFRANGE = 11;
+	/** Inactive state: lander on the ground */
+	protected static final byte LND_INACTIVE = 12;
+	/** Inactive state: lander not doing anything */
+	private static final byte LND_HOLD = 13;
+
+	/* EndGame states */
+	/** landed safely */
+	private static final byte END_SAFE = 1;
+	/** Too much vertical velocity */
+	private static final byte END_CRASHV = 2;
+	/** Too much horizontal velocity */
+	private static final byte END_CRASHH = 3;
+	/** Missed the landing site */
+	private static final byte END_CRASHS = 4;
+	/** Lander out of range */
+	private static final byte END_OUTOFRANGE = 5;
+	/** about box */
+	private static final byte END_ABOUT = 6;
+
+	/* Defaults */
+	private static final float DEF_GRAVITY = 3f, DEF_FUEL = 1000f, DEF_THRUST = 10000f;
+
+	/* Physical Settings & Options */
+	/** mass of the lander in kg */
+	private float fLanderMass = 1000f;
+	/** kg of fuel to start */
+	private float fInitFuel = DEF_FUEL;
+	/** main engine thrust in Newtons */
+	private float fMainForce = DEF_THRUST;
+	/** attitude thruster force in Newtons */
+	private float fAttitudeForce = 2000f;
+	/** main engine kg of fuel / second */
+	private float fMainBurn = 10f;
+	/** attitude thruster kg of fuel / second */
+	private float fAttitudeBurn = 2f;
+	/** gravity acceleration in m/s² */
+	private float fGravity = DEF_GRAVITY;
+	/** max horizontal velocity on landing */
+	private float fMaxLandingX = 1f;
+	/** max vertical velocity on landing */
+	private float fMaxLandingY = 10f;
+	/** Fuel in kilograms */
+	private float fFuel;
+
+	/**
+	 * Lander position in meters
+	 * @param landerY
+	 * 		altitude
+	 */
+	private float landerX, landerY;
+	/** Lander velocity in meters/sec */
+	private float landerVx, landerVy;
+	/** time increment in seconds */
+	private float dt = 0.5f;
+
+	/* Other variables */
+	/** reverse side thrust buttons */
+	private boolean bReverseSideThrust = false;
+	/** draw flame on lander */
+	private boolean bDrawFlame = true;
+
+	/** size of full-screen window */
+	private int xClient, yClient;
+
+	/** lander bitmap */
+	private Drawable hLanderPict;
+	private Drawable hLFlamePict, hRFlamePict, hBFlamePict;
+
+	/** size of lander bitmap */
+	private int xLanderPict, yLanderPict;
+
+	private Drawable hCrash1, hCrash2, hCrash3;
+	private Drawable[] hExpl;
+	//private Drawable hExpl[EXPL_SEQUENCE];
+
+	private int xGroundZero, yGroundZero;
+	/** Lander window state */
+	protected byte byLanderState = LND_NEW;
+	/** EndGame dialog state */
+	private byte byEndGameState;
+	private byte nExplCount;
+	
+	private int nFlameCount = FLAME_DELAY;
+	private int nCount = 0;
+	private long lastUpdate, lastDraw;
+	private Random rand;
+	
+	private DecimalFormat df2 = new DecimalFormat("0.00"); // Fixed to 2 decimal places
+
+	private Resources res;
+	private Drawable landerPict;
+	private Path path;
+	private Paint paintWhite = new Paint();
+	private ArrayList<Point> groundPlot;
+
+	private boolean mFiringMain;
+	private boolean mFiringLeft;
+	private boolean mFiringRight;
 
 	class LanderThread extends Thread {
-		private static final int FLAME_DELAY = 1;
-		private static final int STATUS_DELAY = 5;
-		/** number of frames in explosion */
-		private static final int EXPL_SEQUENCE = 10;
-		/** 50 milliseconds */
-		private static final int UPDATE_TIME = 50;
-
-		/** New: begin new game */
-		protected static final byte LND_NEW = 1;
-		/** Timing: timing loop to determine time interval */
-		private static final byte LND_TIMING = 2;
-		/** Restart: same terrain, start again */
-		protected static final byte LND_RESTART = 3;
-		/** Active state: lander is in the air */
-		private static final byte LND_ACTIVE = 4;
-		/** End: lander touches ground */
-		private static final byte LND_ENDGAME = 5;
-		/** Safe state: lander touches down safely */
-		private static final byte LND_SAFE = 6;
-		/** Crash state: lander crashed on surface */
-		private static final byte LND_CRASH1 = 7, LND_CRASH2 = 8, LND_CRASH3 = 9;
-		/** Explode state: lander has crashed, explosion */
-		private static final byte LND_EXPLODE = 10;
-		/** Out of range: lander out of bounds */
-		private static final byte LND_OUTOFRANGE = 11;
-		/** Inactive state: lander on the ground */
-		protected static final byte LND_INACTIVE = 12;
-		/** Inactive state: lander not doing anything */
-		private static final byte LND_HOLD = 13;
-
-		/* EndGame states */
-		/** landed safely */
-		private static final byte END_SAFE = 1;
-		/** Too much vertical velocity */
-		private static final byte END_CRASHV = 2;
-		/** Too much horizontal velocity */
-		private static final byte END_CRASHH = 3;
-		/** Missed the landing site */
-		private static final byte END_CRASHS = 4;
-		/** Lander out of range */
-		private static final byte END_OUTOFRANGE = 5;
-		/** about box */
-		private static final byte END_ABOUT = 6;
-
-		/* Defaults */
-		private static final float DEF_GRAVITY = 3f, DEF_FUEL = 1000f, DEF_THRUST = 10000f;
-
-		/* Physical Settings & Options */
-		/** mass of the lander in kg */
-		private float fLanderMass = 1000f;
-		/** kg of fuel to start */
-		private float fInitFuel = DEF_FUEL;
-		/** main engine thrust in Newtons */
-		private float fMainForce = DEF_THRUST;
-		/** attitude thruster force in Newtons */
-		private float fAttitudeForce = 2000f;
-		/** main engine kg of fuel / second */
-		private float fMainBurn = 10f;
-		/** attitude thruster kg of fuel / second */
-		private float fAttitudeBurn = 2f;
-		/** gravity acceleration in m/s² */
-		private float fGravity = DEF_GRAVITY;
-		/** max horizontal velocity on landing */
-		private float fMaxLandingX = 1f;
-		/** max vertical velocity on landing */
-		private float fMaxLandingY = 10f;
-		/** Fuel in kilograms */
-		private float fFuel;
-
-		/**
-		 * Lander position in meters
-		 * @param landerY
-		 * 		altitude
-		 */
-		private float landerX, landerY;
-		/** Lander velocity in meters/sec */
-		private float landerVx, landerVy;
-		/** time increment in seconds */
-		private float dt = 0.5f;
-
-		/* Other variables */
-		/** reverse side thrust buttons */
-		private boolean bReverseSideThrust = false;
-		/** draw flame on lander */
-		private boolean bDrawFlame = true;
-
-		/** size of full-screen window */
-		private int xClient, yClient;
-
-		/** lander bitmap */
-		private Drawable hLanderPict;
-		private Drawable hLFlamePict, hRFlamePict, hBFlamePict;
-
-		/** size of lander bitmap */
-		private int xLanderPict, yLanderPict;
-
-		private Drawable hCrash1, hCrash2, hCrash3;
-		private Drawable[] hExpl;
-		//private Drawable hExpl[EXPL_SEQUENCE];
-
-		private int xGroundZero, yGroundZero;
-		/** Lander window state */
-		protected byte byLanderState;
-		/** EndGame dialog state */
-		private byte byEndGameState;
-		private byte nExplCount;
-		
-		private int nFlameCount = FLAME_DELAY;
-		private int nCount = 0;
-		private long lastUpdate, lastDraw;
-		private Random rand;
-		
-		private DecimalFormat df2 = new DecimalFormat("0.00"); // Fixed to 2 decimal places
-
-		private Resources res;
-		private Drawable landerPict;
-		private Path path;
-		private Paint paintWhite = new Paint();
-		private ArrayList<Point> groundPlot;
-
-		private boolean mFiringMain;
-		private boolean mFiringLeft;
-		private boolean mFiringRight;
-
-		/** Message handler used by thread to interact with TextView */
-		private Handler mHandler;
+		private SharedPreferences prefs;
 
 		/** Indicate whether the surface has been created & is ready to draw */
 		private boolean mRun = false;
 
-		/** Handle to the surface manager object we interact with */
-		private SurfaceHolder mSurfaceHolder;
-
 		private LanderThread(SurfaceHolder surfaceHolder, Context context, Handler handler) {
 			mSurfaceHolder = surfaceHolder;
+			mContext = context;
 			mHandler = handler;
+			prefs = PreferenceManager.getDefaultSharedPreferences(context);
+			fGravity = Float.parseFloat(prefs.getString("Gravity", null));
+			fInitFuel = Integer.parseInt(prefs.getString("Fuel", null));
+			fMainForce = Integer.parseInt(prefs.getString("Thrust", null));
+			bDrawFlame = prefs.getBoolean("DrawFlame", false);
+			bReverseSideThrust = prefs.getBoolean("ReverseSideThrust", false);
 
 			rand = new Random(System.currentTimeMillis());
 			
@@ -334,15 +354,12 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					res.getDrawable(R.drawable.expl8),
 					res.getDrawable(R.drawable.expl9),
 					res.getDrawable(R.drawable.expl10)};
-			landerPict = hLanderPict;
 
 			xLanderPict = hLanderPict.getIntrinsicWidth();
 			yLanderPict = hLanderPict.getIntrinsicHeight();
 
 			paintWhite.setColor(Color.WHITE);
 			paintWhite.setStyle(Paint.Style.FILL);
-
-			byLanderState = LND_NEW;
 		}
 
 		@Override
@@ -381,14 +398,18 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 		private void setFiringLeft(boolean firing) {
 			synchronized (mSurfaceHolder) {
-				mFiringLeft = firing;
+				if (bReverseSideThrust)
+					mFiringRight = firing;
+				else mFiringLeft = firing;
 				setBtnState(HANDLE_LEFT, firing);
 			}
 		}
 
 		private void setFiringRight(boolean firing) {
 			synchronized (mSurfaceHolder) {
-				mFiringRight = firing;
+				if (bReverseSideThrust)
+					mFiringLeft = firing;
+				else mFiringRight = firing;
 				setBtnState(HANDLE_RIGHT, firing);
 			}
 		}
@@ -421,10 +442,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			synchronized (mSurfaceHolder) {
 				xClient = width;
 				yClient = height;
-				// Set initial position of lander as soon as canvas size set
-				landerX = xClient / 2;
-				landerY = invertY(yLanderPict);
-				createGround();
 			}
 		}
 
@@ -609,15 +626,15 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			if (fFuel > 0f) {
 				if (mFiringMain) {
 					fBurn += fMainBurn;
-					dVy += (fMainForce / fMass);
+					dVy += fMainForce / fMass;
 				}
 				if (mFiringLeft) {
 					fBurn += fAttitudeBurn;
-					dVx += (fAttitudeForce / fMass);
+					dVx += fAttitudeForce / fMass;
 				}
 				if (mFiringRight) {
 					fBurn += fAttitudeBurn;
-					dVx -= (fAttitudeForce / fMass);
+					dVx -= fAttitudeForce / fMass;
 				}
 				fBurn = fBurn * dt;
 				if (fBurn > fFuel) fFuel = 0f;
@@ -632,15 +649,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		private static final int MAX_TIMER = 10;
 		
 		private void updateLander() {
-			boolean bTouchDown = false;
-			for(int i = 0; i < groundPlot.size(); i++) {
-				Point point = groundPlot.get(i);
-				if (landerX - xLanderPict / 2 <= point.x
-						& landerX + xLanderPict / 2 >= point.x) {
-					if (landerY <= invertY(point.y))
-						bTouchDown = true;
-				} else if (landerX + xLanderPict / 2 < point.x) break;
-			}
 			int nTimerLoop = 0;
 			long dwTickCount = 0;
 			boolean bTimed = false;
@@ -684,6 +692,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					landerVx = 0f;
 					landerVy = 0f;
 					landerPict = hLanderPict;
+					drawStatus(true);
 					byLanderState = LND_HOLD;
 					break;
 				case LND_HOLD:
@@ -691,6 +700,15 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				case LND_ACTIVE:
 					landerMotion();
 					drawStatus(false);
+					boolean bTouchDown = false;
+					for(int i = 0; i < groundPlot.size(); i++) {
+						Point point = groundPlot.get(i);
+						if (landerX - xLanderPict / 2 <= point.x
+								& landerX + xLanderPict / 2 >= point.x) {
+							if (landerY <= invertY(point.y))
+								bTouchDown = true;
+						} else if (landerX + xLanderPict / 2 < point.x) break;
+					}
 					if (bTouchDown) {
 						drawStatus(true);
 						byLanderState = LND_ENDGAME;

@@ -1,14 +1,14 @@
 package com.pilot51.lander;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
-
-import com.pilot51.lander.LanderView.LanderThread;
 
 public class Main extends Activity {
 	private static final int
@@ -16,9 +16,6 @@ public class Main extends Activity {
 		MENU_RESTART = 2,
 		MENU_OPTIONS = 3,
 		MENU_ABOUT = 4;
-
-	/** A handle to the thread that's actually running the animation. */
-	private LanderThread mLanderThread;
 
 	/** A handle to the View in which the game is running. */
 	private LanderView mLanderView;
@@ -37,38 +34,39 @@ public class Main extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case MENU_NEW:
-			mLanderThread.byLanderState = LanderThread.LND_NEW;
+			mLanderView.byLanderState = LanderView.LND_NEW;
 			return true;
 		case MENU_RESTART:
-			mLanderThread.byLanderState = LanderThread.LND_RESTART;
+			mLanderView.byLanderState = LanderView.LND_RESTART;
 			return true;
 		case MENU_OPTIONS:
-			mLanderThread.byLanderState = LanderThread.LND_INACTIVE;
-			//OptionsDialog (hWnd);
-			mLanderThread.byLanderState = LanderThread.LND_RESTART;
+			mLanderView.byLanderState = LanderView.LND_INACTIVE;
+			startActivityForResult(new Intent(this, Options.class), 1);
 			return true;
 		case MENU_ABOUT:
-			byte byOldState = mLanderThread.byLanderState;
-			mLanderThread.byLanderState = LanderThread.LND_INACTIVE;
+			byte byOldState = mLanderView.byLanderState;
+			mLanderView.byLanderState = LanderView.LND_INACTIVE;
 			//AboutDialog (hWnd);
-			mLanderThread.byLanderState = byOldState;
+			mLanderView.byLanderState = byOldState;
 			return true;
 		}
 		return false;
+	}
+	
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if(requestCode == 1)
+			mLanderView.byLanderState = LanderView.LND_RESTART;
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setTheme(R.style.Fullscreen);
 		super.onCreate(savedInstanceState);
-
+		// Load default preferences from xml if not saved
+		PreferenceManager.setDefaultValues(this, R.xml.options, true);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-
 		setContentView(R.layout.lander_layout);
-
 		mLanderView = (LanderView) findViewById(R.id.lander);
-		mLanderThread = mLanderView.getThread();
-
 		mLanderView.setTextViewAlt((TextView) findViewById(R.id.valueAlt));
 		mLanderView.setTextViewVelX((TextView) findViewById(R.id.valueVelX));
 		mLanderView.setTextViewVelY((TextView) findViewById(R.id.valueVelY));

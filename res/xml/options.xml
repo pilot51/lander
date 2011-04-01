@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android">
+	<EditTextPreference
+		android:key="Gravity"
+		android:title="Gravity"
+		android:defaultValue="3"
+		android:summary="Gravity in m/s²" android:inputType="phone" android:digits="0123456789." android:dialogMessage="Actual Moon gravity: 1.62m/s²"/>
+	<EditTextPreference
+		android:key="Fuel"
+		android:title="Fuel"
+		android:defaultValue="1000"
+		android:summary="Initial fuel in kg\nAffects mass of lander" android:inputType="phone" android:digits="0123456789" android:dialogMessage="Actual fuel of Apollo Lunar Module descent stage: 8200kg"/>
+	<EditTextPreference
+		android:key="Thrust"
+		android:title="Thrust"
+		android:defaultValue="10000"
+		android:digits="0123456789" android:inputType="phone" android:summary="Thrust of main engine in Newtons (kg * m/s²)" android:dialogMessage="Actual thrust of Apollo Lunar Module descent stage: 45000N full throttle, 5000-30000N throttleable"/>
+	<CheckBoxPreference
+		android:key="DrawFlame"
+		android:title="Draw flame" android:defaultValue="true"/>
+	<CheckBoxPreference
+		android:key="ReverseSideThrust"
+		android:title="Reverse side thrust" android:defaultValue="false"/>
+	<Preference
+		android:title="Default"
+		android:key="Default" android:summary="Reset options to classic defaults"/>
+</PreferenceScreen>
