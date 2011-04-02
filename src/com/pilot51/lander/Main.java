@@ -2,8 +2,10 @@ package com.pilot51.lander;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
@@ -64,6 +66,16 @@ public class Main extends Activity {
 		super.onCreate(savedInstanceState);
 		// Load default preferences from xml if not saved
 		PreferenceManager.setDefaultValues(this, R.xml.options, true);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		if (prefs.getInt("KeyThrust", 0) == 0) {
+			prefs.edit()
+			.putInt("KeyThrust", KeyEvent.KEYCODE_DPAD_DOWN)
+			.putInt("KeyLeft", KeyEvent.KEYCODE_DPAD_LEFT)
+			.putInt("KeyRight", KeyEvent.KEYCODE_DPAD_RIGHT)
+			.putInt("KeyNew", KeyEvent.KEYCODE_2)
+			.putInt("KeyRestart", KeyEvent.KEYCODE_3)
+			.commit();
+		}
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.lander_layout);
 		mLanderView = (LanderView) findViewById(R.id.lander);

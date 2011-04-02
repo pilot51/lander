@@ -82,7 +82,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						.setIcon(getResources().getDrawable(R.drawable.icon))
 						.setTitle(title)
 						.setMessage(message)
-						.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+						.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
 				            public void onClick(DialogInterface dialog, int which) {
 				            	dialog.cancel();
 				            }})
@@ -98,6 +98,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			}
 		});
 		setFocusable(true); // make sure we get key events
+		setFocusableInTouchMode(true);
 	}
 
 	/**
@@ -166,12 +167,9 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		// waiting for the surface to be created
 		if (thread.getState() == Thread.State.TERMINATED) {
 			thread = new LanderThread(mSurfaceHolder, mContext, mHandler);
-			thread.setRunning(true);
-			thread.start();
-		} else {
-			thread.setRunning(true);
-			thread.start();
 		}
+		thread.setRunning(true);
+		thread.start();
 	}
 
 	/*
@@ -322,6 +320,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 		/** Indicate whether the surface has been created & is ready to draw */
 		private boolean mRun = false;
+		
+		private int keyThrust, keyLeft, keyRight, keyNew, keyRestart;
 
 		private LanderThread(SurfaceHolder surfaceHolder, Context context, Handler handler) {
 			mSurfaceHolder = surfaceHolder;
@@ -333,6 +333,11 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			fMainForce = Integer.parseInt(prefs.getString("Thrust", null));
 			bDrawFlame = prefs.getBoolean("DrawFlame", false);
 			bReverseSideThrust = prefs.getBoolean("ReverseSideThrust", false);
+			keyThrust = prefs.getInt("KeyThrust", 0);
+			keyLeft = prefs.getInt("KeyLeft", 0);
+			keyRight = prefs.getInt("KeyRight", 0);
+			keyNew = prefs.getInt("KeyNew", 0);
+			keyRestart = prefs.getInt("KeyRestart", 0);
 
 			rand = new Random(System.currentTimeMillis());
 			
@@ -482,16 +487,23 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		private boolean doKeyDown(int keyCode, KeyEvent msg) {
 			synchronized (mSurfaceHolder) {
 				if (byLanderState == LND_ACTIVE) {
-					if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+					if (keyCode == keyThrust) {
 						setFiringThrust(true);
 						return true;
-					} else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+					} else if (keyCode == keyLeft) {
 						setFiringLeft(true);
 						return true;
-					} else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+					} else if (keyCode == keyRight) {
 						setFiringRight(true);
 						return true;
 					}
+				}
+				if (keyCode == keyNew) {
+					byLanderState = LND_NEW;
+					return true;
+				} else if (keyCode == keyRestart) {
+					byLanderState = LND_RESTART;
+					return true;
 				}
 				return false;
 			}
@@ -499,17 +511,17 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 		private boolean doKeyUp(int keyCode, KeyEvent msg) {
 			synchronized (mSurfaceHolder) {
-				if (byLanderState == LND_HOLD & (keyCode == KeyEvent.KEYCODE_DPAD_DOWN | keyCode == KeyEvent.KEYCODE_DPAD_LEFT | keyCode == KeyEvent.KEYCODE_DPAD_RIGHT)) {
+				if (byLanderState == LND_HOLD & (keyCode == keyThrust | keyCode == keyLeft | keyCode == keyRight)) {
 					byLanderState = LND_ACTIVE;
 					return true;
 				} else if (byLanderState == LND_ACTIVE) {
-					if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+					if (keyCode == keyThrust) {
 						setFiringThrust(false);
 						return true;
-					} else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+					} else if (keyCode == keyLeft) {
 						setFiringLeft(false);
 						return true;
-					} else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+					} else if (keyCode == keyRight) {
 						setFiringRight(false);
 						return true;
 					}
@@ -660,8 +672,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					landerY = invertY(yLanderPict);
 					landerVx = 0f;
 					landerVy = 0f;
-					xGroundZero = xClient / 2;
-					yGroundZero = yClient - 100;
 					createGround();
 					landerPict = hLanderPict;
 					if (!bTimed) {
