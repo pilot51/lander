@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -683,6 +682,9 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						byLanderState = LND_HOLD;
 					}
 					drawStatus(true);
+					setFiringThrust(false);
+					setFiringLeft(false);
+					setFiringRight(false);
 					byLanderState = LND_HOLD;
 					break;
 				case LND_TIMING:
@@ -703,6 +705,9 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					landerVy = 0f;
 					landerPict = hLanderPict;
 					drawStatus(true);
+					setFiringThrust(false);
+					setFiringLeft(false);
+					setFiringRight(false);
 					byLanderState = LND_HOLD;
 					break;
 				case LND_HOLD:
@@ -710,16 +715,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				case LND_ACTIVE:
 					landerMotion();
 					drawStatus(false);
-					boolean bTouchDown = false;
-					for(int i = 0; i < groundPlot.size(); i++) {
-						Point point = groundPlot.get(i);
-						if (landerX - xLanderPict / 2 <= point.x
-								& landerX + xLanderPict / 2 >= point.x) {
-							if (landerY <= invertY(point.y))
-								bTouchDown = true;
-						} else if (landerX + xLanderPict / 2 < point.x) break;
-					}
-					if (bTouchDown) {
+					if (contactGround()) {
 						drawStatus(true);
 						byLanderState = LND_ENDGAME;
 					} else if (landerY > 5000f
@@ -730,9 +726,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					}
 					break;
 				case LND_OUTOFRANGE:
-					setFiringThrust(false);
-					setFiringLeft(false);
-					setFiringRight(false);
 					byEndGameState = END_OUTOFRANGE;
 					byLanderState = LND_INACTIVE;
 					endGameDialog();
@@ -745,9 +738,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						byLanderState = LND_CRASH1;
 					break;
 				case LND_SAFE:
-					setFiringThrust(false);
-					setFiringLeft(false);
-					setFiringRight(false);
 					byEndGameState = END_SAFE;
 					byLanderState = LND_INACTIVE;
 					endGameDialog();
@@ -777,9 +767,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						nExplCount++;
 					} else {
 						landerPict = hCrash3;
-						setFiringThrust(false);
-						setFiringLeft(false);
-						setFiringRight(false);
 						if (Math.abs(landerVy) > fMaxLandingY)
 							byEndGameState = END_CRASHV;
 						else if (Math.abs(landerVx) > fMaxLandingX)
@@ -792,6 +779,45 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				case LND_INACTIVE:
 					break;
 			}
+		}
+		
+		private boolean contactGround() {
+			boolean bTouchDown = false;
+			float left = landerX - xLanderPict / 2,
+				right = landerX + xLanderPict / 2;
+			int y1, y2;
+			//Point pointCenter1 = null, pointCenter2 = null;
+			for(int i = 0; i < groundPlot.size(); i++) {
+				Point point = groundPlot.get(i);
+				Point point2;
+				if (i+1 < groundPlot.size()) point2 = groundPlot.get(i+1);
+				else point2 = new Point();
+				y1 = invertY(point.y);
+				y2 = invertY(point2.y);
+				if (left <= point.x & point.x <= right) {
+					if (landerY <= y1)
+						bTouchDown = true;
+				}
+				if (point.x <= left & left <= point2.x) {
+					float yGroundLeft = y2 - ((y1 - y2) / (point.x - point2.x)) * (point2.x - left);
+					if (landerY - yGroundLeft <= 0) bTouchDown = true;
+				}
+				/*if (point.x <= landerX & landerX <= point2.x) {
+					pointCenter1 = point;
+					pointCenter2 = point2;
+				}*/
+				if (point.x <= right & right <= point2.x) {
+					float yGroundRight = y2 - ((y1 - y2) / (point.x - point2.x)) * (point2.x - right);
+					if (landerY - yGroundRight <= 0) bTouchDown = true;
+				}
+				if (right < point.x) break;
+			}
+			/*if (bTouchDown) {
+				y1 = invertY(pointCenter1.y);
+				y2 = invertY(pointCenter2.y);
+				landerY = y2 - ((y1 - y2) / (pointCenter1.x - pointCenter2.x)) * (pointCenter2.x - landerX);
+			}*/
+			return bTouchDown;
 		}
 		
 		private boolean landedFlat() {
