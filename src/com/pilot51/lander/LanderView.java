@@ -665,13 +665,13 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			boolean bTimed = false;
 			switch (byLanderState) {
 				case LND_NEW:
+					createGround();
 					fFuel = fInitFuel;
 					landerX = xClient / 2;
 					//landerY = 1000f;
 					landerY = invertY(yLanderPict);
 					landerVx = 0f;
 					landerVy = 0f;
-					createGround();
 					landerPict = hLanderPict;
 					if (!bTimed) {
 						nTimerLoop = 0;
@@ -847,13 +847,14 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			/** size of landing pad in points. (less than CRG_POINTS) */
 			int nPadSize = 4;
 			/** Maximum height of terrain. (less than ySize) */
-			int nMaxHeight = 120;
+			int nMaxHeight = yClient / 6;
 			/** point at which landing pad starts */
 			int nLandingStart;
 			/** number of pixels per point interval */
 			int nInc, nIncExtra;
-			int i, x, y, nDy, mctySize;
-			mctySize = invertY(20);
+			int x, nDy,
+				mctySize = invertY(5),
+				y = mctySize - rand.nextInt(nMaxHeight);
 			groundPlot = new ArrayList<Point>();
 			Point point = new Point();
 			point.x = 0;
@@ -863,19 +864,18 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			path.setFillType(Path.FillType.EVEN_ODD);
 			path.moveTo(point.x, point.y);
 			nLandingStart = rand.nextInt(CRG_POINTS - nPadSize) + 1;
-			y = mctySize - rand.nextInt(nMaxHeight);
 			nInc = xClient / (CRG_POINTS - 1);
 			nIncExtra = xClient % (CRG_POINTS - 1);
-			for (i = 1; i <= CRG_POINTS; i++) {
+			for (int i = 1; i <= CRG_POINTS; i++) {
 				x = ((i - 1) * nInc) + (((i - 1) * nIncExtra) / (CRG_POINTS - 1));
 				point = new Point();
 				point.x = x;
 				point.y = y;
 				groundPlot.add(point);
-				path.lineTo(x, y);
-				if ((i < nLandingStart) || (i >= (nLandingStart + nPadSize))) {
+				path.lineTo(point.x, point.y);
+				if (i < nLandingStart || i >= nLandingStart + nPadSize) {
 					nDy = rand.nextInt(2 * CRG_STEEPNESS) - CRG_STEEPNESS;
-					if (((y + nDy) < mctySize) && ((y + nDy) > (invertY(nMaxHeight))))
+					if (y + nDy < mctySize && y + nDy > invertY(nMaxHeight))
 						y = y + nDy;
 					else
 						y = y - nDy;
