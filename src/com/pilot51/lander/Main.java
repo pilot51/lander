@@ -1,6 +1,8 @@
 package com.pilot51.lander;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -46,10 +48,20 @@ public class Main extends Activity {
 			startActivityForResult(new Intent(this, Options.class), 1);
 			return true;
 		case MENU_ABOUT:
-			byte byOldState = mLanderView.byLanderState;
+			final byte byOldState = mLanderView.byLanderState;
 			mLanderView.byLanderState = LanderView.LND_INACTIVE;
 			//AboutDialog (hWnd);
-			mLanderView.byLanderState = byOldState;
+		new AlertDialog.Builder(this)
+			.setIcon(getResources().getDrawable(R.drawable.icon))
+			.setTitle(getString(R.string.menu_about) + " " + getString(R.string.app_name) + " " + getString(R.string.app_version))
+			.setMessage(R.string.about_text)
+			.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int which) {
+	            	dialog.cancel();
+	            	mLanderView.byLanderState = byOldState;
+	            }})
+			.create()
+			.show();
 			return true;
 		}
 		return false;

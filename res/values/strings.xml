@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Lander</string>
+	<string name="app_version">v0.9.0</string>
 	<string name="menu_new">New</string>
 	<string name="menu_restart">Restart</string>
 	<string name="menu_options">Options</string>
@@ -17,8 +18,7 @@
 	<string name="hud_velx">Velocity X</string>
 	<string name="hud_vely">Velocity Y</string>
 	<string name="hud_fuel">Fuel</string>
-	<string name="play_classic">Play Lander Classic</string>
-	<string name="play_enhanced">Play Lander Enhanced</string>
+	<string name="about_text">Lander is an Android port of the 1990 game by the same name for Windows 3.1.\n\nFull permission and source code for v1.3 has been provided by the original developer, George Moromisato.</string>
 	<string name="gravity_dialog_message">Actual Moon gravity: 1.62m/s²</string>
 	<string name="gravity">Gravity</string>
 	<string name="gravity_summary">Gravity in m/s²</string>
