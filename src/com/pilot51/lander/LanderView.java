@@ -77,8 +77,12 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					String msg = data.getString("text"),
 						title = msg.substring(0, msg.indexOf("\n")),
 						message = msg.substring(msg.indexOf("\n") + 1, msg.length());
+					Drawable img;
+						if (byEndGameState == END_SAFE)
+							img = getResources().getDrawable(R.drawable.safe);
+						else img = getResources().getDrawable(R.drawable.dead);
 					new AlertDialog.Builder(context)
-						.setIcon(getResources().getDrawable(R.drawable.icon))
+						.setIcon(img)
 						.setTitle(title)
 						.setMessage(message)
 						.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
