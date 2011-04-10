@@ -13,6 +13,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -310,8 +311,10 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 	private Resources res;
 	private Drawable landerPict;
+	private Rect landerRect = new Rect();
 	private Path path;
-	private Paint paintWhite = new Paint();
+	private Paint paintWhite = new Paint(),
+		paintBlack = new Paint();
 	private ArrayList<Point> groundPlot;
 
 	private boolean mFiringMain;
@@ -368,6 +371,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 			paintWhite.setColor(Color.WHITE);
 			paintWhite.setStyle(Paint.Style.FILL);
+			paintBlack.setColor(Color.BLACK);
+			paintBlack.setStyle(Paint.Style.FILL);
 		}
 
 		@Override
@@ -591,10 +596,14 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 		private void doDraw(Canvas canvas) {
 			canvas.drawColor(Color.BLACK);
-
 			// Draw the ground
 			canvas.drawPath(path, paintWhite);
-			
+			xLanderPict = landerPict.getIntrinsicWidth();
+			yLanderPict = landerPict.getIntrinsicHeight();
+			int yTop = invertY((int)landerY + yLanderPict);
+			int xLeft = (int)landerX - xLanderPict / 2;
+			landerRect.set(xLeft, yTop, xLeft + xLanderPict, yTop + yLanderPict);
+			canvas.drawRect(landerRect, paintBlack);
 			if (nFlameCount == 0 & bDrawFlame & fFuel > 0f & byLanderState == LND_ACTIVE) {
 				int yTopF, xLeftF;
 				if (mFiringMain) {
@@ -622,12 +631,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				else nFlameCount--;
 				lastDraw = now;
 			}
-			
-			xLanderPict = landerPict.getIntrinsicWidth();
-			yLanderPict = landerPict.getIntrinsicHeight();
-			int yTop = invertY((int)landerY + yLanderPict);
-			int xLeft = (int)landerX - xLanderPict / 2;
-			landerPict.setBounds(xLeft, yTop, xLeft + xLanderPict, yTop + yLanderPict);
+			landerPict.setBounds(landerRect);
 			landerPict.draw(canvas);
 		}
 
