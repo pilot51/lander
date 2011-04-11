@@ -59,6 +59,9 @@
 				android:key="KeyRestart"
 				android:title="@string/menu_restart" />
 			<Preference
+				android:key="KeyOptions"
+				android:title="@string/menu_options" />
+			<Preference
 				android:key="DefaultKeys"
 				android:title="@string/default_keys_title" />
 		</PreferenceScreen>

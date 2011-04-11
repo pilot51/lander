@@ -20,10 +20,43 @@ public class Main extends Activity {
 		MENU_RESTART = 2,
 		MENU_OPTIONS = 3,
 		MENU_ABOUT = 4;
-
+	private int keyNew, keyRestart, keyOptions;
+	
 	/** A handle to the View in which the game is running. */
 	private LanderView mLanderView;
 
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		setTheme(R.style.Fullscreen);
+		super.onCreate(savedInstanceState);
+		// Load default preferences from xml if not saved
+		PreferenceManager.setDefaultValues(this, R.xml.options, true);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		if (prefs.getInt("KeyThrust", 0) == 0) {
+			prefs.edit()
+			.putInt("KeyThrust", KeyEvent.KEYCODE_DPAD_DOWN)
+			.putInt("KeyLeft", KeyEvent.KEYCODE_DPAD_LEFT)
+			.putInt("KeyRight", KeyEvent.KEYCODE_DPAD_RIGHT)
+			.putInt("KeyNew", KeyEvent.KEYCODE_2)
+			.putInt("KeyRestart", KeyEvent.KEYCODE_3)
+			.putInt("KeyOptions", KeyEvent.KEYCODE_4)
+			.commit();
+		}
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		setContentView(R.layout.lander_layout);
+		mLanderView = (LanderView) findViewById(R.id.lander);
+		mLanderView.setTextViewAlt((TextView) findViewById(R.id.valueAlt));
+		mLanderView.setTextViewVelX((TextView) findViewById(R.id.valueVelX));
+		mLanderView.setTextViewVelY((TextView) findViewById(R.id.valueVelY));
+		mLanderView.setTextViewFuel((TextView) findViewById(R.id.valueFuel));
+		mLanderView.setButtonThrust((Button) findViewById(R.id.btnThrust));
+		mLanderView.setButtonLeft((Button) findViewById(R.id.btnLeft));
+		mLanderView.setButtonRight((Button) findViewById(R.id.btnRight));
+		keyNew = prefs.getInt("KeyNew", 0);
+		keyRestart = prefs.getInt("KeyRestart", 0);
+		keyOptions = prefs.getInt("KeyOptions", 0);
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
@@ -67,36 +100,24 @@ public class Main extends Activity {
 		return false;
 	}
 	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent msg) {
+		if (keyCode == keyNew) {
+			mLanderView.byLanderState = LanderView.LND_NEW;
+			return true;
+		} else if (keyCode == keyRestart) {
+			mLanderView.byLanderState = LanderView.LND_RESTART;
+			return true;
+		} else if (keyCode == keyOptions) {
+			mLanderView.byLanderState = LanderView.LND_INACTIVE;
+			startActivityForResult(new Intent(this, Options.class), 1);
+			return true;
+		}
+		return false;
+	}
+	
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(requestCode == 1)
 			mLanderView.byLanderState = LanderView.LND_RESTART;
-	}
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		setTheme(R.style.Fullscreen);
-		super.onCreate(savedInstanceState);
-		// Load default preferences from xml if not saved
-		PreferenceManager.setDefaultValues(this, R.xml.options, true);
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		if (prefs.getInt("KeyThrust", 0) == 0) {
-			prefs.edit()
-			.putInt("KeyThrust", KeyEvent.KEYCODE_DPAD_DOWN)
-			.putInt("KeyLeft", KeyEvent.KEYCODE_DPAD_LEFT)
-			.putInt("KeyRight", KeyEvent.KEYCODE_DPAD_RIGHT)
-			.putInt("KeyNew", KeyEvent.KEYCODE_2)
-			.putInt("KeyRestart", KeyEvent.KEYCODE_3)
-			.commit();
-		}
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.lander_layout);
-		mLanderView = (LanderView) findViewById(R.id.lander);
-		mLanderView.setTextViewAlt((TextView) findViewById(R.id.valueAlt));
-		mLanderView.setTextViewVelX((TextView) findViewById(R.id.valueVelX));
-		mLanderView.setTextViewVelY((TextView) findViewById(R.id.valueVelY));
-		mLanderView.setTextViewFuel((TextView) findViewById(R.id.valueFuel));
-		mLanderView.setButtonThrust((Button) findViewById(R.id.btnThrust));
-		mLanderView.setButtonLeft((Button) findViewById(R.id.btnLeft));
-		mLanderView.setButtonRight((Button) findViewById(R.id.btnRight));
 	}
 }

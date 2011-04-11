@@ -23,6 +23,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyRight,
 		pKeyNew,
 		pKeyRestart,
+		pKeyOptions,
 		selectedPref;
 	
 	@Override
@@ -37,6 +38,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyRight = (Preference)findPreference("KeyRight");
 		pKeyNew = (Preference)findPreference("KeyNew");
 		pKeyRestart = (Preference)findPreference("KeyRestart");
+		pKeyOptions = (Preference)findPreference("KeyOptions");
 		pDefClassic.setOnPreferenceClickListener(this);
 		pDefKeys.setOnPreferenceClickListener(this);
 		pKeyThrust.setOnPreferenceClickListener(this);
@@ -44,6 +46,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyRight.setOnPreferenceClickListener(this);
 		pKeyNew.setOnPreferenceClickListener(this);
 		pKeyRestart.setOnPreferenceClickListener(this);
+		pKeyOptions.setOnPreferenceClickListener(this);
 	}
 	
 	public boolean onPreferenceClick(Preference preference) {
@@ -66,6 +69,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 			.putInt("KeyRight", KeyEvent.KEYCODE_DPAD_RIGHT)
 			.putInt("KeyNew", KeyEvent.KEYCODE_2)
 			.putInt("KeyRestart", KeyEvent.KEYCODE_3)
+			.putInt("KeyOptions", KeyEvent.KEYCODE_4)
 			.commit();
 			PreferenceManager.setDefaultValues(this, R.xml.options, true);
 			Toast.makeText(this, R.string.keys_reset, Toast.LENGTH_LONG).show();

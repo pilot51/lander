@@ -327,7 +327,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		/** Indicate whether the surface has been created & is ready to draw */
 		private boolean mRun = false;
 		
-		private int keyThrust, keyLeft, keyRight, keyNew, keyRestart;
+		private int keyThrust, keyLeft, keyRight;
 
 		private LanderThread(SurfaceHolder surfaceHolder, Context context, Handler handler) {
 			mSurfaceHolder = surfaceHolder;
@@ -342,8 +342,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			keyThrust = prefs.getInt("KeyThrust", 0);
 			keyLeft = prefs.getInt("KeyLeft", 0);
 			keyRight = prefs.getInt("KeyRight", 0);
-			keyNew = prefs.getInt("KeyNew", 0);
-			keyRestart = prefs.getInt("KeyRestart", 0);
 
 			rand = new Random(System.currentTimeMillis());
 			
@@ -505,13 +503,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						setFiringRight(true);
 						return true;
 					}
-				}
-				if (keyCode == keyNew) {
-					byLanderState = LND_NEW;
-					return true;
-				} else if (keyCode == keyRestart) {
-					byLanderState = LND_RESTART;
-					return true;
 				}
 				return false;
 			}
