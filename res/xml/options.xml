@@ -2,59 +2,65 @@
 <PreferenceScreen
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:lander="http://schemas.android.com/apk/res/com.pilot51.lander">
-	<com.pilot51.lander.SeekBarPreference
-		android:key="Gravity"
-		android:title="@string/gravity"
-		android:summary="@string/gravity_summary"
-		lander:defaultValue="3"
-		lander:min="1"
-		lander:max="10.67" />
-	<com.pilot51.lander.SeekBarPreference
-		android:key="Fuel"
-		android:title="@string/fuel"
-		android:summary="@string/fuel_summary"
-		lander:defaultValue="1000"
-		lander:min="100"
-		lander:max="3000" />
-	<com.pilot51.lander.SeekBarPreference
-		android:key="Thrust"
-		android:title="@string/thrust"
-		android:summary="@string/thrust_summary"
-		lander:defaultValue="10000"
-		lander:min="2500"
-		lander:max="38750" />
-	<CheckBoxPreference
-		android:key="DrawFlame"
-		android:defaultValue="true"
-		android:title="@string/drawflame" />
-	<CheckBoxPreference
-		android:key="ReverseSideThrust"
-		android:defaultValue="false"
-		android:title="@string/reversesidethrust" />
-	<Preference
-		android:key="Default"
-		android:summary="@string/default_summary"
-		android:title="@string/default_title" />
 	<PreferenceCategory
-		android:title="@string/extras">
+		android:title="@string/classic_options">
+		<com.pilot51.lander.SeekBarPreference
+			android:key="Gravity"
+			android:title="@string/gravity"
+			android:summary="@string/gravity_summary"
+			lander:defaultValue="3"
+			lander:min="1"
+			lander:max="10.67" />
+		<com.pilot51.lander.SeekBarPreference
+			android:key="Fuel"
+			android:title="@string/fuel"
+			android:summary="@string/fuel_summary"
+			lander:defaultValue="1000"
+			lander:min="100"
+			lander:max="3000" />
+		<com.pilot51.lander.SeekBarPreference
+			android:key="Thrust"
+			android:title="@string/thrust"
+			android:summary="@string/thrust_summary"
+			lander:defaultValue="10000"
+			lander:min="2500"
+			lander:max="38750" />
+		<CheckBoxPreference
+			android:key="DrawFlame"
+			android:title="@string/drawflame"
+			android:defaultValue="true" />
+		<CheckBoxPreference
+			android:key="ReverseSideThrust"
+			android:title="@string/reversesidethrust"
+			android:defaultValue="false" />
+		<Preference
+			android:key="DefaultClassic"
+			android:title="@string/default_title"
+			android:summary="@string/default_summary" />
+	</PreferenceCategory>
+	<PreferenceCategory
+		android:title="@string/extra_options">
 		<PreferenceScreen
-			android:title="@string/controls"
-			android:key="Controls">
+			android:key="Controls"
+			android:title="@string/controls">
 			<Preference
-				android:title="@string/thrust"
-				android:key="KeyThrust" />
+				android:key="KeyThrust"
+				android:title="@string/thrust" />
 			<Preference
-				android:title="@string/left"
-				android:key="KeyLeft" />
+				android:key="KeyLeft"
+				android:title="@string/left" />
 			<Preference
-				android:title="@string/right"
-				android:key="KeyRight" />
+				android:key="KeyRight"
+				android:title="@string/right" />
 			<Preference
-				android:title="@string/menu_new"
-				android:key="KeyNew" />
+				android:key="KeyNew"
+				android:title="@string/menu_new" />
 			<Preference
-				android:title="@string/menu_restart"
-				android:key="KeyRestart" />
+				android:key="KeyRestart"
+				android:title="@string/menu_restart" />
+			<Preference
+				android:key="DefaultKeys"
+				android:title="@string/default_keys_title" />
 		</PreferenceScreen>
 	</PreferenceCategory>
 </PreferenceScreen>

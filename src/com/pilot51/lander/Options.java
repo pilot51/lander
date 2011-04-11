@@ -1,7 +1,6 @@
 package com.pilot51.lander;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.SharedPreferences;
@@ -17,7 +16,8 @@ import android.widget.Toast;
 public class Options extends PreferenceActivity implements OnPreferenceClickListener, OnKeyListener {
 	private SharedPreferences prefs;
 	private Preference
-		pDefault,
+		pDefClassic,
+		pDefKeys,
 		pKeyThrust,
 		pKeyLeft,
 		pKeyRight,
@@ -29,17 +29,16 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.options);
-		
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		
-		pDefault = (Preference)findPreference("Default");
+		pDefClassic = (Preference)findPreference("DefaultClassic");
+		pDefKeys = (Preference)findPreference("DefaultKeys");
 		pKeyThrust = (Preference)findPreference("KeyThrust");
 		pKeyLeft = (Preference)findPreference("KeyLeft");
 		pKeyRight = (Preference)findPreference("KeyRight");
 		pKeyNew = (Preference)findPreference("KeyNew");
 		pKeyRestart = (Preference)findPreference("KeyRestart");
-
-		pDefault.setOnPreferenceClickListener(this);
+		pDefClassic.setOnPreferenceClickListener(this);
+		pDefKeys.setOnPreferenceClickListener(this);
 		pKeyThrust.setOnPreferenceClickListener(this);
 		pKeyLeft.setOnPreferenceClickListener(this);
 		pKeyRight.setOnPreferenceClickListener(this);
@@ -48,21 +47,28 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	}
 	
 	public boolean onPreferenceClick(Preference preference) {
-		if (preference == pDefault) {
-			Context context = getBaseContext();
-			prefs.edit().clear().commit();
-			PreferenceManager.setDefaultValues(context, R.xml.options, true);
+		if (preference == pDefClassic) {
 			prefs.edit()
-			.putInt(pKeyThrust.getKey(), KeyEvent.KEYCODE_DPAD_DOWN)
-			.putInt(pKeyLeft.getKey(), KeyEvent.KEYCODE_DPAD_LEFT)
-			.putInt(pKeyRight.getKey(), KeyEvent.KEYCODE_DPAD_RIGHT)
-			.putInt(pKeyNew.getKey(), KeyEvent.KEYCODE_2)
-			.putInt(pKeyRestart.getKey(), KeyEvent.KEYCODE_3)
+			.remove("Gravity")
+			.remove("Fuel")
+			.remove("Thrust")
+			.remove("DrawFlame")
+			.remove("ReverseSideThrust")
 			.commit();
+			PreferenceManager.setDefaultValues(this, R.xml.options, true);
 			finish();
 			startActivity(getIntent());
-			Toast.makeText(context, R.string.options_reset, Toast.LENGTH_LONG).show();
-			return true;
+			Toast.makeText(this, R.string.classic_options_reset, Toast.LENGTH_LONG).show();
+		} else if (preference == pDefKeys) {
+			prefs.edit()
+			.putInt("KeyThrust", KeyEvent.KEYCODE_DPAD_DOWN)
+			.putInt("KeyLeft", KeyEvent.KEYCODE_DPAD_LEFT)
+			.putInt("KeyRight", KeyEvent.KEYCODE_DPAD_RIGHT)
+			.putInt("KeyNew", KeyEvent.KEYCODE_2)
+			.putInt("KeyRestart", KeyEvent.KEYCODE_3)
+			.commit();
+			PreferenceManager.setDefaultValues(this, R.xml.options, true);
+			Toast.makeText(this, R.string.keys_reset, Toast.LENGTH_LONG).show();
 		} else if (preference.getKey().startsWith("Key")) {
 			selectedPref = preference;
 			setControl();
