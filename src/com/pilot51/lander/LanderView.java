@@ -334,9 +334,9 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			mContext = context;
 			mHandler = handler;
 			prefs = PreferenceManager.getDefaultSharedPreferences(context);
-			fGravity = Float.parseFloat(prefs.getString("Gravity", null));
-			fInitFuel = Integer.parseInt(prefs.getString("Fuel", null));
-			fMainForce = Integer.parseInt(prefs.getString("Thrust", null));
+			fGravity = prefs.getFloat("Gravity", 0);
+			fInitFuel = prefs.getFloat("Fuel", 0);
+			fMainForce = prefs.getFloat("Thrust", 0);
 			bDrawFlame = prefs.getBoolean("DrawFlame", false);
 			bReverseSideThrust = prefs.getBoolean("ReverseSideThrust", false);
 			keyThrust = prefs.getInt("KeyThrust", 0);

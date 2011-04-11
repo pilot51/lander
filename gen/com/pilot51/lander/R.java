@@ -9,6 +9,30 @@ package com.pilot51.lander;
 
 public final class R {
     public static final class attr {
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int defaultValue=0x7f010000;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int max=0x7f010002;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int min=0x7f010001;
     }
     public static final class drawable {
         public static final int about=0x7f020000;
@@ -49,6 +73,8 @@ public final class R {
         public static final int btnRight=0x7f070005;
         public static final int btnThrust=0x7f070007;
         public static final int lander=0x7f070000;
+        public static final int seekbar=0x7f070009;
+        public static final int value=0x7f070008;
         public static final int valueAlt=0x7f070001;
         public static final int valueFuel=0x7f070004;
         public static final int valueVelX=0x7f070002;
@@ -56,6 +82,7 @@ public final class R {
     }
     public static final class layout {
         public static final int lander_layout=0x7f030000;
+        public static final int preference_seekbar=0x7f030001;
     }
     public static final class string {
         public static final int about_text=0x7f050012;
@@ -109,4 +136,65 @@ public final class R {
     public static final class xml {
         public static final int options=0x7f040000;
     }
+    public static final class styleable {
+        /** Attributes that can be used with a com_pilot51_lander.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #com_pilot51_lander_defaultValue com.pilot51.lander:defaultValue}</code></td><td></td></tr>
+           <tr><td><code>{@link #com_pilot51_lander_max com.pilot51.lander:max}</code></td><td></td></tr>
+           <tr><td><code>{@link #com_pilot51_lander_min com.pilot51.lander:min}</code></td><td></td></tr>
+           </table>
+           @see #com_pilot51_lander_defaultValue
+           @see #com_pilot51_lander_max
+           @see #com_pilot51_lander_min
+         */
+        public static final int[] com_pilot51_lander = {
+            0x7f010000, 0x7f010001, 0x7f010002
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.pilot51.lander.R.attr#defaultValue}
+          attribute's value can be found in the {@link #com_pilot51_lander} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name android:defaultValue
+        */
+        public static final int com_pilot51_lander_defaultValue = 0;
+        /**
+          <p>This symbol is the offset where the {@link com.pilot51.lander.R.attr#max}
+          attribute's value can be found in the {@link #com_pilot51_lander} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name android:max
+        */
+        public static final int com_pilot51_lander_max = 2;
+        /**
+          <p>This symbol is the offset where the {@link com.pilot51.lander.R.attr#min}
+          attribute's value can be found in the {@link #com_pilot51_lander} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name android:min
+        */
+        public static final int com_pilot51_lander_min = 1;
+    };
 }

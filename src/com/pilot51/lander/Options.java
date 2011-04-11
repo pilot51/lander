@@ -5,18 +5,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.preference.Preference.OnPreferenceClickListener;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
-public class Options extends PreferenceActivity implements OnPreferenceClickListener, OnSharedPreferenceChangeListener, OnKeyListener {
+public class Options extends PreferenceActivity implements OnPreferenceClickListener, OnKeyListener {
 	private SharedPreferences prefs;
 	private Preference
 		pDefault,
@@ -40,7 +38,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyRight = (Preference)findPreference("KeyRight");
 		pKeyNew = (Preference)findPreference("KeyNew");
 		pKeyRestart = (Preference)findPreference("KeyRestart");
-		
+
 		pDefault.setOnPreferenceClickListener(this);
 		pKeyThrust.setOnPreferenceClickListener(this);
 		pKeyLeft.setOnPreferenceClickListener(this);
@@ -52,7 +50,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	public boolean onPreferenceClick(Preference preference) {
 		if (preference == pDefault) {
 			Context context = getBaseContext();
-			PreferenceManager.getDefaultSharedPreferences(context).edit().clear().commit();
+			prefs.edit().clear().commit();
 			PreferenceManager.setDefaultValues(context, R.xml.options, true);
 			prefs.edit()
 			.putInt(pKeyThrust.getKey(), KeyEvent.KEYCODE_DPAD_DOWN)
@@ -116,45 +114,5 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 			label = "(UNKNOWN)";
 		}
 		return label;
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		prefs.registerOnSharedPreferenceChangeListener(this);
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		prefs.unregisterOnSharedPreferenceChangeListener(this);
-	}
-	
-	public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
-		if (key.equals("Gravity")) {
-			try {
-				Float.parseFloat(sp.getString("Gravity", null));
-			} catch (Exception e) {
-				sp.edit().putString("Gravity", "3").commit();
-				((EditTextPreference)findPreference("Gravity")).setText("3");
-				Toast.makeText(this, R.string.gravity_blank, Toast.LENGTH_SHORT).show();
-			}
-		} else if (key.equals("Fuel")) {
-			try {
-				Integer.parseInt(sp.getString("Fuel", null));
-			} catch (Exception e) {
-				sp.edit().putString("Fuel", "1000").commit();
-				((EditTextPreference)findPreference("Fuel")).setText("1000");
-				Toast.makeText(this, R.string.fuel_blank, Toast.LENGTH_SHORT).show();
-			}
-		} else if (key.equals("Thrust")) {
-			try {
-				Integer.parseInt(sp.getString("Thrust", null));
-			} catch (Exception e) {
-				sp.edit().putString("Thrust", "10000").commit();
-				((EditTextPreference)findPreference("Thrust")).setText("10000");
-				Toast.makeText(this, R.string.thrust_blank, Toast.LENGTH_SHORT).show();
-			}
-		}
 	}
 }

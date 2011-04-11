@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
-	xmlns:android="http://schemas.android.com/apk/res/android">
-	<EditTextPreference
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:lander="http://schemas.android.com/apk/res/com.pilot51.lander">
+	<com.pilot51.lander.SeekBarPreference
 		android:key="Gravity"
-		android:defaultValue="3"
-		android:dialogMessage="@string/gravity_dialog_message"
-		android:summary="@string/gravity_summary"
 		android:title="@string/gravity"
-		android:inputType="phone"
-		android:digits="0123456789." />
-	<EditTextPreference
+		android:summary="@string/gravity_summary"
+		lander:defaultValue="3"
+		lander:min="1"
+		lander:max="10.67" />
+	<com.pilot51.lander.SeekBarPreference
 		android:key="Fuel"
-		android:defaultValue="1000"
-		android:dialogMessage="@string/fuel_dialog_message"
-		android:summary="@string/fuel_summary"
 		android:title="@string/fuel"
-		android:inputType="phone"
-		android:digits="0123456789" />
-	<EditTextPreference
+		android:summary="@string/fuel_summary"
+		lander:defaultValue="1000"
+		lander:min="100"
+		lander:max="3000" />
+	<com.pilot51.lander.SeekBarPreference
 		android:key="Thrust"
-		android:defaultValue="10000"
-		android:digits="0123456789"
-		android:inputType="phone"
-		android:dialogMessage="@string/thrust_dialog_message"
+		android:title="@string/thrust"
 		android:summary="@string/thrust_summary"
-		android:title="@string/thrust" />
+		lander:defaultValue="10000"
+		lander:min="2500"
+		lander:max="38750" />
 	<CheckBoxPreference
 		android:key="DrawFlame"
 		android:defaultValue="true"
