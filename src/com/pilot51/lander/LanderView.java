@@ -718,9 +718,9 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					if (contactGround()) {
 						drawStatus(true);
 						byLanderState = LND_ENDGAME;
-					} else if (landerY > 5000f
-							| landerY < -500f
-							| Math.abs(landerX) > 1000f) {
+					} else if ((landerY - yGroundZero) * scaleY > 5000f
+							| (landerY - yGroundZero) * scaleY < -500f
+							| Math.abs((landerX - (xClient / 2)) * (scaleY / 2)) > 1000f) {
 						byLanderState = LND_OUTOFRANGE;
 						drawStatus(true);
 					}

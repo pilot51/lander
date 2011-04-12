@@ -54,13 +54,13 @@
 				android:title="@string/right" />
 			<Preference
 				android:key="KeyNew"
-				android:title="@string/menu_new" />
+				android:title="@string/word_new" />
 			<Preference
 				android:key="KeyRestart"
-				android:title="@string/menu_restart" />
+				android:title="@string/restart" />
 			<Preference
 				android:key="KeyOptions"
-				android:title="@string/menu_options" />
+				android:title="@string/options" />
 			<Preference
 				android:key="DefaultKeys"
 				android:title="@string/default_keys_title" />

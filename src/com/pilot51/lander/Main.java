@@ -61,10 +61,10 @@ public class Main extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, MENU_NEW, 0, R.string.menu_new);
-		menu.add(0, MENU_RESTART, 0, R.string.menu_restart);
-		menu.add(0, MENU_OPTIONS, 0, R.string.menu_options);
-		menu.add(0, MENU_ABOUT, 0, R.string.menu_about);
+		menu.add(0, MENU_NEW, 0, R.string.word_new);
+		menu.add(0, MENU_RESTART, 0, R.string.restart);
+		menu.add(0, MENU_OPTIONS, 0, R.string.options);
+		menu.add(0, MENU_ABOUT, 0, R.string.about);
 		return true;
 	}
 
@@ -86,7 +86,7 @@ public class Main extends Activity {
 			mLanderView.byLanderState = LanderView.LND_INACTIVE;
 		new AlertDialog.Builder(this)
 			.setIcon(getResources().getDrawable(R.drawable.icon))
-			.setTitle(getString(R.string.menu_about) + " " + getString(R.string.app_name) + " " + getString(R.string.app_version))
+			.setTitle(getString(R.string.about) + " " + getString(R.string.app_name) + " " + getString(R.string.app_version))
 			.setMessage(R.string.about_text)
 			.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int which) {

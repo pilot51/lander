@@ -2,10 +2,14 @@
 <resources>
 	<string name="app_name">Lander</string>
 	<string name="app_version">v0.9.0</string>
-	<string name="menu_new">New</string>
-	<string name="menu_restart">Restart</string>
-	<string name="menu_options">Options</string>
-	<string name="menu_about">About</string>
+	<string name="word_new">New</string>
+	<string name="restart">Restart</string>
+	<string name="options">Options</string>
+	<string name="about">About</string>
+	<string name="altitude">Altitude</string>
+	<string name="velocity_x">Velocity X</string>
+	<string name="velocity_y">Velocity Y</string>
+	<string name="fuel">Fuel</string>
 	<string name="end_safe">Congratulations!\nYou have landed safely.</string>
 	<string name="end_crash">CRASH!</string>
 	<string name="end_crashv1">Too much vertical velocity. Your landing speed must be under 10 m/sec.</string>
@@ -14,16 +18,11 @@
 	<string name="end_crashh">Too much horizontal velocity. Your horizontal motion must be less than 1 m/sec.</string>
 	<string name="end_crashs">Missed the landing site. You must land on flat terrain.</string>
 	<string name="end_outofrange">Lander Lost!\nYou are out of range of the command module and presumed lost.</string>
-	<string name="hud_alt">Altitude</string>
-	<string name="hud_velx">Velocity X</string>
-	<string name="hud_vely">Velocity Y</string>
-	<string name="hud_fuel">Fuel</string>
 	<string name="about_text">Lander is an Android port of the 1990 game by the same name for Windows 3.1.\n\nFull permission and source code for v1.3 has been provided by the original developer, George Moromisato.</string>
 	<string name="gravity_dialog_message">Actual Moon gravity: 1.62m/s²</string>
 	<string name="gravity">Gravity</string>
 	<string name="gravity_summary">Gravity in m/s²</string>
 	<string name="fuel_dialog_message">Actual fuel of Apollo Lunar Module descent stage: 8200kg</string>
-	<string name="fuel">Fuel</string>
 	<string name="fuel_summary">Initial fuel in kg\nAffects mass of lander</string>
 	<string name="thrust_dialog_message">Actual thrust of Apollo Lunar Module descent stage: 45000N full throttle, 5000-30000N throttleable</string>
 	<string name="thrust">Thrust</string>
@@ -35,6 +34,7 @@
 	<string name="classic_options">Classic options</string>
 	<string name="extra_options">Extra options</string>
 	<string name="controls">Controls</string>
+	<string name="controls_summary_nokeys">No physical keyboard detected</string>
 	<string name="default_keys_title">Reset keys to default</string>
 	<string name="keys_reset">Keys reset to default</string>
 	<string name="left">Left</string>
@@ -44,7 +44,4 @@
 	<string name="classic_options_reset">Classic options reset to default</string>
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
-	<string name="gravity_blank">Cannot leave Gravity blank.\nReset to default (3)</string>
-	<string name="fuel_blank">Cannot leave Fuel blank.\nReset to default (1000)</string>
-	<string name="thrust_blank">Cannot leave Thrust blank.\nReset to default (10000)</string>
 </resources>

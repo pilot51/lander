@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
@@ -47,6 +48,11 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyNew.setOnPreferenceClickListener(this);
 		pKeyRestart.setOnPreferenceClickListener(this);
 		pKeyOptions.setOnPreferenceClickListener(this);
+		if (getResources().getConfiguration().keyboard == Configuration.KEYBOARD_NOKEYS) {
+			Preference pControls = (Preference)findPreference("Controls");
+			pControls.setEnabled(false);
+			pControls.setSummary(R.string.controls_summary_nokeys);
+		}
 	}
 	
 	public boolean onPreferenceClick(Preference preference) {

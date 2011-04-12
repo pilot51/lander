@@ -42,24 +42,24 @@
 			android:layout_below="@+id/valueVelY"
 			android:gravity="right" />
 		<TextView
-			android:text="@string/hud_alt"
+			android:text="@string/altitude"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_toLeftOf="@+id/valueAlt" />
 		<TextView
-			android:text="@string/hud_velx"
+			android:text="@string/velocity_x"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/valueAlt"
 			android:layout_toLeftOf="@+id/valueVelX" />
 		<TextView
-			android:text="@string/hud_vely"
+			android:text="@string/velocity_y"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/valueVelX"
 			android:layout_toLeftOf="@+id/valueVelY" />
 		<TextView
-			android:text="@string/hud_fuel"
+			android:text="@string/fuel"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/valueVelY"
