@@ -24,6 +24,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		max = convertToBarValue(attrs.getAttributeFloatValue(xmlns, "max", 0));
 		min = convertToBarValue(attrs.getAttributeFloatValue(xmlns, "min", 0));
 		defaultValue = attrs.getAttributeFloatValue(xmlns, "defaultValue", 0);
+		setDefaultValue(defaultValue);
 	}
 
 	@Override

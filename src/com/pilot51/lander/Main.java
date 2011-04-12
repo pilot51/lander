@@ -21,6 +21,7 @@ public class Main extends Activity {
 		MENU_OPTIONS = 3,
 		MENU_ABOUT = 4;
 	private int keyNew, keyRestart, keyOptions;
+	private SharedPreferences prefs;
 	
 	/** A handle to the View in which the game is running. */
 	private LanderView mLanderView;
@@ -31,7 +32,7 @@ public class Main extends Activity {
 		super.onCreate(savedInstanceState);
 		// Load default preferences from xml if not saved
 		PreferenceManager.setDefaultValues(this, R.xml.options, true);
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (prefs.getInt("KeyThrust", 0) == 0) {
 			prefs.edit()
 			.putInt("KeyThrust", KeyEvent.KEYCODE_DPAD_DOWN)
@@ -83,7 +84,6 @@ public class Main extends Activity {
 		case MENU_ABOUT:
 			final byte byOldState = mLanderView.byLanderState;
 			mLanderView.byLanderState = LanderView.LND_INACTIVE;
-			//AboutDialog (hWnd);
 		new AlertDialog.Builder(this)
 			.setIcon(getResources().getDrawable(R.drawable.icon))
 			.setTitle(getString(R.string.menu_about) + " " + getString(R.string.app_name) + " " + getString(R.string.app_version))
@@ -101,7 +101,7 @@ public class Main extends Activity {
 	}
 	
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent msg) {
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == keyNew) {
 			mLanderView.byLanderState = LanderView.LND_NEW;
 			return true;
@@ -113,11 +113,17 @@ public class Main extends Activity {
 			startActivityForResult(new Intent(this, Options.class), 1);
 			return true;
 		}
-		return false;
+		return super.onKeyDown(keyCode, event);
 	}
 	
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if(requestCode == 1)
+		if(requestCode == 1) {
+			if (resultCode == 1) {
+				keyNew = prefs.getInt("KeyNew", 0);
+				keyRestart = prefs.getInt("KeyRestart", 0);
+				keyOptions = prefs.getInt("KeyOptions", 0);
+			}
 			mLanderView.byLanderState = LanderView.LND_RESTART;
+		}
 	}
 }

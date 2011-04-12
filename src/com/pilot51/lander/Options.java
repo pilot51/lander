@@ -71,7 +71,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 			.putInt("KeyRestart", KeyEvent.KEYCODE_3)
 			.putInt("KeyOptions", KeyEvent.KEYCODE_4)
 			.commit();
-			PreferenceManager.setDefaultValues(this, R.xml.options, true);
+			setResult(1);
 			Toast.makeText(this, R.string.keys_reset, Toast.LENGTH_LONG).show();
 		} else if (preference.getKey().startsWith("Key")) {
 			selectedPref = preference;
@@ -97,8 +97,8 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		if (event.getDeviceId() == 0) {
 			if (event.getAction() == KeyEvent.ACTION_DOWN) {
 				prefs.edit().putInt(selectedPref.getKey(), keyCode).commit();
-				getKeyLabel(keyCode);
 			} else if (event.getAction() == KeyEvent.ACTION_UP) {
+				setResult(1);
 				dialog.dismiss();
 			}
 			return true;
