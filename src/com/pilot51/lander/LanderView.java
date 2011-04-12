@@ -316,6 +316,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	private Paint paintWhite = new Paint(),
 		paintBlack = new Paint();
 	private ArrayList<Point> groundPlot;
+	
+	private float scaleY;
 
 	private boolean mFiringMain;
 	private boolean mFiringLeft;
@@ -577,7 +579,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		
 		private void drawStatus(boolean bOverride) {
 			if ((nCount >= STATUS_DELAY) | bOverride) {
-				setScreenText(HANDLE_ALT, df2.format(landerY - yGroundZero));
+				setScreenText(HANDLE_ALT, df2.format((landerY - yGroundZero) * scaleY));
 				setScreenText(HANDLE_VELX, df2.format(landerVx));
 				setScreenText(HANDLE_VELY, df2.format(landerVy));
 				setScreenText(HANDLE_FUEL, df2.format(fFuel));
@@ -627,7 +629,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		}
 
 		private void landerMotion() {
-			//dt = 0.1f;
 			float fMass, fBurn = 0f;
 			float dVx, dVy;
 			fMass = fLanderMass + fFuel;
@@ -652,8 +653,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			}
 			landerVy += dVy * dt;
 			landerVx += dVx * dt;
-			landerY += landerVy * dt;
-			landerX += landerVx * dt;
+			landerY += landerVy * dt / scaleY;
+			landerX += landerVx * dt / (scaleY / 2);
 		}
 		
 		private static final int MAX_TIMER = 10;
@@ -667,8 +668,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					createGround();
 					fFuel = fInitFuel;
 					landerX = xClient / 2;
-					//landerY = 1000f;
-					landerY = invertY(yLanderPict);
+					landerY = (1000f / scaleY) + yGroundZero;
 					landerVx = 0f;
 					landerVy = 0f;
 					landerPict = hLanderPict;
@@ -698,8 +698,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				case LND_RESTART:
 					fFuel = fInitFuel;
 					landerX = xClient / 2;
-					//landerY = 1000f;
-					landerY = invertY(yLanderPict);
+					landerY = (1000f / scaleY) + yGroundZero;
 					landerVx = 0f;
 					landerVy = 0f;
 					landerPict = hLanderPict;
@@ -880,6 +879,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						y = y - nDy;
 				} else if (i == nLandingStart) {
 					yGroundZero = invertY(y);
+					scaleY = 1200f / (yClient - yGroundZero - yLanderPict);
 				}
 			}
 			point = new Point();
