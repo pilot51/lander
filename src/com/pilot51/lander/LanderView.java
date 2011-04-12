@@ -317,7 +317,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		paintBlack = new Paint();
 	private ArrayList<Point> groundPlot;
 	
-	private float scaleY;
+	private float scaleY, densityScale;
 
 	private boolean mFiringMain;
 	private boolean mFiringLeft;
@@ -368,6 +368,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 			xLanderPict = hLanderPict.getIntrinsicWidth();
 			yLanderPict = hLanderPict.getIntrinsicHeight();
+			
+			densityScale = context.getResources().getDisplayMetrics().density;
 
 			paintWhite.setColor(Color.WHITE);
 			paintWhite.setStyle(Paint.Style.FILL);
@@ -600,20 +602,20 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			if (nFlameCount == 0 & bDrawFlame & fFuel > 0f & byLanderState == LND_ACTIVE) {
 				int yTopF, xLeftF;
 				if (mFiringMain) {
-					yTopF = invertY((int)landerY - 11 + hBFlamePict.getIntrinsicHeight() / 2);
+					yTopF = invertY((int)landerY - (int)(11 * densityScale) + hBFlamePict.getIntrinsicHeight() / 2);
 					xLeftF = (int)landerX - hBFlamePict.getIntrinsicWidth() / 2;
 					hBFlamePict.setBounds(xLeftF, yTopF, xLeftF + hBFlamePict.getIntrinsicWidth(), yTopF + hBFlamePict.getIntrinsicHeight());
 					hBFlamePict.draw(canvas);
 				}
 				if (mFiringLeft) {
-					yTopF = invertY((int)landerY + 21 + hLFlamePict.getIntrinsicHeight() / 2);
-					xLeftF = (int)landerX - 27 - hLFlamePict.getIntrinsicWidth() / 2;
+					yTopF = invertY((int)landerY + (int)(21 * densityScale) + hLFlamePict.getIntrinsicHeight() / 2);
+					xLeftF = (int)landerX - (int)(27 * densityScale) - hLFlamePict.getIntrinsicWidth() / 2;
 					hLFlamePict.setBounds(xLeftF, yTopF, xLeftF + hLFlamePict.getIntrinsicWidth(), yTopF + hLFlamePict.getIntrinsicHeight());
 					hLFlamePict.draw(canvas);
 				}
 				if (mFiringRight) {
-					yTopF = invertY((int)landerY + 21 + hRFlamePict.getIntrinsicHeight() / 2);
-					xLeftF = (int)landerX + 27 - hRFlamePict.getIntrinsicWidth() / 2;
+					yTopF = invertY((int)landerY + (int)(21 * densityScale) + hRFlamePict.getIntrinsicHeight() / 2);
+					xLeftF = (int)landerX + (int)(27 * densityScale) - hRFlamePict.getIntrinsicWidth() / 2;
 					hRFlamePict.setBounds(xLeftF, yTopF, xLeftF + hRFlamePict.getIntrinsicWidth(), yTopF + hRFlamePict.getIntrinsicHeight());
 					hRFlamePict.draw(canvas);
 				}

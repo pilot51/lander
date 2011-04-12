@@ -66,24 +66,28 @@
 			android:layout_toLeftOf="@+id/valueFuel" />
 		<Button
 			android:id="@+id/btnRight"
+			android:background="@drawable/btn_right"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
 			android:layout_below="@+id/valueFuel"
-			android:background="@drawable/btn_right" />
+			android:layout_marginRight="2dp" />
 		<Button
 			android:id="@+id/btnLeft"
+			android:background="@drawable/btn_left"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/valueFuel"
 			android:layout_toLeftOf="@+id/btnRight"
-			android:background="@drawable/btn_left" />
+			android:layout_marginRight="2dp" />
 		<Button
 			android:id="@+id/btnThrust"
+			android:background="@drawable/btn_thrust"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
 			android:layout_below="@+id/btnRight"
-			android:background="@drawable/btn_thrust" android:layout_marginRight="24px"/>
+			android:layout_marginRight="27dp"
+			android:layout_marginTop="2dp"/>
 	</RelativeLayout>
 </FrameLayout>
