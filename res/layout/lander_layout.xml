@@ -12,14 +12,12 @@
 		android:layout_height="match_parent">
 		<TextView
 			android:id="@+id/valueAlt"
-			android:text="vAlt"
 			android:layout_width="60dp"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
 			android:gravity="right" />
 		<TextView
 			android:id="@+id/valueVelX"
-			android:text="vVelX"
 			android:layout_width="60dp"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
@@ -27,7 +25,6 @@
 			android:gravity="right" />
 		<TextView
 			android:id="@+id/valueVelY"
-			android:text="vVelY"
 			android:layout_width="60dp"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
@@ -35,7 +32,6 @@
 			android:gravity="right" />
 		<TextView
 			android:id="@+id/valueFuel"
-			android:text="vFuel"
 			android:layout_width="60dp"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"

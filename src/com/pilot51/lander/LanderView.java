@@ -163,17 +163,15 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	/* Callback invoked when the surface dimensions change. */
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 		thread.setSurfaceSize(width, height);
+		thread.setRunning(true);
+		thread.start();
 	}
 
 	/* Callback invoked when the Surface has been created and is ready to be used. */
 	public void surfaceCreated(SurfaceHolder holder) {
-		// start the thread here so that we don't busy-wait in run()
-		// waiting for the surface to be created
 		if (thread.getState() == Thread.State.TERMINATED) {
 			thread = new LanderThread(mSurfaceHolder, mContext, mHandler);
 		}
-		thread.setRunning(true);
-		thread.start();
 	}
 
 	/*
