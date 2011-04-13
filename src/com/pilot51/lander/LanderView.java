@@ -314,7 +314,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	private Path path;
 	private Paint paintWhite = new Paint(),
 		paintBlack = new Paint();
-	private ArrayList<Point> groundPlot;
+	private ArrayList<Point> groundPlot, contactPoints;
 	
 	private float scaleY, densityScale;
 
@@ -785,22 +785,26 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			boolean bTouchDown = false;
 			float left = landerX - xLanderPict / 2,
 				right = landerX + xLanderPict / 2;
-			int y1, y2;
+			float y1, y2;
 			//Point pointCenter1 = null, pointCenter2 = null;
+			contactPoints = new ArrayList<Point>();
 			for(int i = 0; i < groundPlot.size(); i++) {
 				Point point = groundPlot.get(i);
 				Point point2;
 				if (i+1 < groundPlot.size()) point2 = groundPlot.get(i+1);
-				else point2 = new Point();
+				else point2 = new Point(0, 0);
 				y1 = invertY(point.y);
 				y2 = invertY(point2.y);
 				if (left <= point.x & point.x <= right) {
+					contactPoints.add(point);
 					if (landerY <= y1 + 1)
 						bTouchDown = true;
 				}
 				if (point.x <= left & left <= point2.x) {
 					float yGroundLeft = y2 - ((y1 - y2) / (point.x - point2.x)) * (point2.x - left);
-					if (landerY - yGroundLeft <= 0) bTouchDown = true;
+					contactPoints.add(new Point((int)left, invertY(Math.round(yGroundLeft))));
+					if (landerY - yGroundLeft <= 0)
+						bTouchDown = true;
 				}
 				/*if (point.x <= landerX & landerX <= point2.x) {
 					pointCenter1 = point;
@@ -808,7 +812,9 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				}*/
 				if (point.x <= right & right <= point2.x) {
 					float yGroundRight = y2 - ((y1 - y2) / (point.x - point2.x)) * (point2.x - right);
-					if (landerY - yGroundRight <= 0) bTouchDown = true;
+					contactPoints.add(new Point((int)right, invertY(Math.round(yGroundRight))));
+					if (landerY - yGroundRight <= 0)
+						bTouchDown = true;
 				}
 				if (right < point.x) break;
 			}
@@ -821,21 +827,15 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		}
 		
 		private boolean landedFlat() {
-			boolean flat = true;
-			float left = landerX - xLanderPict / 2,
-				right = landerX + xLanderPict / 2;
-			Point point, lastPoint = groundPlot.get(0);
-			for(int i = 1; i < groundPlot.size(); i++) {
-				point = groundPlot.get(i);
-				if (left < point.x) {
-					if (lastPoint.y != point.y)
-						flat = false;
-					if (point.x >= right)
-						break;
-				}
-				lastPoint = point;
+			int pointY, yLevel = 0;
+			for (int i = 0; i < contactPoints.size(); i++) {
+				pointY = contactPoints.get(i).y;
+				if (i == 0)
+					yLevel = pointY;
+				else if (yLevel != pointY)
+					return false;
 			}
-			return flat;
+			return true;
 		}
 
 		/** number of points across including two end-points (must be greater than one). */
@@ -856,9 +856,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				mctySize = invertY(5),
 				y = mctySize - rand.nextInt(nMaxHeight);
 			groundPlot = new ArrayList<Point>();
-			Point point = new Point();
-			point.x = 0;
-			point.y = yClient;
+			Point point = new Point(0, yClient);
 			groundPlot.add(point);
 			path = new Path();
 			path.setFillType(Path.FillType.EVEN_ODD);
@@ -868,9 +866,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			nIncExtra = xClient % (CRG_POINTS - 1);
 			for (int i = 1; i <= CRG_POINTS; i++) {
 				x = ((i - 1) * nInc) + (((i - 1) * nIncExtra) / (CRG_POINTS - 1));
-				point = new Point();
-				point.x = x;
-				point.y = y;
+				point = new Point(x, y);
 				groundPlot.add(point);
 				path.lineTo(point.x, point.y);
 				if (i < nLandingStart || i >= nLandingStart + nPadSize) {
@@ -884,9 +880,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					scaleY = 1200f / (yClient - yGroundZero - yLanderPict);
 				}
 			}
-			point = new Point();
-			point.x = xClient;
-			point.y = yClient;
+			point = new Point(xClient, yClient);
 			groundPlot.add(point);
 			path.lineTo(point.x, point.y);
 			path.lineTo(0, yClient);
@@ -900,6 +894,12 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	
 	private class Point {
 		private int x, y;
+		
+		public Point(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+		
 		@Override
 		public String toString() {
 			return "x: " + x + " | y: " + y;
