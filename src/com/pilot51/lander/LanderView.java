@@ -315,6 +315,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	private Paint paintWhite = new Paint(),
 		paintBlack = new Paint();
 	private ArrayList<Point> groundPlot, contactPoints;
+	private Point pointCenter;
 	
 	private float scaleY, densityScale;
 
@@ -743,6 +744,9 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					endGameDialog();
 					break;
 				case LND_CRASH1:
+					while (landerY > 0 & landerY > pointCenter.y) {
+						landerY--;
+					}
 					landerPict = hCrash1;
 					byLanderState = LND_CRASH2;
 					break;
@@ -786,11 +790,11 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			float left = landerX - xLanderPict / 2,
 				right = landerX + xLanderPict / 2;
 			float y1, y2;
-			//Point pointCenter1 = null, pointCenter2 = null;
 			contactPoints = new ArrayList<Point>();
+			Point point, point2;
+			pointCenter = new Point((int)landerX, 0);
 			for(int i = 0; i < groundPlot.size(); i++) {
-				Point point = groundPlot.get(i);
-				Point point2;
+				point = groundPlot.get(i);
 				if (i+1 < groundPlot.size()) point2 = groundPlot.get(i+1);
 				else point2 = new Point(0, 0);
 				y1 = invertY(point.y);
@@ -806,10 +810,10 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					if (landerY - yGroundLeft <= 0)
 						bTouchDown = true;
 				}
-				/*if (point.x <= landerX & landerX <= point2.x) {
-					pointCenter1 = point;
-					pointCenter2 = point2;
-				}*/
+				if (point.x <= landerX & landerX <= point2.x) {
+					float yGroundCenter = y2 - ((y1 - y2) / (point.x - point2.x)) * (point2.x - landerX);
+					pointCenter.y = Math.round(yGroundCenter);
+				}
 				if (point.x <= right & right <= point2.x) {
 					float yGroundRight = y2 - ((y1 - y2) / (point.x - point2.x)) * (point2.x - right);
 					contactPoints.add(new Point((int)right, invertY(Math.round(yGroundRight))));
@@ -818,11 +822,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				}
 				if (right < point.x) break;
 			}
-			/*if (bTouchDown) {
-				y1 = invertY(pointCenter1.y);
-				y2 = invertY(pointCenter2.y);
-				landerY = y2 - ((y1 - y2) / (pointCenter1.x - pointCenter2.x)) * (pointCenter2.x - landerX);
-			}*/
+			if (landerY <= 0)
+				bTouchDown = true;
 			return bTouchDown;
 		}
 		
