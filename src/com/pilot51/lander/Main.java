@@ -86,7 +86,7 @@ public class Main extends Activity {
 			mLanderView.byLanderState = LanderView.LND_INACTIVE;
 		new AlertDialog.Builder(this)
 			.setIcon(getResources().getDrawable(R.drawable.icon))
-			.setTitle(getString(R.string.about) + " " + getString(R.string.app_name) + " " + getString(R.string.app_version))
+			.setTitle(getString(R.string.about) + " " + getString(R.string.app_name) + " v" + getString(R.string.app_version))
 			.setMessage(R.string.about_text)
 			.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int which) {
