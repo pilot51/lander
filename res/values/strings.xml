@@ -44,4 +44,7 @@
 	<string name="classic_options_reset">Classic options reset to default</string>
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
+	<string name="fixes">Fixes and improvements</string>
+	<string name="fixes_summary">Toggle bugs and quirks from original game</string>
+	<string name="lander_box">Black box around lander</string>
 </resources>

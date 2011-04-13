@@ -65,5 +65,13 @@
 				android:key="DefaultKeys"
 				android:title="@string/default_keys_title" />
 		</PreferenceScreen>
+		<PreferenceScreen
+			android:title="@string/fixes"
+			android:summary="@string/fixes_summary">
+			<CheckBoxPreference
+				android:title="@string/lander_box"
+				android:defaultValue="true"
+				android:key="LanderBox" />
+		</PreferenceScreen>
 	</PreferenceCategory>
 </PreferenceScreen>

@@ -12,54 +12,62 @@
 		android:layout_height="match_parent">
 		<TextView
 			android:id="@+id/valueAlt"
-			android:layout_width="60dp"
+			android:layout_width="100dp"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
-			android:gravity="right" />
+			android:gravity="center_horizontal"
+			android:textStyle="bold" />
 		<TextView
 			android:id="@+id/valueVelX"
-			android:layout_width="60dp"
+			android:layout_width="100dp"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
 			android:layout_below="@+id/valueAlt"
-			android:gravity="right" />
+			android:gravity="center_horizontal"
+			android:textStyle="bold" />
 		<TextView
 			android:id="@+id/valueVelY"
-			android:layout_width="60dp"
+			android:layout_width="100dp"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
 			android:layout_below="@+id/valueVelX"
-			android:gravity="right" />
+			android:gravity="center_horizontal"
+			android:textStyle="bold" />
 		<TextView
 			android:id="@+id/valueFuel"
-			android:layout_width="60dp"
+			android:layout_width="100dp"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
 			android:layout_below="@+id/valueVelY"
-			android:gravity="right" />
+			android:gravity="center_horizontal"
+			android:textStyle="bold" />
 		<TextView
 			android:text="@string/altitude"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_toLeftOf="@+id/valueAlt" />
+			android:layout_toLeftOf="@+id/valueAlt"
+			android:textStyle="bold" />
 		<TextView
 			android:text="@string/velocity_x"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/valueAlt"
-			android:layout_toLeftOf="@+id/valueVelX" />
+			android:layout_toLeftOf="@+id/valueVelX"
+			android:textStyle="bold" />
 		<TextView
 			android:text="@string/velocity_y"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/valueVelX"
-			android:layout_toLeftOf="@+id/valueVelY" />
+			android:layout_toLeftOf="@+id/valueVelY"
+			android:textStyle="bold" />
 		<TextView
 			android:text="@string/fuel"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/valueVelY"
-			android:layout_toLeftOf="@+id/valueFuel" />
+			android:layout_toLeftOf="@+id/valueFuel"
+			android:textStyle="bold" />
 		<Button
 			android:id="@+id/btnRight"
 			android:background="@drawable/btn_right"
@@ -84,6 +92,6 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@+id/btnRight"
 			android:layout_marginRight="27dp"
-			android:layout_marginTop="2dp"/>
+			android:layout_marginTop="2dp" />
 	</RelativeLayout>
 </FrameLayout>

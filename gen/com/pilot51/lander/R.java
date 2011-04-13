@@ -109,6 +109,8 @@ containing a value of this type.
         public static final int end_outofrange=0x7f050011;
         public static final int end_safe=0x7f05000a;
         public static final int extra_options=0x7f050020;
+        public static final int fixes=0x7f05002c;
+        public static final int fixes_summary=0x7f05002d;
         public static final int fuel=0x7f050009;
         public static final int fuel_dialog_message=0x7f050016;
         public static final int fuel_summary=0x7f050017;
@@ -116,6 +118,7 @@ containing a value of this type.
         public static final int gravity_dialog_message=0x7f050013;
         public static final int gravity_summary=0x7f050015;
         public static final int keys_reset=0x7f050024;
+        public static final int lander_box=0x7f05002e;
         public static final int left=0x7f050025;
         public static final int ok=0x7f05002a;
         public static final int options=0x7f050004;

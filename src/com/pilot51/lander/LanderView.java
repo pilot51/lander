@@ -309,6 +309,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 	private Resources res;
 	private Drawable landerPict;
+	private boolean bLanderBox;
 	private Rect landerRect = new Rect();
 	private Path path;
 	private Paint paintWhite = new Paint(),
@@ -339,6 +340,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			fMainForce = prefs.getFloat("Thrust", 0);
 			bDrawFlame = prefs.getBoolean("DrawFlame", false);
 			bReverseSideThrust = prefs.getBoolean("ReverseSideThrust", false);
+			bLanderBox = prefs.getBoolean("LanderBox", false);
 			keyThrust = prefs.getInt("KeyThrust", 0);
 			keyLeft = prefs.getInt("KeyLeft", 0);
 			keyRight = prefs.getInt("KeyRight", 0);
@@ -596,7 +598,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			int yTop = invertY((int)landerY + yLanderPict);
 			int xLeft = (int)landerX - xLanderPict / 2;
 			landerRect.set(xLeft, yTop, xLeft + xLanderPict, yTop + yLanderPict);
-			canvas.drawRect(landerRect, paintBlack);
+			if (bLanderBox) canvas.drawRect(landerRect, paintBlack);
 			if (nFlameCount == 0 & bDrawFlame & fFuel > 0f & byLanderState == LND_ACTIVE) {
 				int yTopF, xLeftF;
 				if (mFiringMain) {
@@ -793,7 +795,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				y1 = invertY(point.y);
 				y2 = invertY(point2.y);
 				if (left <= point.x & point.x <= right) {
-					if (landerY <= y1)
+					if (landerY <= y1 + 1)
 						bTouchDown = true;
 				}
 				if (point.x <= left & left <= point2.x) {
