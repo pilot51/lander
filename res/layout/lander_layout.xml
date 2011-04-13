@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -8,90 +8,109 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent" />
 	<RelativeLayout
-		android:layout_width="match_parent"
-		android:layout_height="match_parent">
+		android:id="@+id/hud"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentRight="true"
+		android:layout_marginTop="10dp"
+		android:layout_marginBottom="10dp">
+		<TextView
+			android:id="@+id/altitude"
+			android:text="@string/altitude"
+			android:layout_width="80dp"
+			android:layout_height="wrap_content"
+			android:gravity="right"
+			android:textStyle="bold"
+			android:textColor="#fff" />
+		<TextView
+			android:id="@+id/velocity_x"
+			android:text="@string/velocity_x"
+			android:layout_width="80dp"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/altitude"
+			android:gravity="right"
+			android:textStyle="bold"
+			android:textColor="#fff" />
+		<TextView
+			android:id="@+id/velocity_y"
+			android:text="@string/velocity_y"
+			android:layout_width="80dp"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/velocity_x"
+			android:gravity="right"
+			android:textStyle="bold"
+			android:textColor="#fff" />
+		<TextView
+			android:id="@+id/fuel"
+			android:text="@string/fuel"
+			android:layout_width="80dp"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/velocity_y"
+			android:gravity="right"
+			android:textStyle="bold"
+			android:textColor="#fff" />
 		<TextView
 			android:id="@+id/valueAlt"
 			android:layout_width="100dp"
 			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
+			android:layout_alignBaseline="@+id/altitude"
+			android:layout_toRightOf="@+id/altitude"
 			android:gravity="center_horizontal"
-			android:textStyle="bold" />
+			android:textStyle="bold"
+			android:textColor="#fff" />
 		<TextView
 			android:id="@+id/valueVelX"
 			android:layout_width="100dp"
 			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_below="@+id/valueAlt"
+			android:layout_alignBaseline="@+id/velocity_x"
+			android:layout_toRightOf="@+id/velocity_x"
 			android:gravity="center_horizontal"
-			android:textStyle="bold" />
+			android:textStyle="bold"
+			android:textColor="#fff" />
 		<TextView
 			android:id="@+id/valueVelY"
 			android:layout_width="100dp"
 			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_below="@+id/valueVelX"
+			android:layout_alignBaseline="@+id/velocity_y"
+			android:layout_toRightOf="@+id/velocity_y"
 			android:gravity="center_horizontal"
-			android:textStyle="bold" />
+			android:textStyle="bold"
+			android:textColor="#fff" />
 		<TextView
 			android:id="@+id/valueFuel"
 			android:layout_width="100dp"
 			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_below="@+id/valueVelY"
+			android:layout_alignBaseline="@+id/fuel"
+			android:layout_toRightOf="@+id/fuel"
 			android:gravity="center_horizontal"
-			android:textStyle="bold" />
-		<TextView
-			android:text="@string/altitude"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_toLeftOf="@+id/valueAlt"
-			android:textStyle="bold" />
-		<TextView
-			android:text="@string/velocity_x"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_below="@+id/valueAlt"
-			android:layout_toLeftOf="@+id/valueVelX"
-			android:textStyle="bold" />
-		<TextView
-			android:text="@string/velocity_y"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_below="@+id/valueVelX"
-			android:layout_toLeftOf="@+id/valueVelY"
-			android:textStyle="bold" />
-		<TextView
-			android:text="@string/fuel"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_below="@+id/valueVelY"
-			android:layout_toLeftOf="@+id/valueFuel"
-			android:textStyle="bold" />
-		<Button
-			android:id="@+id/btnRight"
-			android:background="@drawable/btn_right"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_below="@+id/valueFuel"
-			android:layout_marginRight="2dp" />
+			android:textStyle="bold"
+			android:textColor="#fff" />
+	</RelativeLayout>
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentRight="true"
+		android:layout_below="@+id/hud"
+		android:layout_marginRight="2dp">
 		<Button
 			android:id="@+id/btnLeft"
 			android:background="@drawable/btn_left"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_below="@+id/valueFuel"
-			android:layout_toLeftOf="@+id/btnRight"
 			android:layout_marginRight="2dp" />
+		<Button
+			android:id="@+id/btnRight"
+			android:background="@drawable/btn_right"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_toRightOf="@+id/btnLeft" />
 		<Button
 			android:id="@+id/btnThrust"
 			android:background="@drawable/btn_thrust"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_below="@+id/btnRight"
-			android:layout_marginRight="27dp"
+			android:layout_below="@+id/btnLeft"
+			android:layout_marginLeft="25dp"
 			android:layout_marginTop="2dp" />
 	</RelativeLayout>
-</FrameLayout>
+</RelativeLayout>
