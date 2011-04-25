@@ -101,8 +101,9 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				}
 			}
 		});
-		setFocusable(true); // make sure we get key events
+		setFocusable(true);
 		setFocusableInTouchMode(true);
+		setOnTouchListener(this);
 	}
 
 	/**
