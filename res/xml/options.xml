@@ -66,12 +66,24 @@
 				android:title="@string/default_keys_title" />
 		</PreferenceScreen>
 		<PreferenceScreen
-			android:title="@string/fixes"
-			android:summary="@string/fixes_summary">
-			<CheckBoxPreference
-				android:title="@string/lander_box"
-				android:defaultValue="true"
-				android:key="LanderBox" />
+			android:title="@string/issues"
+			android:summary="@string/issues_summary">
+			<PreferenceCategory
+				android:title="Presets">
+				<Preference
+					android:key="PresetClassic"
+					android:title="@string/classic" />
+				<Preference
+					android:key="PresetImproved"
+					android:title="@string/improved" />
+			</PreferenceCategory>
+			<PreferenceCategory
+				android:title="@string/individual_issues">
+				<CheckBoxPreference
+					android:key="LanderBox"
+					android:title="@string/lander_box"
+					android:defaultValue="false" />
+			</PreferenceCategory>
 		</PreferenceScreen>
 	</PreferenceCategory>
 </PreferenceScreen>

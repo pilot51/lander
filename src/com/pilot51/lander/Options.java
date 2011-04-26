@@ -6,6 +6,7 @@ import android.content.DialogInterface.OnKeyListener;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
@@ -25,7 +26,10 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyNew,
 		pKeyRestart,
 		pKeyOptions,
+		pPresetClassic,
+		pPresetImproved,
 		selectedPref;
+	private CheckBoxPreference pLanderBox;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +44,9 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyNew = (Preference)findPreference("KeyNew");
 		pKeyRestart = (Preference)findPreference("KeyRestart");
 		pKeyOptions = (Preference)findPreference("KeyOptions");
+		pPresetClassic = (Preference)findPreference("PresetClassic");
+		pPresetImproved = (Preference)findPreference("PresetImproved");
+		pLanderBox = (CheckBoxPreference)findPreference("LanderBox");
 		pDefClassic.setOnPreferenceClickListener(this);
 		pDefKeys.setOnPreferenceClickListener(this);
 		pKeyThrust.setOnPreferenceClickListener(this);
@@ -48,6 +55,8 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyNew.setOnPreferenceClickListener(this);
 		pKeyRestart.setOnPreferenceClickListener(this);
 		pKeyOptions.setOnPreferenceClickListener(this);
+		pPresetClassic.setOnPreferenceClickListener(this);
+		pPresetImproved.setOnPreferenceClickListener(this);
 		if (getResources().getConfiguration().keyboard == Configuration.KEYBOARD_NOKEYS) {
 			Preference pControls = (Preference)findPreference("Controls");
 			pControls.setEnabled(false);
@@ -82,6 +91,10 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		} else if (preference.getKey().startsWith("Key")) {
 			selectedPref = preference;
 			setControl();
+		} else if (preference == pPresetClassic) {
+			pLanderBox.setChecked(true);
+		} else if (preference == pPresetImproved) {
+			pLanderBox.setChecked(false);
 		}
 		return true;
 	}
