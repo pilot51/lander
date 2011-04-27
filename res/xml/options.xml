@@ -66,8 +66,8 @@
 				android:title="@string/default_keys_title" />
 		</PreferenceScreen>
 		<PreferenceScreen
-			android:title="@string/issues"
-			android:summary="@string/issues_summary">
+			android:title="@string/improvements"
+			android:summary="@string/improvements_summary">
 			<PreferenceCategory
 				android:title="Presets">
 				<Preference
@@ -78,11 +78,19 @@
 					android:title="@string/improved" />
 			</PreferenceCategory>
 			<PreferenceCategory
-				android:title="@string/individual_issues">
+				android:title="@string/individual_imp">
 				<CheckBoxPreference
-					android:key="LanderBox"
-					android:title="@string/lander_box"
-					android:defaultValue="false" />
+					android:key="ImpEndImg"
+					android:title="@string/imp_end_img"
+					android:summaryOn="@string/imp_end_img_color"
+					android:summaryOff="@string/imp_end_img_bw"
+					android:defaultValue="true" />
+				<CheckBoxPreference
+					android:key="ImpLanderAlpha"
+					android:title="@string/imp_lander_alpha"
+					android:summaryOn="@string/imp_lander_alpha_on"
+					android:summaryOff="@string/imp_lander_alpha_off"
+					android:defaultValue="true" />
 			</PreferenceCategory>
 		</PreferenceScreen>
 	</PreferenceCategory>

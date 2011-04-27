@@ -79,9 +79,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						title = msg.substring(0, msg.indexOf("\n")),
 						message = msg.substring(msg.indexOf("\n") + 1, msg.length());
 					Drawable img;
-						if (byEndGameState == END_SAFE)
-							img = getResources().getDrawable(R.drawable.safe);
-						else img = getResources().getDrawable(R.drawable.dead);
+						if (byEndGameState == END_SAFE) img = safe;
+						else img = dead;
 					new AlertDialog.Builder(context)
 						.setIcon(img)
 						.setTitle(title)
@@ -322,8 +321,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	private DecimalFormat df2 = new DecimalFormat("0.00"); // Fixed to 2 decimal places
 
 	private Resources res;
-	private Drawable landerPict;
-	private boolean bLanderBox;
+	private Drawable landerPict, safe, dead;
+	private boolean bColorEndImg, bLanderBox;
 	private Path path;
 	private Paint paintWhite = new Paint();
 	private ArrayList<Point> groundPlot, contactPoints;
@@ -353,7 +352,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			fMainForce = prefs.getFloat("Thrust", 0);
 			bDrawFlame = prefs.getBoolean("DrawFlame", false);
 			bReverseSideThrust = prefs.getBoolean("ReverseSideThrust", false);
-			bLanderBox = prefs.getBoolean("LanderBox", false);
+			bColorEndImg = prefs.getBoolean("ImpEndImg", false);
+			bLanderBox = !prefs.getBoolean("ImpLanderAlpha", false);
 			keyThrust = prefs.getInt("KeyThrust", 0);
 			keyLeft = prefs.getInt("KeyLeft", 0);
 			keyRight = prefs.getInt("KeyRight", 0);
@@ -378,7 +378,13 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					res.getDrawable(R.drawable.expl8),
 					res.getDrawable(R.drawable.expl9),
 					res.getDrawable(R.drawable.expl10)};
-
+			if (bColorEndImg) {
+				safe = getResources().getDrawable(R.drawable.safe_color);
+				dead = getResources().getDrawable(R.drawable.dead_color);
+			} else {
+				safe = getResources().getDrawable(R.drawable.safe);
+				dead = getResources().getDrawable(R.drawable.dead);
+			}
 			xLanderPict = hLanderPict.getIntrinsicWidth();
 			yLanderPict = hLanderPict.getIntrinsicHeight();
 			

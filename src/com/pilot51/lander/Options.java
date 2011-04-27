@@ -29,7 +29,9 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pPresetClassic,
 		pPresetImproved,
 		selectedPref;
-	private CheckBoxPreference pLanderBox;
+	private CheckBoxPreference
+		pImpEndImg,
+		pImpLanderAlpha;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +48,8 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyOptions = (Preference)findPreference("KeyOptions");
 		pPresetClassic = (Preference)findPreference("PresetClassic");
 		pPresetImproved = (Preference)findPreference("PresetImproved");
-		pLanderBox = (CheckBoxPreference)findPreference("LanderBox");
+		pImpEndImg = (CheckBoxPreference)findPreference("ImpEndImg");
+		pImpLanderAlpha = (CheckBoxPreference)findPreference("ImpLanderAlpha");
 		pDefClassic.setOnPreferenceClickListener(this);
 		pDefKeys.setOnPreferenceClickListener(this);
 		pKeyThrust.setOnPreferenceClickListener(this);
@@ -92,9 +95,11 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 			selectedPref = preference;
 			setControl();
 		} else if (preference == pPresetClassic) {
-			pLanderBox.setChecked(true);
+			pImpEndImg.setChecked(false);
+			pImpLanderAlpha.setChecked(false);
 		} else if (preference == pPresetImproved) {
-			pLanderBox.setChecked(false);
+			pImpEndImg.setChecked(true);
+			pImpLanderAlpha.setChecked(true);
 		}
 		return true;
 	}

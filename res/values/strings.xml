@@ -41,11 +41,16 @@
 	<string name="classic_options_reset">Classic options reset to default</string>
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
-	<string name="issues">Classic issues</string>
-	<string name="issues_summary">Toggle bugs and quirks from original game (useful for nostalgia)</string>
+	<string name="improvements">Improvements</string>
+	<string name="improvements_summary">Toggle bugs, quirks, and other things from original game (useful for nostalgia)</string>
 	<string name="presets">Presets</string>
 	<string name="classic">Classic</string>
 	<string name="improved">Improved</string>
-	<string name="individual_issues">Individual issues</string>
-	<string name="lander_box">Black box around lander</string>
+	<string name="individual_imp">Individual improvements</string>
+	<string name="imp_end_img">Alternate end dialog images</string>
+	<string name="imp_end_img_bw">Use original black and white images</string>
+	<string name="imp_end_img_color">Use color images</string>
+	<string name="imp_lander_alpha">Transparency around lander</string>
+	<string name="imp_lander_alpha_on">Lander does not have black box around it</string>
+	<string name="imp_lander_alpha_off">Lander has black box around it as in original game</string>
 </resources>
