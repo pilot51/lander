@@ -86,10 +86,23 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						.setIcon(img)
 						.setTitle(title)
 						.setMessage(message)
-						.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
-				            public void onClick(DialogInterface dialog, int which) {
-				            	dialog.cancel();
-				            }})
+						.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.cancel();
+							}
+						})
+						.setNeutralButton(R.string.word_new, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.cancel();
+								byLanderState = LND_NEW;
+							}
+						})
+						.setNegativeButton(R.string.restart, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.cancel();
+								byLanderState = LND_RESTART;
+							}
+						})
 						.create()
 						.show();
 				} else if (id == HANDLE_THRUST) {
