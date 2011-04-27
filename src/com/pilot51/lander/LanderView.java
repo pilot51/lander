@@ -13,7 +13,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -311,10 +311,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	private Resources res;
 	private Drawable landerPict;
 	private boolean bLanderBox;
-	private Rect landerRect = new Rect();
 	private Path path;
-	private Paint paintWhite = new Paint(),
-		paintBlack = new Paint();
+	private Paint paintWhite = new Paint();
 	private ArrayList<Point> groundPlot, contactPoints;
 	private Point pointCenter;
 	
@@ -375,8 +373,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 			paintWhite.setColor(Color.WHITE);
 			paintWhite.setStyle(Paint.Style.FILL);
-			paintBlack.setColor(Color.BLACK);
-			paintBlack.setStyle(Paint.Style.FILL);
 		}
 
 		@Override
@@ -599,8 +595,10 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			yLanderPict = landerPict.getIntrinsicHeight();
 			int yTop = invertY((int)landerY + yLanderPict);
 			int xLeft = (int)landerX - xLanderPict / 2;
-			landerRect.set(xLeft, yTop, xLeft + xLanderPict, yTop + yLanderPict);
-			if (bLanderBox) canvas.drawRect(landerRect, paintBlack);
+			if (bLanderBox) landerPict.setColorFilter(Color.BLACK, Mode.DST_OVER);
+			else landerPict.setColorFilter(null);
+			landerPict.setBounds(xLeft, yTop, xLeft + xLanderPict, yTop + yLanderPict);
+			landerPict.draw(canvas);
 			if (nFlameCount == 0 & bDrawFlame & fFuel > 0f & byLanderState == LND_ACTIVE) {
 				int yTopF, xLeftF;
 				if (mFiringMain) {
@@ -628,8 +626,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				else nFlameCount--;
 				lastDraw = now;
 			}
-			landerPict.setBounds(landerRect);
-			landerPict.draw(canvas);
 		}
 
 		private void landerMotion() {
