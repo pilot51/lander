@@ -243,12 +243,14 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	private static final byte END_CRASHV = 2;
 	/** Too much horizontal velocity */
 	private static final byte END_CRASHH = 3;
+	/** Too steep of an angle */
+	private static final byte END_CRASHA = 4;
 	/** Missed the landing site */
-	private static final byte END_CRASHS = 4;
+	private static final byte END_CRASHS = 5;
 	/** Lander out of range */
-	private static final byte END_OUTOFRANGE = 5;
+	private static final byte END_OUTOFRANGE = 6;
 	/** about box */
-	private static final byte END_ABOUT = 6;
+	private static final byte END_ABOUT = 7;
 
 	/* Defaults */
 	private static final float DEF_GRAVITY = 3f, DEF_FUEL = 1000f, DEF_THRUST = 10000f;
@@ -272,6 +274,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	private float fMaxLandingX = 1f;
 	/** max vertical velocity on landing */
 	private float fMaxLandingY = 10f;
+	/** max angle degrees on landing */
+	private float fMaxLandingA = 5f;
 	/** Fuel in kilograms */
 	private float fFuel;
 
@@ -322,13 +326,13 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 	private Resources res;
 	private Drawable landerPict, safe, dead;
-	private boolean bColorEndImg, bLanderBox;
+	private boolean bColorEndImg, bLanderBox, bRotation;
 	private Path path;
 	private Paint paintWhite = new Paint();
 	private ArrayList<Point> groundPlot, contactPoints;
 	private Point pointCenter;
 	
-	private float scaleY, densityScale;
+	private float angle, scaleY, densityScale;
 
 	private boolean mFiringMain;
 	private boolean mFiringLeft;
@@ -354,6 +358,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			bReverseSideThrust = prefs.getBoolean("ReverseSideThrust", false);
 			bColorEndImg = prefs.getBoolean("ImpEndImg", false);
 			bLanderBox = !prefs.getBoolean("ImpLanderAlpha", false);
+			bRotation = prefs.getBoolean("EnhRotation", false);
 			keyThrust = prefs.getInt("KeyThrust", 0);
 			keyLeft = prefs.getInt("KeyLeft", 0);
 			keyRight = prefs.getInt("KeyRight", 0);
@@ -576,6 +581,9 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				case END_CRASHH:
 					msg += res.getString(R.string.end_crashh);
 					break;
+				case END_CRASHA:
+					msg += res.getString(R.string.end_crasha);
+					break;
 				case END_CRASHS:
 					msg += res.getString(R.string.end_crashs);
 					break;
@@ -617,6 +625,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			if (bLanderBox) landerPict.setColorFilter(Color.BLACK, Mode.DST_OVER);
 			else landerPict.setColorFilter(null);
 			landerPict.setBounds(xLeft, yTop, xLeft + xLanderPict, yTop + yLanderPict);
+			canvas.rotate(angle, landerX, yClient - landerY);
 			landerPict.draw(canvas);
 			if (nFlameCount == 0 & bDrawFlame & fFuel > 0f & byLanderState == LND_ACTIVE) {
 				int yTopF, xLeftF;
@@ -648,27 +657,41 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		}
 
 		private void landerMotion() {
-			float fMass, fBurn = 0f;
-			float dVx, dVy;
-			fMass = fLanderMass + fFuel;
-			dVx = 0f;
-			dVy = -fGravity;
+			float fMass = fLanderMass + fFuel,
+				fBurn = 0,
+				dVx = 0,
+				dVy = -fGravity,
+				accel = 0;
 			if (fFuel > 0f) {
 				if (mFiringMain) {
 					fBurn += fMainBurn;
-					dVy += fMainForce / fMass;
+					if (bRotation)
+						accel = fMainForce / fMass;
+					else dVy += fMainForce / fMass;
 				}
 				if (mFiringLeft) {
 					fBurn += fAttitudeBurn;
-					dVx += fAttitudeForce / fMass;
+					if (bRotation)
+						angle++;
+					else dVx += fAttitudeForce / fMass;
 				}
 				if (mFiringRight) {
 					fBurn += fAttitudeBurn;
-					dVx -= fAttitudeForce / fMass;
+					if (bRotation)
+						angle--;
+					else dVx -= fAttitudeForce / fMass;
 				}
 				fBurn = fBurn * dt;
 				if (fBurn > fFuel) fFuel = 0f;
 				else fFuel -= fBurn;
+			}
+			if (bRotation) {
+				if (angle <= -180)
+					angle += 360;
+				else if (angle > 180) angle -= 360;
+				float radians = 2 * (float)Math.PI * angle / 360;
+				dVx = (float)Math.sin(radians) * accel;
+				dVy += (float)Math.cos(radians) * accel;
 			}
 			landerVy += dVy * dt;
 			landerVx += dVx * dt;
@@ -688,8 +711,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					fFuel = fInitFuel;
 					landerX = xClient / 2;
 					landerY = (1000f / scaleY) + yGroundZero;
-					landerVx = 0f;
-					landerVy = 0f;
+					landerVx = landerVy = angle = 0;
 					landerPict = hLanderPict;
 					if (!bTimed) {
 						nTimerLoop = 0;
@@ -718,8 +740,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					fFuel = fInitFuel;
 					landerX = xClient / 2;
 					landerY = (1000f / scaleY) + yGroundZero;
-					landerVx = 0f;
-					landerVy = 0f;
+					landerVx = landerVy = angle = 0;
 					landerPict = hLanderPict;
 					drawStatus(true);
 					setFiringThrust(false);
@@ -791,6 +812,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 							byEndGameState = END_CRASHV;
 						else if (Math.abs(landerVx) > fMaxLandingX)
 							byEndGameState = END_CRASHH;
+						else if (angle > Math.abs(fMaxLandingA)) byEndGameState = END_CRASHA;
 						else byEndGameState = END_CRASHS;
 						byLanderState = LND_INACTIVE;
 						endGameDialog();
@@ -852,6 +874,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				else if (yLevel != pointY)
 					return false;
 			}
+			if (angle > Math.abs(fMaxLandingA))
+				return false;
 			return true;
 		}
 

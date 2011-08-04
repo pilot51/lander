@@ -69,9 +69,9 @@
 			android:title="@string/improvements"
 			android:summary="@string/improvements_summary">
 			<PreferenceCategory
-				android:title="Presets">
+				android:title="@string/presets">
 				<Preference
-					android:key="PresetClassic"
+					android:key="PresetImpClassic"
 					android:title="@string/classic" />
 				<Preference
 					android:key="PresetImproved"
@@ -91,6 +91,27 @@
 					android:summaryOn="@string/imp_lander_alpha_on"
 					android:summaryOff="@string/imp_lander_alpha_off"
 					android:defaultValue="true" />
+			</PreferenceCategory>
+		</PreferenceScreen>
+		<PreferenceScreen
+			android:title="@string/gameplay_enhance"
+			android:summary="@string/gameplay_enhance_summary">
+			<PreferenceCategory
+				android:title="@string/presets">
+				<Preference
+					android:key="PresetEnhClassic"
+					android:title="@string/classic" />
+				<Preference
+					android:key="PresetEnhanced"
+					android:title="@string/enhanced" />
+			</PreferenceCategory>
+			<PreferenceCategory
+				android:title="@string/individual_enh">
+				<CheckBoxPreference
+					android:key="EnhRotation"
+					android:title="@string/rotation"
+					android:summary="@string/rotation_summary"
+					android:defaultValue="false" />
 			</PreferenceCategory>
 		</PreferenceScreen>
 	</PreferenceCategory>

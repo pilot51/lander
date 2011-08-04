@@ -26,12 +26,15 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyNew,
 		pKeyRestart,
 		pKeyOptions,
-		pPresetClassic,
+		pPresetImpClassic,
 		pPresetImproved,
+		pPresetEnhClassic,
+		pPresetEnhanced,
 		selectedPref;
 	private CheckBoxPreference
 		pImpEndImg,
-		pImpLanderAlpha;
+		pImpLanderAlpha,
+		pEnhRotation;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +49,13 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyNew = (Preference)findPreference("KeyNew");
 		pKeyRestart = (Preference)findPreference("KeyRestart");
 		pKeyOptions = (Preference)findPreference("KeyOptions");
-		pPresetClassic = (Preference)findPreference("PresetClassic");
+		pPresetImpClassic = (Preference)findPreference("PresetImpClassic");
 		pPresetImproved = (Preference)findPreference("PresetImproved");
 		pImpEndImg = (CheckBoxPreference)findPreference("ImpEndImg");
 		pImpLanderAlpha = (CheckBoxPreference)findPreference("ImpLanderAlpha");
+		pPresetEnhClassic = (Preference)findPreference("PresetEnhClassic");
+		pPresetEnhanced = (Preference)findPreference("PresetEnhanced");
+		pEnhRotation = (CheckBoxPreference)findPreference("EnhRotation");
 		pDefClassic.setOnPreferenceClickListener(this);
 		pDefKeys.setOnPreferenceClickListener(this);
 		pKeyThrust.setOnPreferenceClickListener(this);
@@ -58,8 +64,10 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyNew.setOnPreferenceClickListener(this);
 		pKeyRestart.setOnPreferenceClickListener(this);
 		pKeyOptions.setOnPreferenceClickListener(this);
-		pPresetClassic.setOnPreferenceClickListener(this);
+		pPresetImpClassic.setOnPreferenceClickListener(this);
 		pPresetImproved.setOnPreferenceClickListener(this);
+		pPresetEnhClassic.setOnPreferenceClickListener(this);
+		pPresetEnhanced.setOnPreferenceClickListener(this);
 		if (getResources().getConfiguration().keyboard == Configuration.KEYBOARD_NOKEYS) {
 			Preference pControls = (Preference)findPreference("Controls");
 			pControls.setEnabled(false);
@@ -94,12 +102,16 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		} else if (preference.getKey().startsWith("Key")) {
 			selectedPref = preference;
 			setControl();
-		} else if (preference == pPresetClassic) {
+		} else if (preference == pPresetImpClassic) {
 			pImpEndImg.setChecked(false);
 			pImpLanderAlpha.setChecked(false);
 		} else if (preference == pPresetImproved) {
 			pImpEndImg.setChecked(true);
 			pImpLanderAlpha.setChecked(true);
+		} else if (preference == pPresetEnhClassic) {
+			pEnhRotation.setChecked(false);
+		} else if (preference == pPresetEnhanced) {
+			pEnhRotation.setChecked(true);
 		}
 		return true;
 	}

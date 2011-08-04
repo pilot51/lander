@@ -16,6 +16,7 @@
 	<string name="end_crashv2">Nice crater! All that training really payed off.</string>
 	<string name="end_crashv3">You just dug a hole half way to Clavius.</string>
 	<string name="end_crashh">Too much horizontal velocity. Your horizontal motion must be less than 1 m/sec.</string>
+	<string name="end_crasha">Too steep of an angle. Your angle must be within 5° of level.</string>
 	<string name="end_crashs">Missed the landing site. You must land on flat terrain.</string>
 	<string name="end_outofrange">Lander Lost!\nYou are out of range of the command module and presumed lost.</string>
 	<string name="about_text">Lander is an Android port of the 1990 game by the same name for Windows 3.1.\n\nFull permission and v1.3 source code has been provided by the original developer, George Moromisato (neurohack.com).</string>
@@ -53,4 +54,10 @@
 	<string name="imp_lander_alpha">Transparency around lander</string>
 	<string name="imp_lander_alpha_on">Lander does not have black box around it</string>
 	<string name="imp_lander_alpha_off">Lander has black box around it as in original game</string>
+	<string name="gameplay_enhance">Gameplay enhancements</string>
+	<string name="gameplay_enhance_summary">Toggle gameplay features that have been added exclusively to this Android port of Lander.</string>
+	<string name="enhanced">Enhanced</string>
+	<string name="individual_enh">Individual enhancements</string>
+	<string name="rotation">Rotation</string>
+	<string name="rotation_summary">Lander rotates instead of changing horizontal velocity.</string>
 </resources>
