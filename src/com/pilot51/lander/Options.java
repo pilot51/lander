@@ -130,13 +130,10 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	
 	@Override
 	public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-		if (event.getDeviceId() == 0) {
-			if (event.getAction() == KeyEvent.ACTION_DOWN) {
-				prefs.edit().putInt(selectedPref.getKey(), keyCode).commit();
-			} else if (event.getAction() == KeyEvent.ACTION_UP) {
-				setResult(1);
-				dialog.dismiss();
-			}
+		if (event.getDeviceId() == 0 & event.getAction() == KeyEvent.ACTION_UP) {
+			prefs.edit().putInt(selectedPref.getKey(), keyCode).commit();
+			setResult(1);
+			dialog.dismiss();
 			return true;
 		}
 		return false;
