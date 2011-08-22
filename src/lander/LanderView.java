@@ -239,7 +239,7 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 		g2d.drawString(df2.format(fFuel), xClient - 100, 100);
 		drawLander(g);
 		try {
-			Thread.sleep(30);
+			Thread.sleep(UPDATE_TIME);
 			repaint();
 		} catch (Exception e) {
 			System.out.println(e);
