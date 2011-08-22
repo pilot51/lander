@@ -14,18 +14,22 @@ import java.awt.event.KeyListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
-import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class LanderView extends JComponent implements KeyListener, ActionListener {
+	private static final long serialVersionUID = 1L;
+
 	private static final int
 		HANDLE_ALT = 1,
 		HANDLE_VELX = 2,
@@ -151,6 +155,7 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 	private DecimalFormat df2 = new DecimalFormat("0.00"); // Fixed to 2 decimal places
 
 	private Image landerPict;
+	private ImageIcon safe, dead;
 	private boolean bLanderBox;
 	private Rectangle2D landerRect = new Rectangle();
 	private Path2D path;
@@ -167,9 +172,9 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 	
 	protected JPanel panel = new JPanel();
 	private JButton
-		btnNew = new JButton("New"),
-		btnRestart = new JButton("Restart"),
-		btnOptions = new JButton("Options");
+		btnNew = new JButton(Messages.getString("new")), //$NON-NLS-1$
+		btnRestart = new JButton(Messages.getString("restart")), //$NON-NLS-1$
+		btnOptions = new JButton(Messages.getString("options")); //$NON-NLS-1$
 
 	LanderView() {
 		fGravity = 3;
@@ -203,6 +208,8 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 					ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/expl8.png")),
 					ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/expl9.png")),
 					ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/expl10.png"))};
+			safe = new ImageIcon("img/safe.png");
+			dead = new ImageIcon("img/dead.png");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -237,6 +244,53 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 		} catch (Exception e) {
 			System.out.println(e);
 		}
+	}
+	
+	private void endGameDialog() {
+		setFiringThrust(false);
+		setFiringLeft(false);
+		setFiringRight(false);
+		String msg = Messages.getString("end_crash") + "\n"; //$NON-NLS-1$
+		switch (byEndGameState) {
+		case END_SAFE:
+			msg = Messages.getString("end_safe"); //$NON-NLS-1$
+			break;
+		case END_CRASHV:
+			switch (new Random().nextInt(3)) {
+			case 0:
+				msg += Messages.getString("end_crashv1"); //$NON-NLS-1$
+				break;
+			case 1:
+				msg += Messages.getString("end_crashv2"); //$NON-NLS-1$
+				break;
+			case 2:
+				msg += Messages.getString("end_crashv3"); //$NON-NLS-1$
+				break;
+			}
+			break;
+		case END_CRASHH:
+			msg += Messages.getString("end_crashh"); //$NON-NLS-1$
+			break;
+		case END_CRASHS:
+			msg += Messages.getString("end_crashs"); //$NON-NLS-1$
+			break;
+		case END_OUTOFRANGE:
+			msg = Messages.getString("end_outofrange"); //$NON-NLS-1$
+			break;
+		}
+		showDialog(msg);
+	}
+	
+	private void showDialog(final String text) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				ImageIcon img;
+				if (byEndGameState == END_SAFE) img = safe;
+				else img = dead;
+				JOptionPane.showMessageDialog(LanderView.this, text, null, JOptionPane.PLAIN_MESSAGE, img);
+			}
+		});
 	}
 	
 	private void drawStatus(boolean bOverride) {
@@ -471,7 +525,7 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 			case LND_OUTOFRANGE:
 				byEndGameState = END_OUTOFRANGE;
 				byLanderState = LND_INACTIVE;
-				//endGameDialog();
+				endGameDialog();
 				break;
 			case LND_ENDGAME:
 				if (landedFlat() && (Math.abs(landerVy) <= fMaxLandingY)
@@ -483,7 +537,7 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 			case LND_SAFE:
 				byEndGameState = END_SAFE;
 				byLanderState = LND_INACTIVE;
-				//endGameDialog();
+				endGameDialog();
 				break;
 			case LND_CRASH1:
 				while (landerY > 0 & landerY > pointCenter.y) {
@@ -519,7 +573,7 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 						byEndGameState = END_CRASHH;
 					else byEndGameState = END_CRASHS;
 					byLanderState = LND_INACTIVE;
-					//endGameDialog();
+					endGameDialog();
 				}
 				break;
 			case LND_INACTIVE:
