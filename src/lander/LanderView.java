@@ -208,8 +208,8 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 					ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/expl8.png")),
 					ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/expl9.png")),
 					ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/expl10.png"))};
-			safe = new ImageIcon("img/safe.png");
-			dead = new ImageIcon("img/dead.png");
+			safe = new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/safe.png")));
+			dead = new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/dead.png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -233,15 +233,19 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 		AffineTransform identity = new AffineTransform();
         g2d.setTransform(identity);
 		g2d.fill(path.createTransformedShape(null));
+		g2d.drawString(Messages.getString("altitude"), xClient - 158, 40); //$NON-NLS-1$
 		g2d.drawString(df2.format((landerY - yGroundZero) * scaleY), xClient - 100, 40);
+		g2d.drawString(Messages.getString("velocity_x"), xClient - 170, 60); //$NON-NLS-1$
 		g2d.drawString(df2.format(landerVx), xClient - 100, 60);
+		g2d.drawString(Messages.getString("velocity_y"), xClient - 170, 80); //$NON-NLS-1$
 		g2d.drawString(df2.format(landerVy), xClient - 100, 80);
+		g2d.drawString(Messages.getString("fuel"), xClient - 137, 100); //$NON-NLS-1$
 		g2d.drawString(df2.format(fFuel), xClient - 100, 100);
 		drawLander(g);
 		try {
 			Thread.sleep(UPDATE_TIME);
 			repaint();
-		} catch (Exception e) {
+		} catch (InterruptedException e) {
 			System.out.println(e);
 		}
 	}
