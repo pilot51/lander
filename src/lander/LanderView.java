@@ -21,13 +21,15 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-public class LanderView extends JComponent implements KeyListener, ActionListener {
+public class LanderView extends JComponent implements KeyListener {
 	private static final long serialVersionUID = 1L;
 
 	private static final int
@@ -170,11 +172,7 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 	private boolean mFiringLeft;
 	private boolean mFiringRight;
 	
-	protected JPanel panel = new JPanel();
-	private JButton
-		btnNew = new JButton(Messages.getString("new")), //$NON-NLS-1$
-		btnRestart = new JButton(Messages.getString("restart")), //$NON-NLS-1$
-		btnOptions = new JButton(Messages.getString("options")); //$NON-NLS-1$
+	protected JMenuBar menuBar = new JMenuBar();
 
 	LanderView() {
 		fGravity = 3;
@@ -183,12 +181,7 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 		bDrawFlame = true;
 		bReverseSideThrust = false;
 		bLanderBox = true;
-		panel.add(btnNew);
-		panel.add(btnRestart);
-		panel.add(btnOptions);
-		btnNew.addActionListener(this);
-		btnRestart.addActionListener(this);
-		btnOptions.addActionListener(this);
+		createMenu();
 		rand = new Random(System.currentTimeMillis());
 		try {
 			hLanderPict = ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/lander.png"));
@@ -221,6 +214,51 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 		setPreferredSize(new Dimension(xClient, yClient));
 		setFocusable(true);
 		createGround();
+	}
+	
+	private void createMenu() {
+		JMenu menu;
+		JMenuItem menuItem;
+		menu = new JMenu("Game");
+		menu.setMnemonic(KeyEvent.VK_G);
+		menuBar.add(menu);
+		menuItem = new JMenuItem(Messages.getString("new"), KeyEvent.VK_N); //$NON-NLS-1$
+		menuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				byLanderState = LND_NEW;
+			}
+		});
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0));
+		menu.add(menuItem);
+		menuItem = new JMenuItem(Messages.getString("restart"), KeyEvent.VK_R); //$NON-NLS-1$
+		menuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				byLanderState = LND_RESTART;
+			}
+		});
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
+		menu.add(menuItem);
+		menuItem = new JMenuItem(Messages.getString("options") + "...", KeyEvent.VK_O); //$NON-NLS-1$
+		menuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				byLanderState = LND_INACTIVE;
+				// TODO Open options here
+				byLanderState = LND_RESTART;
+			}
+		});
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0));
+		menuItem.setEnabled(false);
+		menu.add(menuItem);
+		menuItem = new JMenuItem("Exit", KeyEvent.VK_X);
+		menuItem.setEnabled(false);
+		menu.add(menuItem);
+		menu.addSeparator();
+		menuItem = new JMenuItem("About Lander...", KeyEvent.VK_B);
+		menuItem.setEnabled(false);
+		menu.add(menuItem);
 	}
 
 	public void paintComponent(Graphics g) {
@@ -368,19 +406,6 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 		msg.setData(b);
 		mHandler.sendMessage(msg);
 	}*/
-	
-	public void actionPerformed(ActionEvent ae) {
-		if (ae.getSource() == btnNew) {
-			byLanderState = LND_NEW;
-		} else if (ae.getSource() == btnRestart) {
-			byLanderState = LND_RESTART;
-		} else if (ae.getSource() == btnOptions) {
-			byLanderState = LND_INACTIVE;
-			// Open options here
-			byLanderState = LND_RESTART;
-		}
-		requestFocusInWindow();
-	}
 
 	public void keyPressed(KeyEvent ke) {
 		if (byLanderState == LND_ACTIVE) {
@@ -395,19 +420,6 @@ public class LanderView extends JComponent implements KeyListener, ActionListene
 				setFiringRight(true);
 				break;
 			}
-		}
-		switch(ke.getKeyCode()) {
-		case KeyEvent.VK_F2:
-			byLanderState = LND_NEW;
-			break;
-		case KeyEvent.VK_F3:
-			byLanderState = LND_RESTART;
-			break;
-		case KeyEvent.VK_F4:
-			byLanderState = LND_INACTIVE;
-			// Open options here
-			byLanderState = LND_RESTART;
-			break;
 		}
 	}
 

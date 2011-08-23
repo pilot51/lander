@@ -9,10 +9,10 @@ public class Applet extends JApplet {
 	private LanderView mLanderView;
 	
 	public void init() {
-		setSize(800, 550);
 		setLayout(new FlowLayout());
 		mLanderView = new LanderView();
+		setJMenuBar(mLanderView.menuBar);
 		add(mLanderView);
-		add(mLanderView.panel);
+		setSize(800, 526);
 	}
 }

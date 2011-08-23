@@ -16,9 +16,9 @@ public class Main extends JFrame {
 		super("Lander");
 		setLayout(new FlowLayout());
 		mLanderView = new LanderView();
+		setJMenuBar(mLanderView.menuBar);
 		add(mLanderView);
-		add(mLanderView.panel);
-		setSize(800, 580);
+		setSize(800, 556);
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
