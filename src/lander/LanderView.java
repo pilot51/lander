@@ -1,19 +1,19 @@
 package lander;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Paint;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -21,6 +21,7 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -29,18 +30,8 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-public class LanderView extends JComponent implements KeyListener {
+public class LanderView extends JComponent implements KeyListener, MouseListener {
 	private static final long serialVersionUID = 1L;
-
-	private static final int
-		HANDLE_ALT = 1,
-		HANDLE_VELX = 2,
-		HANDLE_VELY = 3,
-		HANDLE_FUEL = 4,
-		HANDLE_DIALOG = 5,
-		HANDLE_THRUST = 6,
-		HANDLE_LEFT = 7,
-		HANDLE_RIGHT = 8;
 	
 	private static final int FLAME_DELAY = 1;
 	private static final int STATUS_DELAY = 5;
@@ -151,18 +142,16 @@ public class LanderView extends JComponent implements KeyListener {
 	
 	private int nFlameCount = FLAME_DELAY;
 	private int nCount = 0;
-	private long lastUpdate, lastDraw;
+	private long lastDraw;
 	private Random rand;
 	
 	private DecimalFormat df2 = new DecimalFormat("0.00"); // Fixed to 2 decimal places
 
 	private Image landerPict;
+	private JButton btnLeft, btnRight, btnThrust;
 	private ImageIcon safe, dead;
 	private boolean bLanderBox;
-	private Rectangle2D landerRect = new Rectangle();
 	private Path2D path;
-	private Paint paintWhite,
-		paintBlack;
 	private ArrayList<Point> groundPlot, contactPoints;
 	private Point pointCenter;
 	
@@ -175,15 +164,25 @@ public class LanderView extends JComponent implements KeyListener {
 	protected JMenuBar menuBar = new JMenuBar();
 
 	LanderView() {
+		xClient = 800;
+		yClient = 500;
+		setPreferredSize(new Dimension(xClient, yClient));
+		createMenu();
+		rand = new Random(System.currentTimeMillis());
+		createGround();
 		fGravity = 3;
 		fInitFuel = 1000;
 		fMainForce = 10000;
 		bDrawFlame = true;
 		bReverseSideThrust = false;
 		bLanderBox = true;
-		createMenu();
-		rand = new Random(System.currentTimeMillis());
 		try {
+			btnLeft = new JButton(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/left.png"))));
+			btnLeft.setPressedIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/ileft.png"))));
+			btnRight = new JButton(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/right.png"))));
+			btnRight.setPressedIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/iright.png"))));
+			btnThrust = new JButton(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/thrust.png"))));
+			btnThrust.setPressedIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/ithrust.png"))));
 			hLanderPict = ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/lander.png"));
 			hBFlamePict = ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/bflame.png"));
 			hLFlamePict = ImageIO.read(getClass().getClassLoader().getResourceAsStream("img/lflame.png"));
@@ -208,12 +207,23 @@ public class LanderView extends JComponent implements KeyListener {
 		}
 		xLanderPict = hLanderPict.getWidth(null);
 		yLanderPict = hLanderPict.getHeight(null);
+		btnLeft.setBounds(xClient - 130, 110, 48, 48);
+		btnLeft.setBorderPainted(false);
+		btnLeft.setFocusable(false);
+		btnLeft.addMouseListener(this);
+		add(btnLeft);
+		btnRight.setBounds(xClient - 80, 110, 48, 48);
+		btnRight.setBorderPainted(false);
+		btnRight.setFocusable(false);
+		btnRight.addMouseListener(this);
+		add(btnRight);
+		btnThrust.setBounds(xClient - 105, 160, 48, 48);
+		btnThrust.setBorderPainted(false);
+		btnThrust.setFocusable(false);
+		btnThrust.addMouseListener(this);
+		add(btnThrust);
 		addKeyListener(this);
-		xClient = 800;
-		yClient = 500;
-		setPreferredSize(new Dimension(xClient, yClient));
 		setFocusable(true);
-		createGround();
 	}
 	
 	private void createMenu() {
@@ -381,31 +391,78 @@ public class LanderView extends JComponent implements KeyListener {
 	
 	private void setFiringThrust(boolean firing) {
 		mFiringMain = firing;
-		//setBtnState(HANDLE_THRUST, firing);
 	}
 
 	private void setFiringLeft(boolean firing) {
 		if (bReverseSideThrust)
 			mFiringRight = firing;
 		else mFiringLeft = firing;
-		//setBtnState(HANDLE_LEFT, firing);
 	}
 
 	private void setFiringRight(boolean firing) {
 		if (bReverseSideThrust)
 			mFiringLeft = firing;
 		else mFiringRight = firing;
-		//setBtnState(HANDLE_RIGHT, firing);
 	}
 	
-	/*private void setBtnState(int handleId, boolean pressed) {
-		Message msg = mHandler.obtainMessage();
-		Bundle b = new Bundle();
-		b.putInt("id", handleId);
-		b.putBoolean("pressed", pressed);
-		msg.setData(b);
-		mHandler.sendMessage(msg);
-	}*/
+	private Component origBtn;
+	
+	@Override
+	public void mouseClicked(MouseEvent arg0) {}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		if (SwingUtilities.isLeftMouseButton(e)) {
+			if (e.getComponent() == btnLeft & origBtn == btnLeft)
+				setFiringLeft(true);
+			else if (e.getComponent() == btnRight & origBtn == btnRight)
+				setFiringRight(true);
+			else if (e.getComponent() == btnThrust & origBtn == btnThrust)
+				setFiringThrust(true);
+		}
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		if (SwingUtilities.isLeftMouseButton(e) & byLanderState == LND_ACTIVE) {
+			if (e.getComponent() == btnLeft)
+				setFiringLeft(false);
+			else if (e.getComponent() == btnRight)
+				setFiringRight(false);
+			else if (e.getComponent() == btnThrust)
+				setFiringThrust(false);
+		}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		if (SwingUtilities.isLeftMouseButton(e)) {
+			if (byLanderState == LND_HOLD)
+				byLanderState = LND_ACTIVE;
+			if (e.getComponent() == btnLeft)
+				setFiringLeft(true);
+			else if (e.getComponent() == btnRight)
+				setFiringRight(true);
+			else if (e.getComponent() == btnThrust)
+				setFiringThrust(true);
+			origBtn = e.getComponent();
+		}
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if (SwingUtilities.isLeftMouseButton(e)) {
+			if (byLanderState == LND_ACTIVE) {
+				if (e.getComponent() == btnLeft)
+					setFiringLeft(false);
+				else if (e.getComponent() == btnRight)
+					setFiringRight(false);
+				else if (e.getComponent() == btnThrust)
+					setFiringThrust(false);
+				origBtn = null;
+			}
+		}
+	}
 
 	public void keyPressed(KeyEvent ke) {
 		if (byLanderState == LND_ACTIVE) {
