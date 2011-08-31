@@ -92,9 +92,19 @@ containing a value of this type.
         public static final int about=0x7f050005;
         public static final int about_text=0x7f050013;
         public static final int altitude=0x7f050006;
+        /**  The following are reserved skus defined by Market for testing. 
+         */
+        public static final int android_test_canceled=0x7f050045;
+        public static final int android_test_item_unavailable=0x7f050047;
+        public static final int android_test_purchased=0x7f050046;
+        public static final int android_test_refunded=0x7f050048;
         public static final int app_name=0x7f050000;
         public static final int app_version=0x7f050001;
+        public static final int billing_not_supported_message=0x7f05003e;
+        public static final int billing_not_supported_title=0x7f05003d;
         public static final int cancel=0x7f050029;
+        public static final int cannot_connect_message=0x7f050040;
+        public static final int cannot_connect_title=0x7f05003f;
         public static final int classic=0x7f05002d;
         public static final int classic_options=0x7f05001d;
         public static final int classic_options_reset=0x7f050027;
@@ -114,7 +124,8 @@ containing a value of this type.
         public static final int end_crashv3=0x7f05000e;
         public static final int end_outofrange=0x7f050012;
         public static final int end_safe=0x7f05000a;
-        public static final int enhanced=0x7f050038;
+        public static final int enh_unlock=0x7f050038;
+        public static final int enhanced=0x7f050039;
         public static final int extra_options=0x7f05001e;
         public static final int fuel=0x7f050009;
         public static final int fuel_summary=0x7f050016;
@@ -122,6 +133,7 @@ containing a value of this type.
         public static final int gameplay_enhance_summary=0x7f050037;
         public static final int gravity=0x7f050014;
         public static final int gravity_summary=0x7f050015;
+        public static final int help_url=0x7f050043;
         public static final int imp_end_img=0x7f050030;
         public static final int imp_end_img_bw=0x7f050031;
         public static final int imp_end_img_color=0x7f050032;
@@ -131,21 +143,24 @@ containing a value of this type.
         public static final int improved=0x7f05002e;
         public static final int improvements=0x7f05002a;
         public static final int improvements_summary=0x7f05002b;
-        public static final int individual_enh=0x7f050039;
+        public static final int individual_enh=0x7f05003a;
         public static final int individual_imp=0x7f05002f;
         public static final int keys_reset=0x7f050022;
+        public static final int learn_more=0x7f050042;
         public static final int left=0x7f050023;
         public static final int ok=0x7f050028;
         public static final int options=0x7f050004;
         public static final int presets=0x7f05002c;
         public static final int press_new_button=0x7f050026;
         public static final int restart=0x7f050003;
+        public static final int restoring_transactions=0x7f050041;
         public static final int reversesidethrust=0x7f05001a;
         public static final int right=0x7f050024;
-        public static final int rotation=0x7f05003a;
-        public static final int rotation_summary=0x7f05003b;
+        public static final int rotation=0x7f05003b;
+        public static final int rotation_summary=0x7f05003c;
         public static final int thrust=0x7f050017;
         public static final int thrust_summary=0x7f050018;
+        public static final int unlock=0x7f050044;
         public static final int velocity_x=0x7f050007;
         public static final int velocity_y=0x7f050008;
         public static final int word_new=0x7f050002;

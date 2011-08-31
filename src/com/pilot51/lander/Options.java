@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -11,12 +12,14 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
-public class Options extends PreferenceActivity implements OnPreferenceClickListener, OnKeyListener {
-	private SharedPreferences prefs;
+import com.pilot51.lander.billing.Billing;
+
+public class Options extends PreferenceActivity implements OnPreferenceClickListener, OnKeyListener, OnSharedPreferenceChangeListener {
 	private Preference
 		pDefClassic,
 		pDefKeys,
@@ -30,32 +33,36 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pPresetImproved,
 		pPresetEnhClassic,
 		pPresetEnhanced,
-		selectedPref;
+		selectedPref,
+		pEnhUnlock;
 	private CheckBoxPreference
 		pImpEndImg,
 		pImpLanderAlpha,
 		pEnhRotation;
+	private PreferenceScreen pScrEnh;
+	private Billing billing;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.options);
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		pDefClassic = (Preference)findPreference("DefaultClassic");
-		pDefKeys = (Preference)findPreference("DefaultKeys");
-		pKeyThrust = (Preference)findPreference("KeyThrust");
-		pKeyLeft = (Preference)findPreference("KeyLeft");
-		pKeyRight = (Preference)findPreference("KeyRight");
-		pKeyNew = (Preference)findPreference("KeyNew");
-		pKeyRestart = (Preference)findPreference("KeyRestart");
-		pKeyOptions = (Preference)findPreference("KeyOptions");
-		pPresetImpClassic = (Preference)findPreference("PresetImpClassic");
-		pPresetImproved = (Preference)findPreference("PresetImproved");
+		pDefClassic = findPreference("DefaultClassic");
+		pDefKeys = findPreference("DefaultKeys");
+		pKeyThrust = findPreference("KeyThrust");
+		pKeyLeft = findPreference("KeyLeft");
+		pKeyRight = findPreference("KeyRight");
+		pKeyNew = findPreference("KeyNew");
+		pKeyRestart = findPreference("KeyRestart");
+		pKeyOptions = findPreference("KeyOptions");
+		pPresetImpClassic = findPreference("PresetImpClassic");
+		pPresetImproved = findPreference("PresetImproved");
 		pImpEndImg = (CheckBoxPreference)findPreference("ImpEndImg");
 		pImpLanderAlpha = (CheckBoxPreference)findPreference("ImpLanderAlpha");
-		pPresetEnhClassic = (Preference)findPreference("PresetEnhClassic");
-		pPresetEnhanced = (Preference)findPreference("PresetEnhanced");
+		pScrEnh = (PreferenceScreen)findPreference("ScreenEnh");
+		pPresetEnhClassic = findPreference("PresetEnhClassic");
+		pPresetEnhanced = findPreference("PresetEnhanced");
 		pEnhRotation = (CheckBoxPreference)findPreference("EnhRotation");
+		pEnhUnlock = findPreference("EnhUnlock");
 		pDefClassic.setOnPreferenceClickListener(this);
 		pDefKeys.setOnPreferenceClickListener(this);
 		pKeyThrust.setOnPreferenceClickListener(this);
@@ -66,10 +73,12 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyOptions.setOnPreferenceClickListener(this);
 		pPresetImpClassic.setOnPreferenceClickListener(this);
 		pPresetImproved.setOnPreferenceClickListener(this);
+		pScrEnh.setOnPreferenceClickListener(this);
 		pPresetEnhClassic.setOnPreferenceClickListener(this);
 		pPresetEnhanced.setOnPreferenceClickListener(this);
+		pEnhUnlock.setOnPreferenceClickListener(this);
 		if (getResources().getConfiguration().keyboard == Configuration.KEYBOARD_NOKEYS) {
-			Preference pControls = (Preference)findPreference("Controls");
+			Preference pControls = findPreference("Controls");
 			pControls.setEnabled(false);
 			pControls.setSummary(R.string.controls_summary_nokeys);
 		}
@@ -77,7 +86,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	
 	public boolean onPreferenceClick(Preference preference) {
 		if (preference == pDefClassic) {
-			prefs.edit()
+			Main.prefs.edit()
 			.remove("Gravity")
 			.remove("Fuel")
 			.remove("Thrust")
@@ -89,7 +98,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 			startActivity(getIntent());
 			Toast.makeText(this, R.string.classic_options_reset, Toast.LENGTH_LONG).show();
 		} else if (preference == pDefKeys) {
-			prefs.edit()
+			Main.prefs.edit()
 			.putInt("KeyThrust", KeyEvent.KEYCODE_DPAD_DOWN)
 			.putInt("KeyLeft", KeyEvent.KEYCODE_DPAD_LEFT)
 			.putInt("KeyRight", KeyEvent.KEYCODE_DPAD_RIGHT)
@@ -108,17 +117,54 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		} else if (preference == pPresetImproved) {
 			pImpEndImg.setChecked(true);
 			pImpLanderAlpha.setChecked(true);
-		} else if (preference == pPresetEnhClassic) {
+		} else if (preference == pPresetEnhClassic)
 			pEnhRotation.setChecked(false);
-		} else if (preference == pPresetEnhanced) {
+		else if (preference == pPresetEnhanced)
 			pEnhRotation.setChecked(true);
+		else if (preference == pEnhUnlock) {
+			if (!Main.prefs.getBoolean("unlock", false))
+				billing.purchase("unlock");
+		} else if (preference == pScrEnh) {
+			billing = new Billing(this, pEnhUnlock);
+			updateUnlock();
 		}
 		return true;
 	}
 	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Main.prefs.registerOnSharedPreferenceChangeListener(this);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Main.prefs.unregisterOnSharedPreferenceChangeListener(this);
+	}
+	
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (key.equals("unlock"))
+			updateUnlock();
+	}
+	
+	private void updateUnlock() {
+		boolean unlock = Main.prefs.getBoolean("unlock", false);
+		pPresetEnhClassic.setEnabled(unlock);
+		pPresetEnhanced.setEnabled(unlock);
+		pEnhRotation.setEnabled(unlock);
+		if (unlock)
+			pScrEnh.removePreference(pEnhUnlock);
+		else {
+			pScrEnh.addPreference(pEnhUnlock);
+			pEnhRotation.setChecked(false);
+		}
+	}
+	
 	private void setControl() {
 		new AlertDialog.Builder(this).setIcon(getResources().getDrawable(R.drawable.icon))
-		.setMessage(getString(R.string.current_button) + " " + selectedPref.getTitle() + ":\n" + getKeyLabel(prefs.getInt(selectedPref.getKey(), 0)) + "\n\n" + getString(R.string.press_new_button))
+		.setMessage(getString(R.string.current_button) + " " + selectedPref.getTitle() + ":\n" + getKeyLabel(Main.prefs.getInt(selectedPref.getKey(), 0)) + "\n\n" + getString(R.string.press_new_button))
 		.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.cancel();
@@ -131,7 +177,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	@Override
 	public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
 		if (event.getDeviceId() == 0 & event.getAction() == KeyEvent.ACTION_UP) {
-			prefs.edit().putInt(selectedPref.getKey(), keyCode).commit();
+			Main.prefs.edit().putInt(selectedPref.getKey(), keyCode).commit();
 			setResult(1);
 			dialog.dismiss();
 			return true;
@@ -142,7 +188,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	private String getKeyLabel(int keyCode) {
 		KeyCharacterMap keyCharacterMap = KeyCharacterMap.load(0);
 		String label;
-		int savedKey = prefs.getInt(selectedPref.getKey(), 0);
+		int savedKey = Main.prefs.getInt(selectedPref.getKey(), 0);
 		if (keyCharacterMap.isPrintingKey(savedKey)) {
 			label = Character.toString(keyCharacterMap.getDisplayLabel(savedKey));
 		} else if (savedKey <= 6) {
@@ -157,5 +203,26 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 			label = "(UNKNOWN)";
 		}
 		return label;
+	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		if (billing != null)
+			billing.onStart();
+	}
+	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if (billing != null)
+			billing.onStop();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if (billing != null)
+			billing.onDestroy();
 	}
 }

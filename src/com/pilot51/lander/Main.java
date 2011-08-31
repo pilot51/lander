@@ -21,7 +21,8 @@ public class Main extends Activity {
 		MENU_OPTIONS = 3,
 		MENU_ABOUT = 4;
 	private int keyNew, keyRestart, keyOptions;
-	private SharedPreferences prefs;
+	public static final String TAG = "Lander";
+	public static SharedPreferences prefs;
 	
 	/** A handle to the View in which the game is running. */
 	private LanderView mLanderView;
@@ -32,7 +33,7 @@ public class Main extends Activity {
 		super.onCreate(savedInstanceState);
 		// Load default preferences from xml if not saved
 		PreferenceManager.setDefaultValues(this, R.xml.options, true);
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if (prefs.getInt("KeyThrust", 0) == 0) {
 			prefs.edit()
 			.putInt("KeyThrust", KeyEvent.KEYCODE_DPAD_DOWN)

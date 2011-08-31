@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:lander="http://schemas.android.com/apk/res/com.pilot51.lander">
+	xmlns:lander="http://schemas.android.com/apk/res/com.pilot51.lander" xmlns:android="http://schemas.android.com/apk/res/android">
 	<PreferenceCategory
 		android:title="@string/classic_options">
 		<com.pilot51.lander.SeekBarPreference
@@ -94,10 +93,13 @@
 			</PreferenceCategory>
 		</PreferenceScreen>
 		<PreferenceScreen
+			android:key="ScreenEnh"
 			android:title="@string/gameplay_enhance"
 			android:summary="@string/gameplay_enhance_summary">
-			<PreferenceCategory
-				android:title="@string/presets">
+			<Preference
+				android:key="EnhUnlock"
+				android:title="@string/enh_unlock" />
+			<PreferenceCategory android:title="@string/presets">
 				<Preference
 					android:key="PresetEnhClassic"
 					android:title="@string/classic" />

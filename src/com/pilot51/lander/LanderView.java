@@ -7,7 +7,6 @@ import java.util.Random;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -18,7 +17,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -339,8 +337,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	private boolean mFiringRight;
 
 	class LanderThread extends Thread {
-		private SharedPreferences prefs;
-
 		/** Indicate whether the surface has been created & is ready to draw */
 		private boolean mRun = false;
 		
@@ -350,18 +346,17 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			mSurfaceHolder = surfaceHolder;
 			mContext = context;
 			mHandler = handler;
-			prefs = PreferenceManager.getDefaultSharedPreferences(context);
-			fGravity = prefs.getFloat("Gravity", 0);
-			fInitFuel = prefs.getFloat("Fuel", 0);
-			fMainForce = prefs.getFloat("Thrust", 0);
-			bDrawFlame = prefs.getBoolean("DrawFlame", false);
-			bReverseSideThrust = prefs.getBoolean("ReverseSideThrust", false);
-			bColorEndImg = prefs.getBoolean("ImpEndImg", false);
-			bLanderBox = !prefs.getBoolean("ImpLanderAlpha", false);
-			bRotation = prefs.getBoolean("EnhRotation", false);
-			keyThrust = prefs.getInt("KeyThrust", 0);
-			keyLeft = prefs.getInt("KeyLeft", 0);
-			keyRight = prefs.getInt("KeyRight", 0);
+			fGravity = Main.prefs.getFloat("Gravity", 0);
+			fInitFuel = Main.prefs.getFloat("Fuel", 0);
+			fMainForce = Main.prefs.getFloat("Thrust", 0);
+			bDrawFlame = Main.prefs.getBoolean("DrawFlame", false);
+			bReverseSideThrust = Main.prefs.getBoolean("ReverseSideThrust", false);
+			bColorEndImg = Main.prefs.getBoolean("ImpEndImg", false);
+			bLanderBox = !Main.prefs.getBoolean("ImpLanderAlpha", false);
+			bRotation = Main.prefs.getBoolean("EnhRotation", false);
+			keyThrust = Main.prefs.getInt("KeyThrust", 0);
+			keyLeft = Main.prefs.getInt("KeyLeft", 0);
+			keyRight = Main.prefs.getInt("KeyRight", 0);
 
 			rand = new Random(System.currentTimeMillis());
 			

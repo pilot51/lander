@@ -56,6 +56,7 @@
 	<string name="imp_lander_alpha_off">Lander has black box around it as in original game</string>
 	<string name="gameplay_enhance">Gameplay enhancements</string>
 	<string name="gameplay_enhance_summary">Toggle gameplay features that have been added exclusively to this Android port of Lander.</string>
+	<string name="enh_unlock">Unlock these options</string>
 	<string name="enhanced">Enhanced</string>
 	<string name="individual_enh">Individual enhancements</string>
 	<string name="rotation">Rotation</string>
