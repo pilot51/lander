@@ -128,14 +128,12 @@ containing a value of this type.
         public static final int end_crashv3=0x7f05000e;
         public static final int end_outofrange=0x7f050012;
         public static final int end_safe=0x7f05000a;
-        public static final int enh_unlock=0x7f050038;
-        public static final int enhanced=0x7f050039;
         public static final int error_email=0x7f050046;
         public static final int extra_options=0x7f05001e;
         public static final int fuel=0x7f050009;
         public static final int fuel_summary=0x7f050016;
-        public static final int gameplay_enhance=0x7f050036;
-        public static final int gameplay_enhance_summary=0x7f050037;
+        public static final int gameplay_mod=0x7f050036;
+        public static final int gameplay_mod_summary=0x7f050037;
         public static final int gravity=0x7f050014;
         public static final int gravity_summary=0x7f050015;
         public static final int help_url=0x7f05004d;
@@ -148,8 +146,8 @@ containing a value of this type.
         public static final int improved=0x7f05002e;
         public static final int improvements=0x7f05002a;
         public static final int improvements_summary=0x7f05002b;
-        public static final int individual_enh=0x7f05003a;
         public static final int individual_imp=0x7f05002f;
+        public static final int individual_mod=0x7f05003a;
         public static final int key_entry_keyreq=0x7f05003f;
         public static final int key_entry_msg=0x7f05003e;
         public static final int key_entry_title=0x7f05003d;
@@ -161,6 +159,8 @@ containing a value of this type.
         public static final int keys_reset=0x7f050022;
         public static final int learn_more=0x7f05004c;
         public static final int left=0x7f050023;
+        public static final int mod_unlock=0x7f050038;
+        public static final int modified=0x7f050039;
         public static final int ok=0x7f050028;
         public static final int options=0x7f050004;
         public static final int presets=0x7f05002c;

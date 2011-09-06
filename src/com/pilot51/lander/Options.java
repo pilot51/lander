@@ -38,15 +38,15 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyOptions,
 		pPresetImpClassic,
 		pPresetImproved,
-		pPresetEnhClassic,
-		pPresetEnhanced,
+		pPresetModClassic,
+		pPresetModified,
 		selectedPref,
-		pEnhUnlock;
+		pModUnlock;
 	private CheckBoxPreference
 		pImpEndImg,
 		pImpLanderAlpha,
-		pEnhRotation;
-	private PreferenceScreen pScrEnh;
+		pModRotation;
+	private PreferenceScreen pScreenMod;
 	private Billing billing;
 	
 	@Override
@@ -65,11 +65,11 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pPresetImproved = findPreference("PresetImproved");
 		pImpEndImg = (CheckBoxPreference)findPreference("ImpEndImg");
 		pImpLanderAlpha = (CheckBoxPreference)findPreference("ImpLanderAlpha");
-		pScrEnh = (PreferenceScreen)findPreference("ScreenEnh");
-		pPresetEnhClassic = findPreference("PresetEnhClassic");
-		pPresetEnhanced = findPreference("PresetEnhanced");
-		pEnhRotation = (CheckBoxPreference)findPreference("EnhRotation");
-		pEnhUnlock = findPreference("EnhUnlock");
+		pScreenMod = (PreferenceScreen)findPreference("ScreenMod");
+		pPresetModClassic = findPreference("PresetModClassic");
+		pPresetModified = findPreference("PresetModified");
+		pModRotation = (CheckBoxPreference)findPreference("ModRotation");
+		pModUnlock = findPreference("ModUnlock");
 		pDefClassic.setOnPreferenceClickListener(this);
 		pDefKeys.setOnPreferenceClickListener(this);
 		pKeyThrust.setOnPreferenceClickListener(this);
@@ -80,10 +80,10 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyOptions.setOnPreferenceClickListener(this);
 		pPresetImpClassic.setOnPreferenceClickListener(this);
 		pPresetImproved.setOnPreferenceClickListener(this);
-		pScrEnh.setOnPreferenceClickListener(this);
-		pPresetEnhClassic.setOnPreferenceClickListener(this);
-		pPresetEnhanced.setOnPreferenceClickListener(this);
-		pEnhUnlock.setOnPreferenceClickListener(this);
+		pScreenMod.setOnPreferenceClickListener(this);
+		pPresetModClassic.setOnPreferenceClickListener(this);
+		pPresetModified.setOnPreferenceClickListener(this);
+		pModUnlock.setOnPreferenceClickListener(this);
 		if (getResources().getConfiguration().keyboard == Configuration.KEYBOARD_NOKEYS) {
 			Preference pControls = findPreference("Controls");
 			pControls.setEnabled(false);
@@ -124,11 +124,11 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		} else if (preference == pPresetImproved) {
 			pImpEndImg.setChecked(true);
 			pImpLanderAlpha.setChecked(true);
-		} else if (preference == pPresetEnhClassic)
-			pEnhRotation.setChecked(false);
-		else if (preference == pPresetEnhanced)
-			pEnhRotation.setChecked(true);
-		else if (preference == pEnhUnlock) {
+		} else if (preference == pPresetModClassic)
+			pModRotation.setChecked(false);
+		else if (preference == pPresetModified)
+			pModRotation.setChecked(true);
+		else if (preference == pModUnlock) {
 			if (Main.prefs.getInt("unlock", UNLOCK_OFF) == UNLOCK_OFF) {
 				new AlertDialog.Builder(this)
 					.setItems(R.array.unlock_choices, new DialogInterface.OnClickListener() {
@@ -144,7 +144,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 						}
 					}).show();
 			}
-		} else if (preference == pScrEnh) {
+		} else if (preference == pScreenMod) {
 			if (Main.prefs.getInt("unlock", UNLOCK_OFF) != UNLOCK_KEY)
 				billing = new Billing(this);
 			updateUnlock();
@@ -236,14 +236,14 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	
 	private void updateUnlock() {
 		boolean unlock = Main.prefs.getInt("unlock", UNLOCK_OFF) != UNLOCK_OFF;
-		pPresetEnhClassic.setEnabled(unlock);
-		pPresetEnhanced.setEnabled(unlock);
-		pEnhRotation.setEnabled(unlock);
+		pPresetModClassic.setEnabled(unlock);
+		pPresetModified.setEnabled(unlock);
+		pModRotation.setEnabled(unlock);
 		if (unlock)
-			pScrEnh.removePreference(pEnhUnlock);
+			pScreenMod.removePreference(pModUnlock);
 		else {
-			pScrEnh.addPreference(pEnhUnlock);
-			pEnhRotation.setChecked(false);
+			pScreenMod.addPreference(pModUnlock);
+			pModRotation.setChecked(false);
 		}
 	}
 	

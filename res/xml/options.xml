@@ -93,24 +93,24 @@
 			</PreferenceCategory>
 		</PreferenceScreen>
 		<PreferenceScreen
-			android:key="ScreenEnh"
-			android:title="@string/gameplay_enhance"
-			android:summary="@string/gameplay_enhance_summary">
+			android:key="ScreenMod"
+			android:title="@string/gameplay_mod"
+			android:summary="@string/gameplay_mod_summary">
 			<Preference
-				android:key="EnhUnlock"
-				android:title="@string/enh_unlock" />
+				android:key="ModUnlock"
+				android:title="@string/mod_unlock" />
 			<PreferenceCategory android:title="@string/presets">
 				<Preference
-					android:key="PresetEnhClassic"
+					android:key="PresetModClassic"
 					android:title="@string/classic" />
 				<Preference
-					android:key="PresetEnhanced"
-					android:title="@string/enhanced" />
+					android:key="PresetModified"
+					android:title="@string/modified" />
 			</PreferenceCategory>
 			<PreferenceCategory
-				android:title="@string/individual_enh">
+				android:title="@string/individual_mod">
 				<CheckBoxPreference
-					android:key="EnhRotation"
+					android:key="ModRotation"
 					android:title="@string/rotation"
 					android:summary="@string/rotation_summary"
 					android:defaultValue="false" />

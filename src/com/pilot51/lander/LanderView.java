@@ -353,7 +353,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			bReverseSideThrust = Main.prefs.getBoolean("ReverseSideThrust", false);
 			bColorEndImg = Main.prefs.getBoolean("ImpEndImg", false);
 			bLanderBox = !Main.prefs.getBoolean("ImpLanderAlpha", false);
-			bRotation = Main.prefs.getBoolean("EnhRotation", false);
+			bRotation = Main.prefs.getBoolean("ModRotation", false);
 			keyThrust = Main.prefs.getInt("KeyThrust", 0);
 			keyLeft = Main.prefs.getInt("KeyLeft", 0);
 			keyRight = Main.prefs.getInt("KeyRight", 0);
