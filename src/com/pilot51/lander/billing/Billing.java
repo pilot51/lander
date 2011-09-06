@@ -13,12 +13,12 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
-import android.preference.Preference;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import com.pilot51.lander.Main;
+import com.pilot51.lander.Options;
 import com.pilot51.lander.R;
 import com.pilot51.lander.billing.BillingService.RequestPurchase;
 import com.pilot51.lander.billing.BillingService.RestoreTransactions;
@@ -40,6 +40,8 @@ public class Billing {
 	private BillingService mBillingService;
 	private PurchaseDatabase mPurchaseDatabase;
 	private Set<String> mOwnedItems = new HashSet<String>();
+	
+	public static boolean bReady;
 
 	private static final int DIALOG_CANNOT_CONNECT_ID = 1;
 	private static final int DIALOG_BILLING_NOT_SUPPORTED_ID = 2;
@@ -70,7 +72,7 @@ public class Billing {
 			if (Consts.DEBUG) Log.i(TAG, "supported: " + supported);
 			if (supported) {
 				restoreDatabase();
-				pref.setEnabled(!isOwned("unlock"));
+				bReady = !isOwned("unlock");
 			} else createDialog(DIALOG_BILLING_NOT_SUPPORTED_ID);
 		}
 
@@ -134,24 +136,20 @@ public class Billing {
 
 	private CatalogAdapter mCatalogAdapter;
 
-	private static Preference pref;
-
 	/**
 	 * @param a
 	 *            Activity for dialogs and such.
 	 * @param pref
 	 *            Preference to be modified according to purchase state.
 	 */
-	public Billing(Activity a, Preference p) {
+	public Billing(Activity a) {
 		activity = a;
-		pref = p;
 		mHandler = new Handler();
 		mLanderPurchaseObserver = new LanderPurchaseObserver(mHandler);
 		mBillingService = new BillingService();
 		mBillingService.setContext(activity);
 		mPurchaseDatabase = new PurchaseDatabase(activity);
-
-		pref.setEnabled(false);
+		bReady = false;
 		mCatalogAdapter = new CatalogAdapter(activity, CATALOG);
 
 		// Check if billing is supported.
@@ -317,11 +315,11 @@ public class Billing {
 			mOwnedItems = ownedItems;
 			notifyDataSetChanged();
 			if (mOwnedItems.contains("unlock")) {
-				if (!Main.prefs.getBoolean("unlock", false))
-					Main.prefs.edit().putBoolean("unlock", true).commit();
-				pref.setEnabled(false);
-			} else if (Main.prefs.getBoolean("unlock", false))
-				Main.prefs.edit().putBoolean("unlock", false).commit();
+				if (Main.prefs.getInt("unlock", Options.UNLOCK_OFF) == Options.UNLOCK_OFF)
+					Main.prefs.edit().putInt("unlock", Options.UNLOCK_PURCHASE).commit();
+				bReady = false;
+			} else if (Main.prefs.getInt("unlock", Options.UNLOCK_OFF) == Options.UNLOCK_PURCHASE)
+				Main.prefs.edit().putInt("unlock", Options.UNLOCK_OFF).commit();
 		}
 
 		@Override

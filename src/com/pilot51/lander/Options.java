@@ -1,8 +1,10 @@
 package com.pilot51.lander;
 
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnKeyListener;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
@@ -15,11 +17,16 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.pilot51.lander.billing.Billing;
 
 public class Options extends PreferenceActivity implements OnPreferenceClickListener, OnKeyListener, OnSharedPreferenceChangeListener {
+	public static final int
+		UNLOCK_OFF = 0,
+		UNLOCK_PURCHASE = 1,
+		UNLOCK_KEY = 2;
 	private Preference
 		pDefClassic,
 		pDefKeys,
@@ -122,19 +129,97 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		else if (preference == pPresetEnhanced)
 			pEnhRotation.setChecked(true);
 		else if (preference == pEnhUnlock) {
-			if (!Main.prefs.getBoolean("unlock", false))
-				billing.purchase("unlock");
+			if (Main.prefs.getInt("unlock", UNLOCK_OFF) == UNLOCK_OFF) {
+				new AlertDialog.Builder(this)
+					.setItems(R.array.unlock_choices, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int item) {
+							switch (item) {
+								case 0: // Purchase
+									if (Billing.bReady) billing.purchase("unlock");
+									break;
+								case 1: // Enter key
+									createDialog(0, null);
+									break;
+							}
+						}
+					}).show();
+			}
 		} else if (preference == pScrEnh) {
-			billing = new Billing(this, pEnhUnlock);
+			if (Main.prefs.getInt("unlock", UNLOCK_OFF) != UNLOCK_KEY)
+				billing = new Billing(this);
 			updateUnlock();
 		}
 		return true;
 	}
 	
+	private void createDialog(final int id, final String key) {
+		switch (id) {
+			case 0:
+				final EditText input = new EditText(this);
+				if (key != null) input.setText(key);
+				AlertDialog.Builder dlgKeyEntry = new AlertDialog.Builder(this);
+				dlgKeyEntry
+					.setTitle(R.string.key_entry_title)
+					.setMessage(R.string.key_entry_msg)
+					.setView(input)
+					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							createDialog(1, input.getText().toString());
+						}
+					})
+					.setNeutralButton(R.string.key_entry_keyreq,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								Intent email = new Intent(Intent.ACTION_SEND);
+								email.setType("plain/text");
+								email.putExtra(Intent.EXTRA_EMAIL, new String[] {getString(R.string.dev_email)});
+								email.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.key_req_subject));
+								email.putExtra(Intent.EXTRA_TEXT, getString(R.string.key_req_message));
+								try {
+									startActivity(email);
+								} catch (ActivityNotFoundException e) {
+									e.printStackTrace();
+									Toast.makeText(getBaseContext(), R.string.error_email, Toast.LENGTH_LONG).show();
+								}
+							}
+						})
+					.setNegativeButton(android.R.string.cancel,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {}
+						});
+				dlgKeyEntry.show();
+				break;
+			case 1:
+				AlertDialog.Builder dlgKeyResult = new AlertDialog.Builder(this)
+					.setPositiveButton(android.R.string.ok,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {}
+						});
+				if (verifyKey(key)) {
+					dlgKeyResult.setMessage(R.string.key_success);
+					Main.prefs.edit().putInt("unlock", UNLOCK_KEY).commit();
+				} else dlgKeyResult.setMessage(R.string.key_fail).setNegativeButton(
+					R.string.key_tryagain, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							createDialog(0, key);
+						}
+					});
+				dlgKeyResult.show();
+				break;
+		}
+	}
+
+	private static boolean verifyKey(String key) {
+		if (key.length() == 4 & (Long.parseLong(key, Character.MAX_RADIX) * 1000) % 27322 == 0)
+			return true;
+		return false;
+	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();
 		Main.prefs.registerOnSharedPreferenceChangeListener(this);
+		updateUnlock();
 	}
 
 	@Override
@@ -150,7 +235,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	}
 	
 	private void updateUnlock() {
-		boolean unlock = Main.prefs.getBoolean("unlock", false);
+		boolean unlock = Main.prefs.getInt("unlock", UNLOCK_OFF) != UNLOCK_OFF;
 		pPresetEnhClassic.setEnabled(unlock);
 		pPresetEnhanced.setEnabled(unlock);
 		pEnhRotation.setEnabled(unlock);

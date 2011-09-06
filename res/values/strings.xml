@@ -61,4 +61,18 @@
 	<string name="individual_enh">Individual enhancements</string>
 	<string name="rotation">Rotation</string>
 	<string name="rotation_summary">Lander rotates instead of changing horizontal velocity.</string>
+	<string-array name="unlock_choices">
+		<item>Purchase</item>
+		<item>Enter key</item>
+	</string-array>
+	<string name="key_entry_title">Key unlock</string>
+	<string name="key_entry_msg">If you have purchased Lander before it became free on the Market, you are eligible for an unlock key!\nKey is case insensitive.</string>
+	<string name="key_entry_keyreq">Request key</string>
+	<string name="key_success">Key verification successful!</string>
+	<string name="key_fail">Key verification failed!</string>
+	<string name="key_tryagain">Try again</string>
+	<string name="dev_email">pilota51@gmail.com</string>
+	<string name="key_req_subject">Lander key request</string>
+	<string name="key_req_message">Please provide at least two of the below details (or just the order number if you have it) so your existing purchase can be confirmed.\n\nGoogle order number: \nName as used for purchase: \nLocation accurate to city or ZIP: \nDate of purchase: </string>
+	<string name="error_email">Error: Unable to find an installed email app.</string>
 </resources>
