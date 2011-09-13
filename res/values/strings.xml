@@ -54,6 +54,8 @@
 	<string name="imp_lander_alpha">Transparency around lander</string>
 	<string name="imp_lander_alpha_on">Lander does not have black box around it</string>
 	<string name="imp_lander_alpha_off">Lander has black box around it as in original game</string>
+	<string name="imp_btn_alpha">Button opacity</string>
+	<string name="imp_btn_alpha_summary">Lower values are less visible</string>
 	<string name="gameplay_mod">Gameplay modifications</string>
 	<string name="gameplay_mod_summary">Toggle gameplay modifications that have been added exclusively to this Android port of Lander.</string>
 	<string name="mod_unlock">Unlock these modifications</string>

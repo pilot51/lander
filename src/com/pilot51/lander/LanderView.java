@@ -38,7 +38,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		HANDLE_LEFT = 7,
 		HANDLE_RIGHT = 8;
 	private TextView mTextAlt, mTextVelX, mTextVelY, mTextFuel;
-	private Button mBtnThrust, mBtnLeft, mBtnRight;
+	protected Button mBtnThrust, mBtnLeft, mBtnRight;
 
 	private Context mContext;
 	
@@ -153,16 +153,19 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 	public void setButtonThrust(Button btn) {
 		mBtnThrust = btn;
+		btn.getBackground().setAlpha((int)Main.prefs.getFloat("ImpBtnAlpha", 0));
 		btn.setOnTouchListener(this);
 	}
 
 	public void setButtonLeft(Button btn) {
 		mBtnLeft = btn;
+		btn.getBackground().setAlpha((int)Main.prefs.getFloat("ImpBtnAlpha", 0));
 		btn.setOnTouchListener(this);
 	}
 
 	public void setButtonRight(Button btn) {
 		mBtnRight = btn;
+		btn.getBackground().setAlpha((int)Main.prefs.getFloat("ImpBtnAlpha", 0));
 		btn.setOnTouchListener(this);
 	}
 

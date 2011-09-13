@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
@@ -23,6 +24,7 @@ public class Main extends Activity {
 	private int keyNew, keyRestart, keyOptions;
 	public static final String TAG = "Lander";
 	public static SharedPreferences prefs;
+	protected static Resources res;
 	
 	/** A handle to the View in which the game is running. */
 	private LanderView mLanderView;
@@ -31,6 +33,7 @@ public class Main extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		setTheme(R.style.Fullscreen);
 		super.onCreate(savedInstanceState);
+		res = getResources();
 		// Load default preferences from xml if not saved
 		PreferenceManager.setDefaultValues(this, R.xml.options, true);
 		prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -124,6 +127,10 @@ public class Main extends Activity {
 				keyRestart = prefs.getInt("KeyRestart", 0);
 				keyOptions = prefs.getInt("KeyOptions", 0);
 			}
+			int btnAlpha = (int)prefs.getFloat("ImpBtnAlpha", 0);
+			mLanderView.mBtnThrust.getBackground().setAlpha(btnAlpha);
+			mLanderView.mBtnLeft.getBackground().setAlpha(btnAlpha);
+			mLanderView.mBtnRight.getBackground().setAlpha(btnAlpha);
 			mLanderView.byLanderState = LanderView.LND_RESTART;
 		}
 	}

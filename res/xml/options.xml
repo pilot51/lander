@@ -90,6 +90,13 @@
 					android:summaryOn="@string/imp_lander_alpha_on"
 					android:summaryOff="@string/imp_lander_alpha_off"
 					android:defaultValue="true" />
+				<com.pilot51.lander.SeekBarPreference
+					android:key="ImpBtnAlpha"
+					android:title="@string/imp_btn_alpha"
+					android:summary="@string/imp_btn_alpha_summary"
+					lander:defaultValue="255"
+					lander:min="0"
+					lander:max="255" />
 			</PreferenceCategory>
 		</PreferenceScreen>
 		<PreferenceScreen

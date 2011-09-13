@@ -13,95 +13,73 @@ import android.widget.TextView;
 public class SeekBarPreference extends Preference implements OnSeekBarChangeListener {
 	private SeekBar seekbar;
 	private TextView valueText;
-	private int barValue, min, max;
-	private float value, defaultValue;
+	private int barMin, barMax;
+	private float value, fDefault, min, max;
 	private DecimalFormat df = new DecimalFormat("0.##");
 
 	public SeekBarPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		setLayoutResource(R.layout.preference_seekbar);
 		String xmlns = "http://schemas.android.com/apk/res/com.pilot51.lander";
-		max = convertToBarValue(attrs.getAttributeFloatValue(xmlns, "max", 0));
-		min = convertToBarValue(attrs.getAttributeFloatValue(xmlns, "min", 0));
-		defaultValue = attrs.getAttributeFloatValue(xmlns, "defaultValue", 0);
-		setDefaultValue(defaultValue);
+		max = attrs.getAttributeFloatValue(xmlns, "max", 0);
+		min = attrs.getAttributeFloatValue(xmlns, "min", 0);
+		fDefault = attrs.getAttributeFloatValue(xmlns, "defaultValue", 0);
+		barMax = convertToBarValue(max);
+		barMin = convertToBarValue(min);
+		setPersistent(true);
+		setDefaultValue(fDefault);
 	}
 
 	@Override
 	protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
-		setProgress(getInitialValue());
+		value = getPersistedFloat(fDefault);
+		if (!restorePersistedValue) persistFloat(value);
 	}
 
 	@Override
 	protected void onBindView(View view) {
 		super.onBindView(view);
-		setProgress(getInitialValue());
 		seekbar = (SeekBar) view.findViewById(R.id.seekbar);
-		seekbar.setMax(max);
-		seekbar.setProgress(barValue);
+		seekbar.setMax(barMax);
 		seekbar.setOnSeekBarChangeListener(this);
 		valueText = (TextView) view.findViewById(R.id.value);
 		valueText.setText(df.format(value));
-		setPersistent(true);
+		seekbar.setProgress(convertToBarValue(value));
 	}
 
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
-		int newValue = seekbar.getProgress();
-		if (!callChangeListener(newValue))
-			return;
-		if (progress >= min) {
-			barValue = newValue;
-		} else {
-			barValue = min;
-		}
-		value = convertToValue(barValue);
+		value = convertToValue(progress >= barMin ? progress : barMin);
 		valueText.setText(df.format(value));
 	}
 
 	@Override
-	public void onStartTrackingTouch(SeekBar seekBar) {
-	}
+	public void onStartTrackingTouch(SeekBar seekBar) {}
 
 	@Override
 	public void onStopTrackingTouch(SeekBar seekBar) {
-		setProgress(value);
-	}
-
-	private void setProgress(float value) {
-		this.value = value;
-		barValue = convertToBarValue(value);
 		persistFloat(value);
-		notifyChanged();
-	}
-
-	private float getInitialValue() {
-		float initialValue = getPersistedFloat(0);
-		if (initialValue == 0)
-			return defaultValue;
-		else
-			return initialValue;
 	}
 
 	private float convertToValue(int value) {
 		String title = getTitle().toString();
-		if (title.contentEquals("Gravity"))
-			return 1f + (value / 3f);
-		else if (title.contentEquals("Fuel"))
-			return 100f + (value * 100f);
-		else if (title.contentEquals("Thrust"))
-			return 2500f + (value * 1250f);
-		return 0;
+		if (title.equals(Main.res.getString(R.string.gravity)))
+			return min + (value / 3f);
+		else if (title.equals(Main.res.getString(R.string.fuel)))
+			return min + (value * 100f);
+		else if (title.equals(Main.res.getString(R.string.thrust)))
+			return min + (value * 1250f);
+		else return value;
 	}
 
 	private int convertToBarValue(float value) {
 		String title = getTitle().toString();
-		if (title.contentEquals("Gravity"))
-			return (int) ((value - 1f) * 3f);
-		else if (title.contentEquals("Fuel"))
-			return (int) ((value - 100f) / 100f);
-		else if (title.contentEquals("Thrust"))
-			return (int) ((value - 2500f) / 1250f);
-		return 0;
+		if (title.equals(Main.res.getString(R.string.gravity)))
+			return (int)((value - min) * 3f);
+		else if (title.equals(Main.res.getString(R.string.fuel)))
+			return (int)((value - min) / 100f);
+		else if (title.equals(Main.res.getString(R.string.thrust)))
+			return (int)((value - min) / 1250f);
+		else return (int)value;
 	}
 }
