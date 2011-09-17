@@ -24,7 +24,9 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchListener {
@@ -38,7 +40,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		HANDLE_LEFT = 7,
 		HANDLE_RIGHT = 8;
 	private TextView mTextAlt, mTextVelX, mTextVelY, mTextFuel;
-	protected Button mBtnThrust, mBtnLeft, mBtnRight;
+	private Button mBtnThrust, mBtnLeft, mBtnRight;
 
 	private Context mContext;
 	
@@ -153,20 +155,32 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 	public void setButtonThrust(Button btn) {
 		mBtnThrust = btn;
-		btn.getBackground().setAlpha((int)Main.prefs.getFloat("ImpBtnAlpha", 0));
 		btn.setOnTouchListener(this);
 	}
 
 	public void setButtonLeft(Button btn) {
 		mBtnLeft = btn;
-		btn.getBackground().setAlpha((int)Main.prefs.getFloat("ImpBtnAlpha", 0));
 		btn.setOnTouchListener(this);
 	}
 
 	public void setButtonRight(Button btn) {
 		mBtnRight = btn;
-		btn.getBackground().setAlpha((int)Main.prefs.getFloat("ImpBtnAlpha", 0));
 		btn.setOnTouchListener(this);
+	}
+	
+	protected void setBtnMod() {
+		int btnAlpha = (int)Main.prefs.getFloat("ImpBtnAlpha", 0);
+		mBtnThrust.getBackground().setAlpha(btnAlpha);
+		mBtnLeft.getBackground().setAlpha(btnAlpha);
+		mBtnRight.getBackground().setAlpha(btnAlpha);
+		int scaledSize = Math.round(48 * densityScale * Main.prefs.getFloat("ImpBtnScale", 0));
+		ViewGroup.LayoutParams
+			lpBtnThrust = mBtnThrust.getLayoutParams(),
+			lpBtnLeft = mBtnLeft.getLayoutParams(),
+			lpBtnRight = mBtnRight.getLayoutParams();
+		lpBtnThrust.width = lpBtnThrust.height = lpBtnLeft.width = lpBtnLeft.height
+			= lpBtnRight.width = lpBtnRight.height = scaledSize;
+		((RelativeLayout.LayoutParams)lpBtnThrust).leftMargin = (scaledSize / 2) + 1;
 	}
 
 	@Override

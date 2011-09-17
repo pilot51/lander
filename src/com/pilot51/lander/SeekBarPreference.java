@@ -13,8 +13,11 @@ import android.widget.TextView;
 public class SeekBarPreference extends Preference implements OnSeekBarChangeListener {
 	private SeekBar seekbar;
 	private TextView valueText;
-	private int barMin, barMax;
-	private float value, fDefault, min, max;
+	private int steps, barMin, barMax;
+	private float value, fDefault, min, max, increment;
+	/** Increment as a divisor of 1 */
+	private float subIncrement;
+	private String suffix;
 	private DecimalFormat df = new DecimalFormat("0.##");
 
 	public SeekBarPreference(Context context, AttributeSet attrs) {
@@ -24,7 +27,15 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		max = attrs.getAttributeFloatValue(xmlns, "max", 0);
 		min = attrs.getAttributeFloatValue(xmlns, "min", 0);
 		fDefault = attrs.getAttributeFloatValue(xmlns, "defaultValue", 0);
-		barMax = convertToBarValue(max);
+		increment = attrs.getAttributeFloatValue(xmlns, "increment", 1);
+		subIncrement = attrs.getAttributeFloatValue(xmlns, "subIncrement", 1);
+		steps = attrs.getAttributeIntValue(xmlns, "steps", 0);
+		suffix = attrs.getAttributeValue(xmlns, "suffix");
+		if (suffix == null)
+			suffix = "";
+		if (steps > 1)
+			barMax = steps;
+		else barMax = convertToBarValue(max);
 		barMin = convertToBarValue(min);
 		setPersistent(true);
 		setDefaultValue(fDefault);
@@ -43,14 +54,14 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		seekbar.setMax(barMax);
 		seekbar.setOnSeekBarChangeListener(this);
 		valueText = (TextView) view.findViewById(R.id.value);
-		valueText.setText(df.format(value));
+		valueText.setText(df.format(value) + suffix);
 		seekbar.setProgress(convertToBarValue(value));
 	}
 
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
 		value = convertToValue(progress >= barMin ? progress : barMin);
-		valueText.setText(df.format(value));
+		valueText.setText(df.format(value) + suffix);
 	}
 
 	@Override
@@ -62,24 +73,12 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 	}
 
 	private float convertToValue(int value) {
-		String title = getTitle().toString();
-		if (title.equals(Main.res.getString(R.string.gravity)))
-			return min + (value / 3f);
-		else if (title.equals(Main.res.getString(R.string.fuel)))
-			return min + (value * 100f);
-		else if (title.equals(Main.res.getString(R.string.thrust)))
-			return min + (value * 1250f);
-		else return value;
+		if (subIncrement > 1) return min + (value / subIncrement);
+		else return min + (value * increment);
 	}
 
 	private int convertToBarValue(float value) {
-		String title = getTitle().toString();
-		if (title.equals(Main.res.getString(R.string.gravity)))
-			return (int)((value - min) * 3f);
-		else if (title.equals(Main.res.getString(R.string.fuel)))
-			return (int)((value - min) / 100f);
-		else if (title.equals(Main.res.getString(R.string.thrust)))
-			return (int)((value - min) / 1250f);
-		else return (int)value;
+		if (subIncrement > 1) return (int)((value - min) * subIncrement);
+		else return (int)((value - min) / increment);
 	}
 }

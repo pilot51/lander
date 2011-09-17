@@ -57,6 +57,7 @@ public class Main extends Activity {
 		mLanderView.setButtonThrust((Button) findViewById(R.id.btnThrust));
 		mLanderView.setButtonLeft((Button) findViewById(R.id.btnLeft));
 		mLanderView.setButtonRight((Button) findViewById(R.id.btnRight));
+		mLanderView.setBtnMod();
 		keyNew = prefs.getInt("KeyNew", 0);
 		keyRestart = prefs.getInt("KeyRestart", 0);
 		keyOptions = prefs.getInt("KeyOptions", 0);
@@ -127,10 +128,7 @@ public class Main extends Activity {
 				keyRestart = prefs.getInt("KeyRestart", 0);
 				keyOptions = prefs.getInt("KeyOptions", 0);
 			}
-			int btnAlpha = (int)prefs.getFloat("ImpBtnAlpha", 0);
-			mLanderView.mBtnThrust.getBackground().setAlpha(btnAlpha);
-			mLanderView.mBtnLeft.getBackground().setAlpha(btnAlpha);
-			mLanderView.mBtnRight.getBackground().setAlpha(btnAlpha);
+			mLanderView.setBtnMod();
 			mLanderView.byLanderState = LanderView.LND_RESTART;
 		}
 	}

@@ -4,5 +4,9 @@
 		<attr name="defaultValue" format="float" />
 		<attr name="min" format="float" />
 		<attr name="max" format="float" />
+		<attr name="increment" format="float" />
+		<attr name="subIncrement" format="float" />
+		<attr name="steps" format="integer" />
+		<attr name="suffix" format="string" />
 	</declare-styleable>
 </resources>

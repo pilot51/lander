@@ -54,6 +54,7 @@
 	<string name="imp_lander_alpha">Transparency around lander</string>
 	<string name="imp_lander_alpha_on">Lander does not have black box around it</string>
 	<string name="imp_lander_alpha_off">Lander has black box around it as in original game</string>
+	<string name="imp_btn_scale">Button scale</string>
 	<string name="imp_btn_alpha">Button opacity</string>
 	<string name="imp_btn_alpha_summary">Lower values are less visible</string>
 	<string name="gameplay_mod">Gameplay modifications</string>
