@@ -45,27 +45,49 @@
 		<PreferenceScreen
 			android:key="Controls"
 			android:title="@string/controls">
-			<Preference
-				android:key="KeyThrust"
-				android:title="@string/thrust" />
-			<Preference
-				android:key="KeyLeft"
-				android:title="@string/left" />
-			<Preference
-				android:key="KeyRight"
-				android:title="@string/right" />
-			<Preference
-				android:key="KeyNew"
-				android:title="@string/word_new" />
-			<Preference
-				android:key="KeyRestart"
-				android:title="@string/restart" />
-			<Preference
-				android:key="KeyOptions"
-				android:title="@string/options" />
-			<Preference
-				android:key="DefaultKeys"
-				android:title="@string/default_keys_title" />
+			<PreferenceCategory
+				android:title="@string/onscreen_controls">
+				<com.pilot51.lander.SeekBarPreference
+					android:key="BtnScale"
+					android:title="@string/btn_scale"
+					lander:defaultValue="1"
+					lander:min="0.5"
+					lander:max="2.5"
+					lander:increment="0.1"
+					lander:suffix="x" />
+				<com.pilot51.lander.SeekBarPreference
+					android:key="BtnAlpha"
+					android:title="@string/btn_alpha"
+					lander:defaultValue="255"
+					lander:min="0"
+					lander:max="255"
+					lander:valueScale="2.55"
+					lander:suffix="%" />
+			</PreferenceCategory>
+			<PreferenceCategory
+				android:title="@string/key_assignments">
+				<Preference
+					android:key="KeyThrust"
+					android:title="@string/thrust" />
+				<Preference
+					android:key="KeyLeft"
+					android:title="@string/left" />
+				<Preference
+					android:key="KeyRight"
+					android:title="@string/right" />
+				<Preference
+					android:key="KeyNew"
+					android:title="@string/word_new" />
+				<Preference
+					android:key="KeyRestart"
+					android:title="@string/restart" />
+				<Preference
+					android:key="KeyOptions"
+					android:title="@string/options" />
+				<Preference
+					android:key="DefaultKeys"
+					android:title="@string/default_keys_title" />
+			</PreferenceCategory>
 		</PreferenceScreen>
 		<PreferenceScreen
 			android:title="@string/improvements"
@@ -93,21 +115,6 @@
 					android:summaryOn="@string/imp_lander_alpha_on"
 					android:summaryOff="@string/imp_lander_alpha_off"
 					android:defaultValue="true" />
-				<com.pilot51.lander.SeekBarPreference
-					android:key="ImpBtnScale"
-					android:title="@string/imp_btn_scale"
-					lander:defaultValue="1"
-					lander:min="0.5"
-					lander:max="2.5"
-					lander:increment="0.1"
-					lander:suffix="x" />
-				<com.pilot51.lander.SeekBarPreference
-					android:key="ImpBtnAlpha"
-					android:title="@string/imp_btn_alpha"
-					android:summary="@string/imp_btn_alpha_summary"
-					lander:defaultValue="255"
-					lander:min="0"
-					lander:max="255" />
 			</PreferenceCategory>
 		</PreferenceScreen>
 		<PreferenceScreen
@@ -117,14 +124,6 @@
 			<Preference
 				android:key="ModUnlock"
 				android:title="@string/mod_unlock" />
-			<PreferenceCategory android:title="@string/presets">
-				<Preference
-					android:key="PresetModClassic"
-					android:title="@string/classic" />
-				<Preference
-					android:key="PresetModified"
-					android:title="@string/modified" />
-			</PreferenceCategory>
 			<PreferenceCategory
 				android:title="@string/individual_mod">
 				<CheckBoxPreference

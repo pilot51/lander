@@ -38,8 +38,6 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pKeyOptions,
 		pPresetImpClassic,
 		pPresetImproved,
-		pPresetModClassic,
-		pPresetModified,
 		selectedPref,
 		pModUnlock;
 	private CheckBoxPreference
@@ -66,8 +64,6 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pImpEndImg = (CheckBoxPreference)findPreference("ImpEndImg");
 		pImpLanderAlpha = (CheckBoxPreference)findPreference("ImpLanderAlpha");
 		pScreenMod = (PreferenceScreen)findPreference("ScreenMod");
-		pPresetModClassic = findPreference("PresetModClassic");
-		pPresetModified = findPreference("PresetModified");
 		pModRotation = (CheckBoxPreference)findPreference("ModRotation");
 		pModUnlock = findPreference("ModUnlock");
 		pDefClassic.setOnPreferenceClickListener(this);
@@ -81,8 +77,6 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pPresetImpClassic.setOnPreferenceClickListener(this);
 		pPresetImproved.setOnPreferenceClickListener(this);
 		pScreenMod.setOnPreferenceClickListener(this);
-		pPresetModClassic.setOnPreferenceClickListener(this);
-		pPresetModified.setOnPreferenceClickListener(this);
 		pModUnlock.setOnPreferenceClickListener(this);
 		if (getResources().getConfiguration().keyboard == Configuration.KEYBOARD_NOKEYS) {
 			Preference pControls = findPreference("Controls");
@@ -124,11 +118,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		} else if (preference == pPresetImproved) {
 			pImpEndImg.setChecked(true);
 			pImpLanderAlpha.setChecked(true);
-		} else if (preference == pPresetModClassic)
-			pModRotation.setChecked(false);
-		else if (preference == pPresetModified)
-			pModRotation.setChecked(true);
-		else if (preference == pModUnlock) {
+		} else if (preference == pModUnlock) {
 			if (Main.prefs.getInt("unlock", UNLOCK_OFF) == UNLOCK_OFF) {
 				new AlertDialog.Builder(this)
 					.setItems(R.array.unlock_choices, new DialogInterface.OnClickListener() {
@@ -236,8 +226,6 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	
 	private void updateUnlock() {
 		boolean unlock = Main.prefs.getInt("unlock", UNLOCK_OFF) != UNLOCK_OFF;
-		pPresetModClassic.setEnabled(unlock);
-		pPresetModified.setEnabled(unlock);
 		pModRotation.setEnabled(unlock);
 		if (unlock)
 			pScreenMod.removePreference(pModUnlock);

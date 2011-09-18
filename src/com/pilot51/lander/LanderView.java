@@ -169,11 +169,11 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	}
 	
 	protected void setBtnMod() {
-		int btnAlpha = (int)Main.prefs.getFloat("ImpBtnAlpha", 0);
+		int btnAlpha = (int)Main.prefs.getFloat("BtnAlpha", 0);
 		mBtnThrust.getBackground().setAlpha(btnAlpha);
 		mBtnLeft.getBackground().setAlpha(btnAlpha);
 		mBtnRight.getBackground().setAlpha(btnAlpha);
-		int scaledSize = Math.round(48 * densityScale * Main.prefs.getFloat("ImpBtnScale", 0));
+		int scaledSize = Math.round(48 * densityScale * Main.prefs.getFloat("BtnScale", 0));
 		ViewGroup.LayoutParams
 			lpBtnThrust = mBtnThrust.getLayoutParams(),
 			lpBtnLeft = mBtnLeft.getLayoutParams(),

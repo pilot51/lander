@@ -33,6 +33,10 @@
 	<string name="extra_options">Extra options</string>
 	<string name="controls">Controls</string>
 	<string name="controls_summary_nokeys">No physical keyboard detected</string>
+	<string name="onscreen_controls">On-screen controls</string>
+	<string name="btn_scale">Button scale</string>
+	<string name="btn_alpha">Button visibility</string>
+	<string name="key_assignments">Key assignments</string>
 	<string name="default_keys_title">Reset keys to default</string>
 	<string name="keys_reset">Keys reset to default</string>
 	<string name="left">Left</string>
@@ -54,16 +58,13 @@
 	<string name="imp_lander_alpha">Transparency around lander</string>
 	<string name="imp_lander_alpha_on">Lander does not have black box around it</string>
 	<string name="imp_lander_alpha_off">Lander has black box around it as in original game</string>
-	<string name="imp_btn_scale">Button scale</string>
-	<string name="imp_btn_alpha">Button opacity</string>
-	<string name="imp_btn_alpha_summary">Lower values are less visible</string>
 	<string name="gameplay_mod">Gameplay modifications</string>
 	<string name="gameplay_mod_summary">Toggle gameplay modifications that have been added exclusively to this Android port of Lander.</string>
 	<string name="mod_unlock">Unlock these modifications</string>
 	<string name="modified">Modified</string>
 	<string name="individual_mod">Individual modifications</string>
 	<string name="rotation">Rotation</string>
-	<string name="rotation_summary">Rotate lander instead of changing horizontal velocity.</string>
+	<string name="rotation_summary">Side thrusters rotate lander instead of changing horizontal velocity.</string>
 	<string-array name="unlock_choices">
 		<item>Purchase</item>
 		<item>Enter key</item>

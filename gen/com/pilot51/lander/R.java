@@ -67,7 +67,15 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int suffix=0x7f010006;
+        public static final int suffix=0x7f010007;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int valueScale=0x7f010006;
     }
     public static final class drawable {
         public static final int bflame=0x7f020000;
@@ -129,27 +137,29 @@ containing a value of this type.
         public static final int altitude=0x7f050006;
         /**  The following are reserved skus defined by Market for testing. 
          */
-        public static final int android_test_canceled=0x7f050052;
-        public static final int android_test_item_unavailable=0x7f050054;
-        public static final int android_test_purchased=0x7f050053;
-        public static final int android_test_refunded=0x7f050055;
+        public static final int android_test_canceled=0x7f050053;
+        public static final int android_test_item_unavailable=0x7f050055;
+        public static final int android_test_purchased=0x7f050054;
+        public static final int android_test_refunded=0x7f050056;
         public static final int app_name=0x7f050000;
         public static final int app_version=0x7f050001;
-        public static final int billing_not_supported_message=0x7f05004b;
-        public static final int billing_not_supported_title=0x7f05004a;
-        public static final int cancel=0x7f050029;
-        public static final int cannot_connect_message=0x7f05004d;
-        public static final int cannot_connect_title=0x7f05004c;
-        public static final int classic=0x7f05002d;
+        public static final int billing_not_supported_message=0x7f05004c;
+        public static final int billing_not_supported_title=0x7f05004b;
+        public static final int btn_alpha=0x7f050023;
+        public static final int btn_scale=0x7f050022;
+        public static final int cancel=0x7f05002d;
+        public static final int cannot_connect_message=0x7f05004e;
+        public static final int cannot_connect_title=0x7f05004d;
+        public static final int classic=0x7f050031;
         public static final int classic_options=0x7f05001d;
-        public static final int classic_options_reset=0x7f050027;
+        public static final int classic_options_reset=0x7f05002b;
         public static final int controls=0x7f05001f;
         public static final int controls_summary_nokeys=0x7f050020;
-        public static final int current_button=0x7f050025;
-        public static final int default_keys_title=0x7f050021;
+        public static final int current_button=0x7f050029;
+        public static final int default_keys_title=0x7f050025;
         public static final int default_summary=0x7f05001c;
         public static final int default_title=0x7f05001b;
-        public static final int dev_email=0x7f050046;
+        public static final int dev_email=0x7f050047;
         public static final int drawflame=0x7f050019;
         public static final int end_crash=0x7f05000b;
         public static final int end_crasha=0x7f050010;
@@ -160,55 +170,54 @@ containing a value of this type.
         public static final int end_crashv3=0x7f05000e;
         public static final int end_outofrange=0x7f050012;
         public static final int end_safe=0x7f05000a;
-        public static final int error_email=0x7f050049;
+        public static final int error_email=0x7f05004a;
         public static final int extra_options=0x7f05001e;
         public static final int fuel=0x7f050009;
         public static final int fuel_summary=0x7f050016;
-        public static final int gameplay_mod=0x7f050039;
-        public static final int gameplay_mod_summary=0x7f05003a;
+        public static final int gameplay_mod=0x7f05003a;
+        public static final int gameplay_mod_summary=0x7f05003b;
         public static final int gravity=0x7f050014;
         public static final int gravity_summary=0x7f050015;
-        public static final int help_url=0x7f050050;
-        public static final int imp_btn_alpha=0x7f050037;
-        public static final int imp_btn_alpha_summary=0x7f050038;
-        public static final int imp_btn_scale=0x7f050036;
-        public static final int imp_end_img=0x7f050030;
-        public static final int imp_end_img_bw=0x7f050031;
-        public static final int imp_end_img_color=0x7f050032;
-        public static final int imp_lander_alpha=0x7f050033;
-        public static final int imp_lander_alpha_off=0x7f050035;
-        public static final int imp_lander_alpha_on=0x7f050034;
-        public static final int improved=0x7f05002e;
-        public static final int improvements=0x7f05002a;
-        public static final int improvements_summary=0x7f05002b;
-        public static final int individual_imp=0x7f05002f;
-        public static final int individual_mod=0x7f05003d;
-        public static final int key_entry_keyreq=0x7f050042;
-        public static final int key_entry_msg=0x7f050041;
-        public static final int key_entry_title=0x7f050040;
-        public static final int key_fail=0x7f050044;
-        public static final int key_req_message=0x7f050048;
-        public static final int key_req_subject=0x7f050047;
-        public static final int key_success=0x7f050043;
-        public static final int key_tryagain=0x7f050045;
-        public static final int keys_reset=0x7f050022;
-        public static final int learn_more=0x7f05004f;
-        public static final int left=0x7f050023;
-        public static final int mod_unlock=0x7f05003b;
-        public static final int modified=0x7f05003c;
-        public static final int ok=0x7f050028;
+        public static final int help_url=0x7f050051;
+        public static final int imp_end_img=0x7f050034;
+        public static final int imp_end_img_bw=0x7f050035;
+        public static final int imp_end_img_color=0x7f050036;
+        public static final int imp_lander_alpha=0x7f050037;
+        public static final int imp_lander_alpha_off=0x7f050039;
+        public static final int imp_lander_alpha_on=0x7f050038;
+        public static final int improved=0x7f050032;
+        public static final int improvements=0x7f05002e;
+        public static final int improvements_summary=0x7f05002f;
+        public static final int individual_imp=0x7f050033;
+        public static final int individual_mod=0x7f05003e;
+        public static final int key_assignments=0x7f050024;
+        public static final int key_entry_keyreq=0x7f050043;
+        public static final int key_entry_msg=0x7f050042;
+        public static final int key_entry_title=0x7f050041;
+        public static final int key_fail=0x7f050045;
+        public static final int key_req_message=0x7f050049;
+        public static final int key_req_subject=0x7f050048;
+        public static final int key_success=0x7f050044;
+        public static final int key_tryagain=0x7f050046;
+        public static final int keys_reset=0x7f050026;
+        public static final int learn_more=0x7f050050;
+        public static final int left=0x7f050027;
+        public static final int mod_unlock=0x7f05003c;
+        public static final int modified=0x7f05003d;
+        public static final int ok=0x7f05002c;
+        public static final int onscreen_controls=0x7f050021;
         public static final int options=0x7f050004;
-        public static final int presets=0x7f05002c;
-        public static final int press_new_button=0x7f050026;
+        public static final int presets=0x7f050030;
+        public static final int press_new_button=0x7f05002a;
         public static final int restart=0x7f050003;
-        public static final int restoring_transactions=0x7f05004e;
+        public static final int restoring_transactions=0x7f05004f;
         public static final int reversesidethrust=0x7f05001a;
-        public static final int right=0x7f050024;
-        public static final int rotation=0x7f05003e;
-        public static final int rotation_summary=0x7f05003f;
+        public static final int right=0x7f050028;
+        public static final int rotation=0x7f05003f;
+        public static final int rotation_summary=0x7f050040;
         public static final int thrust=0x7f050017;
         public static final int thrust_summary=0x7f050018;
-        public static final int unlock=0x7f050051;
+        public static final int unlock=0x7f050052;
         public static final int velocity_x=0x7f050007;
         public static final int velocity_y=0x7f050008;
         public static final int word_new=0x7f050002;
@@ -233,6 +242,7 @@ containing a value of this type.
            <tr><td><code>{@link #com_pilot51_lander_steps com.pilot51.lander:steps}</code></td><td></td></tr>
            <tr><td><code>{@link #com_pilot51_lander_subIncrement com.pilot51.lander:subIncrement}</code></td><td></td></tr>
            <tr><td><code>{@link #com_pilot51_lander_suffix com.pilot51.lander:suffix}</code></td><td></td></tr>
+           <tr><td><code>{@link #com_pilot51_lander_valueScale com.pilot51.lander:valueScale}</code></td><td></td></tr>
            </table>
            @see #com_pilot51_lander_defaultValue
            @see #com_pilot51_lander_increment
@@ -241,10 +251,11 @@ containing a value of this type.
            @see #com_pilot51_lander_steps
            @see #com_pilot51_lander_subIncrement
            @see #com_pilot51_lander_suffix
+           @see #com_pilot51_lander_valueScale
          */
         public static final int[] com_pilot51_lander = {
             0x7f010000, 0x7f010001, 0x7f010002, 0x7f010003,
-            0x7f010004, 0x7f010005, 0x7f010006
+            0x7f010004, 0x7f010005, 0x7f010006, 0x7f010007
         };
         /**
           <p>This symbol is the offset where the {@link com.pilot51.lander.R.attr#defaultValue}
@@ -343,6 +354,20 @@ theme attribute (in the form
 containing a value of this type.
           @attr name android:suffix
         */
-        public static final int com_pilot51_lander_suffix = 6;
+        public static final int com_pilot51_lander_suffix = 7;
+        /**
+          <p>This symbol is the offset where the {@link com.pilot51.lander.R.attr#valueScale}
+          attribute's value can be found in the {@link #com_pilot51_lander} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name android:valueScale
+        */
+        public static final int com_pilot51_lander_valueScale = 6;
     };
 }
