@@ -181,6 +181,11 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		lpBtnThrust.width = lpBtnThrust.height = lpBtnLeft.width = lpBtnLeft.height
 			= lpBtnRight.width = lpBtnRight.height = scaledSize;
 		((RelativeLayout.LayoutParams)lpBtnThrust).leftMargin = (scaledSize / 2) + 1;
+		if(Integer.parseInt(android.os.Build.VERSION.SDK) <= 7) {
+			mBtnThrust.setLayoutParams(lpBtnThrust);
+			mBtnLeft.setLayoutParams(lpBtnLeft);
+			mBtnRight.setLayoutParams(lpBtnRight);
+		}
 	}
 
 	@Override
