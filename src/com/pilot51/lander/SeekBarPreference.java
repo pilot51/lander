@@ -75,6 +75,13 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 	public void onStopTrackingTouch(SeekBar seekBar) {
 		persistFloat(value);
 	}
+	
+	protected void setToDefault() {
+		this.value = fDefault;
+		valueText.setText(df.format(value / scale) + suffix);
+		seekbar.setProgress(convertToBarValue(value));
+		persistFloat(value);
+	}
 
 	private float convertToValue(int value) {
 		if (subIncrement > 1) return (min + (value / subIncrement)) * scale;

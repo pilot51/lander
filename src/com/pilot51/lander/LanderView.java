@@ -85,7 +85,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						.setIcon(img)
 						.setTitle(title)
 						.setMessage(message)
-						.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+						.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int which) {
 								dialog.cancel();
 							}

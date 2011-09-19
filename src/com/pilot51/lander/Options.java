@@ -13,7 +13,6 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -29,7 +28,8 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		UNLOCK_KEY = 2;
 	private Preference
 		pDefClassic,
-		pDefKeys,
+		pDefControls,
+		pControls,
 		pKeyThrust,
 		pKeyLeft,
 		pKeyRight,
@@ -52,7 +52,8 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.options);
 		pDefClassic = findPreference("DefaultClassic");
-		pDefKeys = findPreference("DefaultKeys");
+		pDefControls = findPreference("DefaultControls");
+		pControls = findPreference("Controls");
 		pKeyThrust = findPreference("KeyThrust");
 		pKeyLeft = findPreference("KeyLeft");
 		pKeyRight = findPreference("KeyRight");
@@ -67,7 +68,8 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pModRotation = (CheckBoxPreference)findPreference("ModRotation");
 		pModUnlock = findPreference("ModUnlock");
 		pDefClassic.setOnPreferenceClickListener(this);
-		pDefKeys.setOnPreferenceClickListener(this);
+		pDefControls.setOnPreferenceClickListener(this);
+		pControls.setOnPreferenceClickListener(this);
 		pKeyThrust.setOnPreferenceClickListener(this);
 		pKeyLeft.setOnPreferenceClickListener(this);
 		pKeyRight.setOnPreferenceClickListener(this);
@@ -78,27 +80,19 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pPresetImproved.setOnPreferenceClickListener(this);
 		pScreenMod.setOnPreferenceClickListener(this);
 		pModUnlock.setOnPreferenceClickListener(this);
-		if (getResources().getConfiguration().keyboard == Configuration.KEYBOARD_NOKEYS) {
-			Preference pControls = findPreference("Controls");
-			pControls.setEnabled(false);
-			pControls.setSummary(R.string.controls_summary_nokeys);
-		}
 	}
 	
 	public boolean onPreferenceClick(Preference preference) {
 		if (preference == pDefClassic) {
-			Main.prefs.edit()
-			.remove("Gravity")
-			.remove("Fuel")
-			.remove("Thrust")
-			.remove("DrawFlame")
-			.remove("ReverseSideThrust")
-			.commit();
-			PreferenceManager.setDefaultValues(this, R.xml.options, true);
-			finish();
-			startActivity(getIntent());
+			((SeekBarPreference)findPreference("Gravity")).setToDefault();
+			((SeekBarPreference)findPreference("Fuel")).setToDefault();
+			((SeekBarPreference)findPreference("Thrust")).setToDefault();
+			((CheckBoxPreference)findPreference("DrawFlame")).setChecked(true);
+			((CheckBoxPreference)findPreference("ReverseSideThrust")).setChecked(false);
 			Toast.makeText(this, R.string.classic_options_reset, Toast.LENGTH_LONG).show();
-		} else if (preference == pDefKeys) {
+		} else if (preference == pDefControls) {
+			((SeekBarPreference)findPreference("BtnScale")).setToDefault();
+			((SeekBarPreference)findPreference("BtnAlpha")).setToDefault();
 			Main.prefs.edit()
 			.putInt("KeyThrust", KeyEvent.KEYCODE_DPAD_DOWN)
 			.putInt("KeyLeft", KeyEvent.KEYCODE_DPAD_LEFT)
@@ -108,10 +102,15 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 			.putInt("KeyOptions", KeyEvent.KEYCODE_4)
 			.commit();
 			setResult(1);
-			Toast.makeText(this, R.string.keys_reset, Toast.LENGTH_LONG).show();
+			Toast.makeText(this, R.string.controls_reset, Toast.LENGTH_LONG).show();
+		} else if (preference == pControls) {
+			if (getResources().getConfiguration().keyboard == Configuration.KEYBOARD_NOKEYS) {
+				findPreference("CatKeys").setEnabled(false);
+				Toast.makeText(this, R.string.controls_nokeys, Toast.LENGTH_LONG).show();
+			}
 		} else if (preference.getKey().startsWith("Key")) {
 			selectedPref = preference;
-			setControl();
+			assignKey();
 		} else if (preference == pPresetImpClassic) {
 			pImpEndImg.setChecked(false);
 			pImpLanderAlpha.setChecked(false);
@@ -235,10 +234,10 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		}
 	}
 	
-	private void setControl() {
+	private void assignKey() {
 		new AlertDialog.Builder(this).setIcon(getResources().getDrawable(R.drawable.icon))
 		.setMessage(getString(R.string.current_button) + " " + selectedPref.getTitle() + ":\n" + getKeyLabel(Main.prefs.getInt(selectedPref.getKey(), 0)) + "\n\n" + getString(R.string.press_new_button))
-		.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+		.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.cancel();
 			}

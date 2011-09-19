@@ -65,6 +65,7 @@
 					lander:suffix="%" />
 			</PreferenceCategory>
 			<PreferenceCategory
+				android:key="CatKeys"
 				android:title="@string/key_assignments">
 				<Preference
 					android:key="KeyThrust"
@@ -84,9 +85,11 @@
 				<Preference
 					android:key="KeyOptions"
 					android:title="@string/options" />
+			</PreferenceCategory>
+			<PreferenceCategory>
 				<Preference
-					android:key="DefaultKeys"
-					android:title="@string/default_keys_title" />
+					android:key="DefaultControls"
+					android:title="@string/default_controls_title" />
 			</PreferenceCategory>
 		</PreferenceScreen>
 		<PreferenceScreen

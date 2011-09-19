@@ -20,6 +20,7 @@
 	<string name="end_crashs">Missed the landing site. You must land on flat terrain.</string>
 	<string name="end_outofrange">Lander Lost!\nYou are out of range of the command module and presumed lost.</string>
 	<string name="about_text">Lander is an Android port of the 1990 game by the same name for Windows 3.1.\n\nFull permission and v1.3 source code has been provided by the original developer, George Moromisato (neurohack.com).</string>
+	<string name="classic_options">Classic options</string>
 	<string name="gravity">Gravity</string>
 	<string name="gravity_summary">Gravity in m/s²</string>
 	<string name="fuel_summary">Initial fuel in kg\nAffects mass of lander</string>
@@ -29,23 +30,20 @@
 	<string name="reversesidethrust">Reverse side thrust</string>
 	<string name="default_title">Default</string>
 	<string name="default_summary">Reset classic options to defaults</string>
-	<string name="classic_options">Classic options</string>
+	<string name="classic_options_reset">Classic options reset</string>
 	<string name="extra_options">Extra options</string>
 	<string name="controls">Controls</string>
-	<string name="controls_summary_nokeys">No physical keyboard detected</string>
 	<string name="onscreen_controls">On-screen controls</string>
 	<string name="btn_scale">Button scale</string>
 	<string name="btn_alpha">Button visibility</string>
 	<string name="key_assignments">Key assignments</string>
-	<string name="default_keys_title">Reset keys to default</string>
-	<string name="keys_reset">Keys reset to default</string>
+	<string name="controls_nokeys">No physical keyboard detected</string>
 	<string name="left">Left</string>
 	<string name="right">Right</string>
 	<string name="current_button">Current assignment for</string>
 	<string name="press_new_button">Press new button.</string>
-	<string name="classic_options_reset">Classic options reset to default</string>
-	<string name="ok">OK</string>
-	<string name="cancel">Cancel</string>
+	<string name="default_controls_title">Reset controls to defaults</string>
+	<string name="controls_reset">Controls reset</string>
 	<string name="improvements">Improvements</string>
 	<string name="improvements_summary">Toggle bugs, quirks, and other things from original game (useful for nostalgia)</string>
 	<string name="presets">Presets</string>
@@ -59,12 +57,12 @@
 	<string name="imp_lander_alpha_on">Lander does not have black box around it</string>
 	<string name="imp_lander_alpha_off">Lander has black box around it as in original game</string>
 	<string name="gameplay_mod">Gameplay modifications</string>
-	<string name="gameplay_mod_summary">Toggle gameplay modifications that have been added exclusively to this Android port of Lander.</string>
+	<string name="gameplay_mod_summary">Toggle gameplay modifications that have been added exclusively to this Android port of Lander</string>
 	<string name="mod_unlock">Unlock these modifications</string>
 	<string name="modified">Modified</string>
 	<string name="individual_mod">Individual modifications</string>
 	<string name="rotation">Rotation</string>
-	<string name="rotation_summary">Side thrusters rotate lander instead of changing horizontal velocity.</string>
+	<string name="rotation_summary">Side thrusters rotate lander instead of changing horizontal velocity</string>
 	<string-array name="unlock_choices">
 		<item>Purchase</item>
 		<item>Enter key</item>

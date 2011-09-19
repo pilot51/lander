@@ -93,7 +93,7 @@ public class Main extends Activity {
 			.setIcon(getResources().getDrawable(R.drawable.icon))
 			.setTitle(getString(R.string.about) + " " + getString(R.string.app_name) + " v" + getString(R.string.app_version))
 			.setMessage(R.string.about_text)
-			.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+			.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int which) {
 	            	dialog.cancel();
 	            	mLanderView.byLanderState = byOldState;
