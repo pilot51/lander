@@ -124,7 +124,15 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 						public void onClick(DialogInterface dialog, int item) {
 							switch (item) {
 								case 0: // Purchase
-									if (Billing.bReady) billing.purchase("unlock");
+									for(int i = 0; !Billing.bReady & i < 10; i++) {
+										try {
+											Thread.sleep(500);
+										} catch (InterruptedException e) {
+											e.printStackTrace();
+										}
+									}
+									if (Billing.bReady)
+										billing.purchase();
 									break;
 								case 1: // Enter key
 									createDialog(0, null);
@@ -184,7 +192,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int which) {}
 						});
-				if (verifyKey(key)) {
+				if (verifyUnlockKey(key)) {
 					dlgKeyResult.setMessage(R.string.key_success);
 					Main.prefs.edit().putInt("unlock", UNLOCK_KEY).commit();
 				} else dlgKeyResult.setMessage(R.string.key_fail).setNegativeButton(
@@ -198,7 +206,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		}
 	}
 
-	private static boolean verifyKey(String key) {
+	private static boolean verifyUnlockKey(String key) {
 		if (key.length() == 4 & (Long.parseLong(key, Character.MAX_RADIX) * 1000) % 27322 == 0)
 			return true;
 		return false;

@@ -64,11 +64,12 @@ public class BillingReceiver extends BroadcastReceiver {
 	 *            the signature for the signedData
 	 */
 	private void purchaseStateChanged(Context context, String signedData, String signature) {
-		Intent intent = new Intent(Consts.ACTION_PURCHASE_STATE_CHANGED);
+		intent = new Intent(Consts.ACTION_PURCHASE_STATE_CHANGED);
 		intent.setClass(context, BillingService.class);
 		intent.putExtra(Consts.INAPP_SIGNED_DATA, signedData);
 		intent.putExtra(Consts.INAPP_SIGNATURE, signature);
 		context.startService(intent);
+		BillingReceiver.context = context;
 	}
 
 	/**
@@ -84,10 +85,11 @@ public class BillingReceiver extends BroadcastReceiver {
 	 *            the notification ID
 	 */
 	private void notify(Context context, String notifyId) {
-		Intent intent = new Intent(Consts.ACTION_GET_PURCHASE_INFORMATION);
+		intent = new Intent(Consts.ACTION_GET_PURCHASE_INFORMATION);
 		intent.setClass(context, BillingService.class);
 		intent.putExtra(Consts.NOTIFICATION_ID, notifyId);
 		context.startService(intent);
+		BillingReceiver.context = context;
 	}
 
 	/**
@@ -102,10 +104,18 @@ public class BillingReceiver extends BroadcastReceiver {
 	 *            the ResponseCode ordinal value for the request
 	 */
 	private void checkResponseCode(Context context, long requestId, int responseCodeIndex) {
-		Intent intent = new Intent(Consts.ACTION_RESPONSE_CODE);
+		intent = new Intent(Consts.ACTION_RESPONSE_CODE);
 		intent.setClass(context, BillingService.class);
 		intent.putExtra(Consts.INAPP_REQUEST_ID, requestId);
 		intent.putExtra(Consts.INAPP_RESPONSE_CODE, responseCodeIndex);
 		context.startService(intent);
+		BillingReceiver.context = context;
+	}
+	
+	private static Context context;
+	private static Intent intent;
+	
+	protected static void stopService() {
+		context.stopService(intent);
 	}
 }

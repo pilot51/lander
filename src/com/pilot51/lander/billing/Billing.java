@@ -41,6 +41,7 @@ public class Billing {
 	private PurchaseDatabase mPurchaseDatabase;
 	private Set<String> mOwnedItems = new HashSet<String>();
 	
+	private static final String UNLOCK_SKU = "unlock"; // "unlock" for live and "android.test.purchased" for most testing
 	public static boolean bReady;
 
 	private static final int DIALOG_CANNOT_CONNECT_ID = 1;
@@ -72,7 +73,7 @@ public class Billing {
 			if (Consts.DEBUG) Log.i(TAG, "supported: " + supported);
 			if (supported) {
 				restoreDatabase();
-				bReady = !isOwned("unlock");
+				bReady = !isOwned(UNLOCK_SKU);
 			} else createDialog(DIALOG_BILLING_NOT_SUPPORTED_ID);
 		}
 
@@ -124,7 +125,7 @@ public class Billing {
 	/** An array of product list entries for the products that can be purchased. */
 	private static final CatalogEntry[] CATALOG =
 		new CatalogEntry[] {
-			new CatalogEntry("unlock", R.string.unlock, Managed.MANAGED),
+			new CatalogEntry("unlock", R.string.unlock, Managed.MANAGED)/*,
 			new CatalogEntry("android.test.purchased", R.string.android_test_purchased,
 				Managed.MANAGED),
 			new CatalogEntry("android.test.canceled", R.string.android_test_canceled,
@@ -132,7 +133,7 @@ public class Billing {
 			new CatalogEntry("android.test.refunded", R.string.android_test_refunded,
 				Managed.MANAGED),
 			new CatalogEntry("android.test.item_unavailable",
-				R.string.android_test_item_unavailable, Managed.MANAGED),};
+				R.string.android_test_item_unavailable, Managed.MANAGED)*/};
 
 	private CatalogAdapter mCatalogAdapter;
 
@@ -171,6 +172,7 @@ public class Billing {
 	public void onDestroy() {
 		mPurchaseDatabase.close();
 		mBillingService.unbind();
+		BillingReceiver.stopService();
 	}
 
 	private void createDialog(int id) {
@@ -274,10 +276,10 @@ public class Billing {
 		});
 	}
 
-	public void purchase(String itemSku) {
+	public void purchase() {
 		String mItemName = null, mSku = null;
 		for (int i = 0; i < CATALOG.length; i++) {
-			if (CATALOG[i].sku.equals(itemSku)) {
+			if (CATALOG[i].sku.equals(UNLOCK_SKU)) {
 				mItemName = activity.getString(CATALOG[i].nameId);
 				mSku = CATALOG[i].sku;
 				break;
@@ -314,7 +316,7 @@ public class Billing {
 		public void setOwnedItems(Set<String> ownedItems) {
 			mOwnedItems = ownedItems;
 			notifyDataSetChanged();
-			if (mOwnedItems.contains("unlock")) {
+			if (mOwnedItems.contains(UNLOCK_SKU)) {
 				if (Main.prefs.getInt("unlock", Options.UNLOCK_OFF) == Options.UNLOCK_OFF)
 					Main.prefs.edit().putInt("unlock", Options.UNLOCK_PURCHASE).commit();
 				bReady = false;
