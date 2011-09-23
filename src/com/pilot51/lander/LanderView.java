@@ -7,7 +7,6 @@ import java.util.Random;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -344,7 +343,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	
 	private DecimalFormat df2 = new DecimalFormat("0.00"); // Fixed to 2 decimal places
 
-	private Resources res;
 	private Drawable landerPict, safe, dead;
 	private boolean bColorEndImg, bLanderBox, bRotation;
 	private Path path;
@@ -382,24 +380,23 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 			rand = new Random(System.currentTimeMillis());
 			
-			res = context.getResources();
-			hLanderPict = res.getDrawable(R.drawable.lander);
-			hBFlamePict = res.getDrawable(R.drawable.bflame);
-			hLFlamePict = res.getDrawable(R.drawable.lflame);
-			hRFlamePict = res.getDrawable(R.drawable.rflame);
-			hCrash1 = res.getDrawable(R.drawable.crash1);
-			hCrash2 = res.getDrawable(R.drawable.crash2);
-			hCrash3 = res.getDrawable(R.drawable.crash3);
-			hExpl = new Drawable[] {res.getDrawable(R.drawable.expl1),
-					res.getDrawable(R.drawable.expl2),
-					res.getDrawable(R.drawable.expl3),
-					res.getDrawable(R.drawable.expl4),
-					res.getDrawable(R.drawable.expl5),
-					res.getDrawable(R.drawable.expl6),
-					res.getDrawable(R.drawable.expl7),
-					res.getDrawable(R.drawable.expl8),
-					res.getDrawable(R.drawable.expl9),
-					res.getDrawable(R.drawable.expl10)};
+			hLanderPict = Main.res.getDrawable(R.drawable.lander);
+			hBFlamePict = Main.res.getDrawable(R.drawable.bflame);
+			hLFlamePict = Main.res.getDrawable(R.drawable.lflame);
+			hRFlamePict = Main.res.getDrawable(R.drawable.rflame);
+			hCrash1 = Main.res.getDrawable(R.drawable.crash1);
+			hCrash2 = Main.res.getDrawable(R.drawable.crash2);
+			hCrash3 = Main.res.getDrawable(R.drawable.crash3);
+			hExpl = new Drawable[] {Main.res.getDrawable(R.drawable.expl1),
+					Main.res.getDrawable(R.drawable.expl2),
+					Main.res.getDrawable(R.drawable.expl3),
+					Main.res.getDrawable(R.drawable.expl4),
+					Main.res.getDrawable(R.drawable.expl5),
+					Main.res.getDrawable(R.drawable.expl6),
+					Main.res.getDrawable(R.drawable.expl7),
+					Main.res.getDrawable(R.drawable.expl8),
+					Main.res.getDrawable(R.drawable.expl9),
+					Main.res.getDrawable(R.drawable.expl10)};
 			if (bColorEndImg) {
 				safe = getResources().getDrawable(R.drawable.safe_color);
 				dead = getResources().getDrawable(R.drawable.dead_color);
@@ -577,35 +574,35 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				setFiringThrust(false);
 				setFiringLeft(false);
 				setFiringRight(false);
-				String msg = res.getString(R.string.end_crash) + "\n";
+				String msg = Main.res.getString(R.string.end_crash) + "\n";
 				switch (byEndGameState) {
 				case END_SAFE:
-					msg = res.getString(R.string.end_safe);
+					msg = Main.res.getString(R.string.end_safe);
 					break;
 				case END_CRASHV:
 					switch (new Random().nextInt(3)) {
 					case 0:
-						msg += res.getString(R.string.end_crashv1);
+						msg += Main.res.getString(R.string.end_crashv1);
 						break;
 					case 1:
-						msg += res.getString(R.string.end_crashv2);
+						msg += Main.res.getString(R.string.end_crashv2);
 						break;
 					case 2:
-						msg += res.getString(R.string.end_crashv3);
+						msg += Main.res.getString(R.string.end_crashv3);
 						break;
 					}
 					break;
 				case END_CRASHH:
-					msg += res.getString(R.string.end_crashh);
+					msg += Main.res.getString(R.string.end_crashh);
 					break;
 				case END_CRASHA:
-					msg += res.getString(R.string.end_crasha);
+					msg += Main.res.getString(R.string.end_crasha);
 					break;
 				case END_CRASHS:
-					msg += res.getString(R.string.end_crashs);
+					msg += Main.res.getString(R.string.end_crashs);
 					break;
 				case END_OUTOFRANGE:
-					msg = res.getString(R.string.end_outofrange);
+					msg = Main.res.getString(R.string.end_outofrange);
 					break;
 				}
 				setScreenText(HANDLE_DIALOG, msg);
