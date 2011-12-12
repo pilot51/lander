@@ -14,6 +14,8 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.widget.EditText;
@@ -25,7 +27,9 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	public static final int
 		UNLOCK_OFF = 0,
 		UNLOCK_PURCHASE = 1,
-		UNLOCK_KEY = 2;
+		UNLOCK_KEY = 2,
+		DLG_KEY_ENTRY = 0,
+		DLG_KEY_RESULT = 1;
 	private Preference
 		pDefClassic,
 		pDefControls,
@@ -151,8 +155,19 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	
 	private void createDialog(final int id, final String key) {
 		switch (id) {
-			case 0:
+			case DLG_KEY_ENTRY:
 				final EditText input = new EditText(this);
+				// Restrict text entry to letters and digits
+				input.setFilters(new InputFilter[] {new InputFilter() {
+					public CharSequence filter(CharSequence source, int start, int end,
+						Spanned dest, int dstart, int dend) {
+						for (int i = start; i < end; i++) {
+							if (!Character.isLetterOrDigit(source.charAt(i)))
+								return "";
+						}
+						return null;
+					}
+				}});
 				if (key != null) input.setText(key);
 				AlertDialog.Builder dlgKeyEntry = new AlertDialog.Builder(this);
 				dlgKeyEntry
@@ -161,7 +176,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 					.setView(input)
 					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
-							createDialog(1, input.getText().toString());
+							createDialog(DLG_KEY_RESULT, input.getText().toString());
 						}
 					})
 					.setNeutralButton(R.string.key_entry_keyreq,
@@ -186,7 +201,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 						});
 				dlgKeyEntry.show();
 				break;
-			case 1:
+			case DLG_KEY_RESULT:
 				AlertDialog.Builder dlgKeyResult = new AlertDialog.Builder(this)
 					.setPositiveButton(android.R.string.ok,
 						new DialogInterface.OnClickListener() {
@@ -198,7 +213,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 				} else dlgKeyResult.setMessage(R.string.key_fail).setNegativeButton(
 					R.string.key_tryagain, new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
-							createDialog(0, key);
+							createDialog(DLG_KEY_ENTRY, key);
 						}
 					});
 				dlgKeyResult.show();
