@@ -146,6 +146,10 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 					}).show();
 			}
 		} else if (preference == pScreenMod) {
+			if (Main.prefs.getInt("unlock", UNLOCK_OFF) == UNLOCK_KEY) {
+				if (!verifyUnlockKey(Main.prefs.getString("unlockKey", null)))
+					Main.prefs.edit().putInt("unlock", UNLOCK_OFF).commit();
+			}
 			if (Main.prefs.getInt("unlock", UNLOCK_OFF) != UNLOCK_KEY)
 				billing = new Billing(this);
 			updateUnlock();
@@ -209,7 +213,10 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 						});
 				if (verifyUnlockKey(key)) {
 					dlgKeyResult.setMessage(R.string.key_success);
-					Main.prefs.edit().putInt("unlock", UNLOCK_KEY).commit();
+					Main.prefs.edit()
+					.putInt("unlock", UNLOCK_KEY)
+					.putString("unlockKey", key)
+					.commit();
 				} else dlgKeyResult.setMessage(R.string.key_fail).setNegativeButton(
 					R.string.key_tryagain, new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
@@ -222,6 +229,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	}
 
 	private static boolean verifyUnlockKey(String key) {
+		if (key == null) return false;
 		if (key.length() == 4 & (Long.parseLong(key, Character.MAX_RADIX) * 1000) % 27322 == 0)
 			return true;
 		return false;
