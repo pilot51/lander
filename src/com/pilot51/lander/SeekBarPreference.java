@@ -76,8 +76,18 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		persistFloat(value);
 	}
 	
+	@Override
+	protected void onClick() {
+		if (seekbar.getProgress() < seekbar.getMax())
+			seekbar.setProgress(seekbar.getProgress() + 1);
+		else seekbar.setProgress(barMin);
+		value = convertToValue(seekbar.getProgress());
+		valueText.setText(df.format(value / scale) + suffix);
+		persistFloat(value);
+	}
+	
 	protected void setToDefault() {
-		this.value = fDefault;
+		value = fDefault;
 		valueText.setText(df.format(value / scale) + suffix);
 		seekbar.setProgress(convertToBarValue(value));
 		persistFloat(value);
