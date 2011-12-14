@@ -116,6 +116,7 @@ public class BillingReceiver extends BroadcastReceiver {
 	private static Intent intent;
 	
 	protected static void stopService() {
+		if (context == null | intent == null) return;
 		context.stopService(intent);
 	}
 }
