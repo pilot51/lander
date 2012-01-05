@@ -119,7 +119,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 	/**
 	 * Fetches the animation thread corresponding to this LunarView.
-	 * 
 	 * @return the animation thread
 	 */
 	public LanderThread getThread() {
@@ -195,15 +194,16 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	/* Callback invoked when the surface dimensions change. */
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 		thread.setSurfaceSize(width, height);
-		thread.setRunning(true);
-		thread.start();
+		if (!thread.isAlive()) {
+			thread.setRunning(true);
+			thread.start();
+		}
 	}
 
 	/* Callback invoked when the Surface has been created and is ready to be used. */
 	public void surfaceCreated(SurfaceHolder holder) {
-		if (thread.getState() == Thread.State.TERMINATED) {
+		if (thread.getState() == Thread.State.TERMINATED)
 			thread = new LanderThread(mSurfaceHolder, mContext, mHandler);
-		}
 	}
 
 	/*
@@ -220,8 +220,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			try {
 				thread.join();
 				retry = false;
-			} catch (InterruptedException e) {
-			}
+			} catch (InterruptedException e) {}
 		}
 	}
 	
@@ -300,8 +299,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 
 	/**
 	 * Lander position in meters
-	 * @param landerY
-	 * 		altitude
+	 * @param landerY altitude
 	 */
 	private float landerX, landerY;
 	/** Lander velocity in meters/sec */
@@ -340,26 +338,21 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 	private int nCount = 0;
 	private long lastUpdate, lastDraw;
 	private Random rand;
-	
 	private DecimalFormat df2 = new DecimalFormat("0.00"); // Fixed to 2 decimal places
-
 	private Drawable landerPict, safe, dead;
 	private boolean bColorEndImg, bLanderBox, bRotation;
 	private Path path;
 	private Paint paintWhite = new Paint();
 	private ArrayList<Point> groundPlot, contactPoints;
 	private Point pointCenter;
-	
 	private float angle, scaleY, densityScale;
-
 	private boolean mFiringMain;
 	private boolean mFiringLeft;
 	private boolean mFiringRight;
 
 	class LanderThread extends Thread {
-		/** Indicate whether the surface has been created & is ready to draw */
+		/** Indicate whether the surface has been created and is ready to draw */
 		private boolean mRun = false;
-		
 		private int keyThrust, keyLeft, keyRight;
 
 		private LanderThread(SurfaceHolder surfaceHolder, Context context, Handler handler) {
@@ -377,9 +370,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			keyThrust = Main.prefs.getInt("KeyThrust", 0);
 			keyLeft = Main.prefs.getInt("KeyLeft", 0);
 			keyRight = Main.prefs.getInt("KeyRight", 0);
-
 			rand = new Random(System.currentTimeMillis());
-			
 			hLanderPict = Main.res.getDrawable(R.drawable.lander);
 			hBFlamePict = Main.res.getDrawable(R.drawable.bflame);
 			hLFlamePict = Main.res.getDrawable(R.drawable.lflame);
@@ -406,9 +397,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 			}
 			xLanderPict = hLanderPict.getIntrinsicWidth();
 			yLanderPict = hLanderPict.getIntrinsicHeight();
-			
 			densityScale = context.getResources().getDisplayMetrics().density;
-
 			paintWhite.setColor(Color.WHITE);
 			paintWhite.setStyle(Paint.Style.FILL);
 		}
@@ -420,8 +409,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 				try {
 					c = mSurfaceHolder.lockCanvas(null);
 					synchronized (mSurfaceHolder) {
-						//if (byLanderState == LND_ACTIVE)
-						//	updatePhysics();
 						long now = System.currentTimeMillis();
 						if (now - lastUpdate >= UPDATE_TIME) {
 							updateLander();
@@ -433,9 +420,8 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					// do this in a finally so that if an exception is thrown
 					// during the above, we don't leave the Surface in an
 					// inconsistent state
-					if (c != null) {
+					if (c != null)
 						mSurfaceHolder.unlockCanvasAndPost(c);
-					}
 				}
 			}
 		}
@@ -928,8 +914,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 					nDy = rand.nextInt(2 * CRG_STEEPNESS) - CRG_STEEPNESS;
 					if (y + nDy < mctySize && y + nDy > invertY(nMaxHeight))
 						y = y + nDy;
-					else
-						y = y - nDy;
+					else y = y - nDy;
 				} else if (i == nLandingStart) {
 					yGroundZero = invertY(y);
 					scaleY = 1200f / (yClient - yGroundZero - yLanderPict);
