@@ -414,7 +414,7 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 							updateLander();
 							lastUpdate = now;
 						}
-						doDraw(c);
+						if (mRun) doDraw(c);
 					}
 				} finally {
 					// do this in a finally so that if an exception is thrown
