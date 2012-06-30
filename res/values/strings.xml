@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Lander</string>
-	<string name="app_version">1.1.1</string>
+	<string name="app_version">1.1.2</string>
 	<string name="word_new">New</string>
 	<string name="restart">Restart</string>
 	<string name="options">Options</string>
@@ -19,7 +19,7 @@
 	<string name="end_crasha">Too steep of an angle. Your angle must be within 5° of level.</string>
 	<string name="end_crashs">Missed the landing site. You must land on flat terrain.</string>
 	<string name="end_outofrange">Lander Lost!\nYou are out of range of the command module and presumed lost.</string>
-	<string name="about_text">Lander is an Android port of the 1990 game by the same name for Windows 3.1.\n\nFull permission and v1.3 source code has been provided by the original developer, George Moromisato (neurohack.com).</string>
+	<string name="about_text">Lander is an Android port of the 1990 game by the same name for Windows 3.1.\n\nFull permission and v1.3 source code has been provided by the original developer.\n\nOriginal: George Moromisato (neurohack.com)\nAndroid port: Mark Injerd (aka Pilot_51)</string>
 	<string name="classic_options">Classic options</string>
 	<string name="gravity">Gravity</string>
 	<string name="gravity_summary">Gravity in m/s²</string>
