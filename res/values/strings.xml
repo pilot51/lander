@@ -4,6 +4,7 @@
 	<string name="app_version">1.1.2</string>
 	<string name="word_new">New</string>
 	<string name="restart">Restart</string>
+	<string name="maps">Maps</string>
 	<string name="options">Options</string>
 	<string name="about">About</string>
 	<string name="altitude">Altitude</string>
@@ -63,6 +64,8 @@
 	<string name="individual_mod">Individual modifications</string>
 	<string name="rotation">Rotation</string>
 	<string name="rotation_summary">Side thrusters rotate lander instead of changing horizontal velocity</string>
+	<string name="map_list">Map list</string>
+	<string name="map_list_summary">Save/load maps in a list. Option appears in the menu. You can also create custom maps.</string>
 	<string-array name="unlock_choices">
 		<item>Purchase</item>
 		<item>Enter key</item>
@@ -77,4 +80,19 @@
 	<string name="key_req_subject">Lander key request</string>
 	<string name="key_req_message">Please provide at least two of the below details (or just the order number if you have it) so your existing purchase can be confirmed.\n\nGoogle order number: \nName as used for purchase: \nLocation accurate to city or ZIP: \nDate of purchase: \n</string>
 	<string name="error_email">Error: Unable to find an installed email app.</string>
+	<string name="map_loaded">Map loaded: %s</string>
+	<string name="map_saved">Map saved: %s</string>
+	<string name="map_removed">Map removed: %s</string>
+	<string name="maps_cleared">Maps cleared.</string>
+	<string name="dlg_create_map">Create map</string>
+	<string name="dlg_edit_map">Edit map</string>
+	<string name="dlg_save_map">Save map</string>
+	<string name="invalid_plot">Invalid map plot!</string>
+	<string name="edit">Edit</string>
+	<string name="remove">Remove</string>
+	<string name="create_map">Create custom map</string>
+	<string name="save_current">Save current map</string>
+	<string name="clear_maps">Clear saved maps</string>
+	<string name="map_name">Map name</string>
+	<string name="map_plot">Map plot (example: 25 32 42 42 35)</string>
 </resources>

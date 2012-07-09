@@ -16,11 +16,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class Main extends Activity {
-	private static final int
-		MENU_NEW = 1,
-		MENU_RESTART = 2,
-		MENU_OPTIONS = 3,
-		MENU_ABOUT = 4;
 	private int keyNew, keyRestart, keyOptions;
 	public static final String TAG = "Lander";
 	public static SharedPreferences prefs;
@@ -65,42 +60,49 @@ public class Main extends Activity {
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		menu.add(0, MENU_NEW, 0, R.string.word_new);
-		menu.add(0, MENU_RESTART, 0, R.string.restart);
-		menu.add(0, MENU_OPTIONS, 0, R.string.options);
-		menu.add(0, MENU_ABOUT, 0, R.string.about);
-		return true;
+		getMenuInflater().inflate(R.menu.menu, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		menu.findItem(R.id.menu_maps).setVisible(prefs.getBoolean("ModMapList", false));
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case MENU_NEW:
-			mLanderView.byLanderState = LanderView.LND_NEW;
-			return true;
-		case MENU_RESTART:
-			mLanderView.byLanderState = LanderView.LND_RESTART;
-			return true;
-		case MENU_OPTIONS:
-			mLanderView.byLanderState = LanderView.LND_INACTIVE;
-			startActivityForResult(new Intent(this, Options.class), 1);
-			return true;
-		case MENU_ABOUT:
-			final byte byOldState = mLanderView.byLanderState;
-			mLanderView.byLanderState = LanderView.LND_INACTIVE;
-		new AlertDialog.Builder(this)
-			.setIcon(getResources().getDrawable(R.drawable.icon))
-			.setTitle(getString(R.string.about) + " " + getString(R.string.app_name) + " v" + getString(R.string.app_version))
-			.setMessage(R.string.about_text)
-			.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-	            public void onClick(DialogInterface dialog, int which) {
-	            	dialog.cancel();
-	            	mLanderView.byLanderState = byOldState;
-	            }})
-			.create()
-			.show();
-			return true;
+			case R.id.menu_new:
+				Ground.current.clear();
+				mLanderView.byLanderState = LanderView.LND_NEW;
+				return true;
+			case R.id.menu_restart:
+				mLanderView.byLanderState = LanderView.LND_RESTART;
+				return true;
+			case R.id.menu_maps:
+				mLanderView.byLanderState = LanderView.LND_INACTIVE;
+				startActivityForResult(new Intent(this, MapList.class), 2);
+				return true;
+			case R.id.menu_options:
+				mLanderView.byLanderState = LanderView.LND_INACTIVE;
+				startActivityForResult(new Intent(this, Options.class), 1);
+				return true;
+			case R.id.menu_about:
+				final byte byOldState = mLanderView.byLanderState;
+				mLanderView.byLanderState = LanderView.LND_INACTIVE;
+				new AlertDialog.Builder(this)
+					.setIcon(getResources().getDrawable(R.drawable.icon))
+					.setTitle(
+						getString(R.string.about) + " " + getString(R.string.app_name) + " v"
+							+ getString(R.string.app_version)).setMessage(R.string.about_text)
+					.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.cancel();
+							mLanderView.byLanderState = byOldState;
+						}
+					}).create().show();
+				return true;
 		}
 		return false;
 	}
@@ -108,6 +110,7 @@ public class Main extends Activity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == keyNew) {
+			Ground.current.clear();
 			mLanderView.byLanderState = LanderView.LND_NEW;
 			return true;
 		} else if (keyCode == keyRestart) {
@@ -122,7 +125,7 @@ public class Main extends Activity {
 	}
 	
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if(requestCode == 1) {
+		if (requestCode == 1) {
 			if (resultCode == 1) {
 				keyNew = prefs.getInt("KeyNew", 0);
 				keyRestart = prefs.getInt("KeyRestart", 0);
@@ -130,6 +133,10 @@ public class Main extends Activity {
 			}
 			mLanderView.setBtnMod();
 			mLanderView.byLanderState = LanderView.LND_RESTART;
+		} else if (requestCode == 2) {
+			if (resultCode == 1)
+				mLanderView.byLanderState = LanderView.LND_NEW;
+			else mLanderView.byLanderState = LanderView.LND_RESTART;
 		}
 	}
 }

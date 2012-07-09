@@ -86,18 +86,19 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 						.setMessage(message)
 						.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int which) {
-								dialog.cancel();
+								dialog.dismiss();
 							}
 						})
 						.setNeutralButton(R.string.word_new, new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int which) {
-								dialog.cancel();
+								dialog.dismiss();
+								Ground.current.clear();
 								byLanderState = LND_NEW;
 							}
 						})
 						.setNegativeButton(R.string.restart, new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int which) {
-								dialog.cancel();
+								dialog.dismiss();
 								byLanderState = LND_RESTART;
 							}
 						})
@@ -117,10 +118,6 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		setOnTouchListener(this);
 	}
 
-	/**
-	 * Fetches the animation thread corresponding to this LunarView.
-	 * @return the animation thread
-	 */
 	public LanderThread getThread() {
 		return thread;
 	}
@@ -885,40 +882,57 @@ class LanderView extends SurfaceView implements SurfaceHolder.Callback, OnTouchL
 		private static final int CRG_STEEPNESS = 25;
 		
 		private void createGround() {
-			/** size of landing pad in points. (less than CRG_POINTS) */
-			int nPadSize = 4;
-			/** Maximum height of terrain. (less than ySize) */
-			int nMaxHeight = yClient / 6;
-			/** point at which landing pad starts */
-			int nLandingStart;
 			/** number of pixels per point interval */
 			int nInc, nIncExtra;
-			int x, nDy,
-				mctySize = invertY(5),
-				y = mctySize - rand.nextInt(nMaxHeight);
 			groundPlot = new ArrayList<Point>();
 			Point point = new Point(0, yClient);
 			groundPlot.add(point);
 			path = new Path();
 			path.setFillType(Path.FillType.EVEN_ODD);
 			path.moveTo(point.x, point.y);
-			nLandingStart = rand.nextInt(CRG_POINTS - nPadSize) + 1;
-			nInc = xClient / (CRG_POINTS - 1);
-			nIncExtra = xClient % (CRG_POINTS - 1);
-			for (int i = 1; i <= CRG_POINTS; i++) {
-				x = ((i - 1) * nInc) + (((i - 1) * nIncExtra) / (CRG_POINTS - 1));
-				point = new Point(x, y);
-				groundPlot.add(point);
-				path.lineTo(point.x, point.y);
-				if (i < nLandingStart || i >= nLandingStart + nPadSize) {
-					nDy = rand.nextInt(2 * CRG_STEEPNESS) - CRG_STEEPNESS;
-					if (y + nDy < mctySize && y + nDy > invertY(nMaxHeight))
-						y = y + nDy;
-					else y = y - nDy;
-				} else if (i == nLandingStart) {
-					yGroundZero = invertY(y);
-					scaleY = 1200f / (yClient - yGroundZero - yLanderPict);
+			int[] plot = Ground.current.getPlot();
+			if (plot != null) {
+				nInc = xClient / (plot.length - 1);
+				nIncExtra = xClient % (plot.length - 1);
+				for (int i = 1; i <= plot.length; i++) {
+					int x = ((i - 1) * nInc) + (((i - 1) * nIncExtra) / (plot.length - 1));
+					point = new Point(x, invertY(plot[i-1]));
+					groundPlot.add(point);
+					path.lineTo(point.x, point.y);
 				}
+				yGroundZero = 0;
+				scaleY = 1200f / (yClient - yGroundZero - yLanderPict);
+			} else {
+				/** size of landing pad in points. (less than CRG_POINTS) */
+				int nPadSize = 4;
+				/** Maximum height of terrain. (less than ySize) */
+				int nMaxHeight = yClient / 6;
+				/** point at which landing pad starts */
+				int nLandingStart;
+				int x, nDy,
+					mctySize = invertY(5),
+					y = mctySize - rand.nextInt(nMaxHeight);
+				nLandingStart = rand.nextInt(CRG_POINTS - nPadSize) + 1;
+				nInc = xClient / (CRG_POINTS - 1);
+				nIncExtra = xClient % (CRG_POINTS - 1);
+				int[] currentPlot = new int[CRG_POINTS];
+				for (int i = 1; i <= CRG_POINTS; i++) {
+					x = ((i - 1) * nInc) + (((i - 1) * nIncExtra) / (CRG_POINTS - 1));
+					point = new Point(x, y);
+					currentPlot[i-1] = invertY(y);
+					groundPlot.add(point);
+					path.lineTo(point.x, point.y);
+					if (i < nLandingStart || i >= nLandingStart + nPadSize) {
+						nDy = rand.nextInt(2 * CRG_STEEPNESS) - CRG_STEEPNESS;
+						if (y + nDy < mctySize && y + nDy > invertY(nMaxHeight))
+							y = y + nDy;
+						else y = y - nDy;
+					} else if (i == nLandingStart) {
+						yGroundZero = invertY(y);
+						scaleY = 1200f / (yClient - yGroundZero - yLanderPict);
+					}
+				}
+				Ground.current.setPlot(currentPlot);
 			}
 			point = new Point(xClient, yClient);
 			groundPlot.add(point);

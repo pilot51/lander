@@ -47,7 +47,8 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	private CheckBoxPreference
 		pImpEndImg,
 		pImpLanderAlpha,
-		pModRotation;
+		pModRotation,
+		pModMapList;
 	private PreferenceScreen pScreenMod;
 	private Billing billing;
 	
@@ -70,6 +71,7 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 		pImpLanderAlpha = (CheckBoxPreference)findPreference("ImpLanderAlpha");
 		pScreenMod = (PreferenceScreen)findPreference("ScreenMod");
 		pModRotation = (CheckBoxPreference)findPreference("ModRotation");
+		pModMapList = (CheckBoxPreference)findPreference("ModMapList");
 		pModUnlock = findPreference("ModUnlock");
 		pDefClassic.setOnPreferenceClickListener(this);
 		pDefControls.setOnPreferenceClickListener(this);
@@ -257,11 +259,13 @@ public class Options extends PreferenceActivity implements OnPreferenceClickList
 	private void updateUnlock() {
 		boolean unlock = Main.prefs.getInt("unlock", UNLOCK_OFF) != UNLOCK_OFF;
 		pModRotation.setEnabled(unlock);
+		pModMapList.setEnabled(unlock);
 		if (unlock)
 			pScreenMod.removePreference(pModUnlock);
 		else {
 			pScreenMod.addPreference(pModUnlock);
 			pModRotation.setChecked(false);
+			pModMapList.setChecked(false);
 		}
 	}
 	
