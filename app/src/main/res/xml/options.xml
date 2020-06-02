@@ -124,9 +124,6 @@
 			android:key="ScreenMod"
 			android:title="@string/gameplay_mod"
 			android:summary="@string/gameplay_mod_summary">
-			<Preference
-				android:key="ModUnlock"
-				android:title="@string/mod_unlock" />
 			<PreferenceCategory
 				android:title="@string/individual_mod">
 				<CheckBoxPreference
