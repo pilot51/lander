@@ -11,7 +11,6 @@ import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -26,7 +25,6 @@ public class Main extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setTheme(R.style.Fullscreen);
 		super.onCreate(savedInstanceState);
 		res = getResources();
 		// Load default preferences from xml if not saved
@@ -42,7 +40,6 @@ public class Main extends Activity {
 			.putInt("KeyOptions", KeyEvent.KEYCODE_4)
 			.commit();
 		}
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.lander_layout);
 		mLanderView = (LanderView) findViewById(R.id.lander);
 		mLanderView.setTextViewAlt((TextView) findViewById(R.id.valueAlt));
