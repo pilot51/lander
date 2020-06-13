@@ -63,7 +63,7 @@ class Main : Activity() {
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		when (item.itemId) {
 			R.id.menu_new -> {
-				Ground.current.clear()
+				Ground.current = null
 				landerView.byLanderState = LanderView.LND_NEW
 				return true
 			}
@@ -101,7 +101,7 @@ class Main : Activity() {
 	override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
 		when (keyCode) {
 			keyNew -> {
-				Ground.current.clear()
+				Ground.current = null
 				landerView.byLanderState = LanderView.LND_NEW
 				return true
 			}

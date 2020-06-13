@@ -12,10 +12,10 @@ import java.util.*
 
 class MapListAdapter(
 	private val context: Context,
-	private var data: ArrayList<Ground>
+	private var data: List<Ground>
 ) : BaseAdapter(), Filterable {
 	private var filter: SimpleFilter? = null
-	private var unfilteredData: ArrayList<Ground>? = null
+	private var unfilteredData: List<Ground>? = null
 
 	override fun getCount() = data.size
 
@@ -33,7 +33,7 @@ class MapListAdapter(
 		return view.apply {
 			val ground = data[position]
 			findViewById<TextView>(R.id.map_name).text = ground.name
-			findViewById<TextView>(R.id.map_plot).text = ground.getPlotString()
+			findViewById<TextView>(R.id.map_plot).text = ground.plotString
 		}
 	}
 
@@ -56,7 +56,7 @@ class MapListAdapter(
 				for (i in unfilteredData!!.indices) {
 					map = unfilteredData!![i]
 					if (map.name.toLowerCase().contains(prefixString)
-						|| map.getPlotString()?.contains(prefixString) == true) newValues.add(map)
+						|| map.plotString.contains(prefixString)) newValues.add(map)
 				}
 				results.values = newValues
 				results.count = newValues.size
@@ -65,7 +65,7 @@ class MapListAdapter(
 		}
 
 		override fun publishResults(constraint: CharSequence, results: FilterResults) {
-			data = results.values as ArrayList<Ground>
+			data = results.values as List<Ground>
 			if (results.count > 0) notifyDataSetChanged() else notifyDataSetInvalidated()
 		}
 	}

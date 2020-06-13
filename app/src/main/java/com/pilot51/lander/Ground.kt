@@ -1,53 +1,43 @@
 package com.pilot51.lander
 
-class Ground(var name: String = "", var plot: IntArray? = null) {
-	constructor(name: String, plot: String?) : this(name) {
-		this.plot = setPlot(plot)
-	}
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 
-	fun set(name: String, plot: IntArray?) {
+@Entity(tableName = "maps")
+data class Ground(
+	@PrimaryKey(autoGenerate = true)
+	@ColumnInfo(name = "_id")
+	val id: Int? = null,
+	@ColumnInfo(name = "name")
+	var name: String = "",
+	@ColumnInfo(name = "plot")
+	var plotString: String = ""
+) {
+	val plotArray get() = convertPlot(plotString)
+
+	@Ignore
+	constructor(plot: IntArray) : this(plotString = convertPlot(plot))
+
+	fun set(name: String, plot: IntArray) {
 		this.name = name
-		this.plot = plot
-	}
-
-	fun set(name: String, plot: String?) {
-		this.name = name
-		setPlot(plot)
-	}
-
-	private fun setPlot(data: String?): IntArray? {
-		if (data == null) {
-			plot = null
-			return null
-		}
-		val sMap = data.split(" ").toTypedArray()
-		plot = IntArray(sMap.size)
-		for (i in sMap.indices) {
-			plot!![i] = sMap[i].toInt()
-		}
-		return plot
-	}
-
-	fun getPlotString(): String? {
-		if (plot == null) return null
-		var str = String()
-		for (i in plot!!.indices) {
-			if (i > 0) str += " "
-			str += plot!![i]
-		}
-		return str
-	}
-
-	/** @return true if map data can be loaded, otherwise false.
-	 */
-	fun isValid() = plot?.size ?: 0 >= 2
-
-	fun clear() {
-		name = ""
-		plot = null
+		plotString = convertPlot(plot)
 	}
 
 	companion object {
-		var current = Ground()
+		var current: Ground? = null
+
+		fun convertPlot(plotString: String): IntArray {
+			return plotString.split(" ").map { it.toInt() }.toIntArray()
+		}
+
+		fun convertPlot(plotArray: IntArray): String {
+			return plotArray.joinToString(separator = " ")
+		}
+
+		fun isPlotValid(plot: IntArray): Boolean {
+			return plot.size >= 2
+		}
 	}
 }

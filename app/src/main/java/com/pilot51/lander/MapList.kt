@@ -12,22 +12,18 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.Toast
-import com.pilot51.lander.Database.Companion.addMap
-import com.pilot51.lander.Database.Companion.getMaps
-import com.pilot51.lander.Database.Companion.removeMap
-import com.pilot51.lander.Database.Companion.setMaps
-import com.pilot51.lander.Database.Companion.updateMap
 import java.util.*
 
 class MapList : ListActivity() {
 	private lateinit var lv: ListView
 	private lateinit var adapter: MapListAdapter
-	private lateinit var list: ArrayList<Ground>
+	private lateinit var list: MutableList<Ground>
+	private lateinit var dao: DatabaseHelper.MapDao
 
 	public override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		Database(this)
-		list = getMaps()
+		dao = DatabaseHelper.getInstance(this).mapsDao()
+		list = dao.getMaps().toMutableList()
 		lv = listView
 		lv.isTextFilterEnabled = true
 		adapter = MapListAdapter(this, list)
@@ -54,12 +50,12 @@ class MapList : ListActivity() {
 				return true
 			}
 			R.id.menu_create -> {
-				editMap(Ground())
+				editMap()
 				return true
 			}
 			R.id.menu_clear -> {
 				list.clear()
-				setMaps(list)
+				dao.clear()
 				adapter.notifyDataSetChanged()
 				Toast.makeText(this, getString(R.string.maps_cleared), Toast.LENGTH_SHORT).show()
 				return true
@@ -80,7 +76,7 @@ class MapList : ListActivity() {
 			R.id.ctxtEdit -> editMap(map)
 			R.id.ctxtRem -> {
 				list.remove(map)
-				removeMap(map)
+				dao.removeMap(map)
 				adapter.notifyDataSetChanged()
 				Toast.makeText(this, getString(R.string.map_removed, map.name), Toast.LENGTH_SHORT).show()
 			}
@@ -93,36 +89,35 @@ class MapList : ListActivity() {
 		list.sortWith(Comparator { map1, map2 -> map1.name.compareTo(map2.name, true) })
 	}
 
-	private fun editMap(map: Ground) {
+	private fun editMap(selectedMap: Ground? = null) {
 		val dlgView = (getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
 			.inflate(R.layout.edit_map, null) as LinearLayout
 		val editName = dlgView.findViewById<View>(R.id.editMapName) as EditText
 		val editPlot = dlgView.findViewById<View>(R.id.editMapPlot) as EditText
 		val title = when {
-			list.contains(map) -> getString(R.string.dlg_edit_map)
-			map.isValid() -> getString(R.string.dlg_save_map)
-			else -> getString(R.string.dlg_create_map)
+			selectedMap == null -> getString(R.string.dlg_create_map)
+			list.contains(selectedMap) -> getString(R.string.dlg_edit_map)
+			else -> getString(R.string.dlg_save_map)
 		}
-		if (map.isValid()) {
-			editName.setText(map.name)
-			editPlot.setText(map.getPlotString())
-		}
+		val map = selectedMap ?: Ground()
+		editName.setText(map.name)
+		editPlot.setText(map.plotString)
 		AlertDialog.Builder(this@MapList)
 			.setView(dlgView)
 			.setTitle(title)
 			.setPositiveButton(android.R.string.ok) { _, _ ->
-				val oldMap = Ground(map.name, map.plot)
-				map.set(editName.text.toString(), editPlot.text.toString())
-				if (map.isValid()) {
-					if (!list.contains(map)) {
+				val newPlot = Ground.convertPlot(editPlot.text.toString())
+				if (Ground.isPlotValid(newPlot)) {
+					map.set(editName.text.toString(), newPlot)
+					if (list.contains(map)) dao.updateMap(map)
+					else {
 						list.add(map)
-						addMap(map)
-					} else updateMap(oldMap, map)
+						dao.addMap(map)
+					}
 					sortList()
 					adapter.notifyDataSetChanged()
 					Toast.makeText(this@MapList, getString(R.string.map_saved, map.name), Toast.LENGTH_SHORT).show()
 				} else {
-					map.set(oldMap.name, oldMap.plot)
 					Toast.makeText(this@MapList, getString(R.string.invalid_plot), Toast.LENGTH_SHORT).show()
 				}
 			}

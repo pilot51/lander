@@ -177,7 +177,7 @@ class LanderView(
 					.setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
 					.setNeutralButton(R.string.word_new) { dialog, _ ->
 						dialog.dismiss()
-						Ground.current.clear()
+						Ground.current = null
 						byLanderState = LND_NEW
 					}
 					.setNegativeButton(R.string.restart) { dialog, _ ->
@@ -811,7 +811,7 @@ class LanderView(
 			path = Path()
 			path!!.fillType = Path.FillType.EVEN_ODD
 			path!!.moveTo(point.x.toFloat(), point.y.toFloat())
-			val plot = Ground.current.plot
+			val plot = Ground.current?.plotArray
 			if (plot != null) {
 				nInc = xClient / (plot.size - 1)
 				nIncExtra = xClient % (plot.size - 1)
@@ -854,7 +854,7 @@ class LanderView(
 						yScale = 1200f / (yClient - yGroundZero - yLanderPict)
 					}
 				}
-				Ground.current.plot = currentPlot
+				Ground.current = Ground(currentPlot)
 			}
 			point = Point(xClient, yClient)
 			groundPlot!!.add(point)
