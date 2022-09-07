@@ -1,7 +1,3 @@
-plugins {
-	kotlin("jvm") version "1.7.10"
-}
-
 buildscript {
 	repositories {
 		mavenCentral()
@@ -11,10 +7,8 @@ buildscript {
 	}
 }
 
-repositories {
-	mavenCentral()
-}
-
-tasks.compileKotlin {
-	kotlinOptions.jvmTarget = "1.8"
+allprojects {
+	repositories {
+		mavenCentral()
+	}
 }
