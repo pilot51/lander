@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Mark Injerd
+ * Copyright 2011-2022 Mark Injerd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package lander
 
-package lander;
+import java.util.ResourceBundle
+import java.util.MissingResourceException
 
-import java.awt.FlowLayout;
+object Messages {
+	private const val BUNDLE_NAME = "messages"
+	private val RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME)
 
-import javax.swing.JApplet;
-
-public class Applet extends JApplet {
-	private static final long serialVersionUID = 1L;
-	private LanderView mLanderView;
-	
-	public void init() {
-		setLayout(new FlowLayout());
-		mLanderView = new LanderView();
-		setJMenuBar(mLanderView.menuBar);
-		add(mLanderView);
-		setSize(800, 526);
+	fun getString(key: String): String = try {
+		RESOURCE_BUNDLE.getString(key)
+	} catch (e: MissingResourceException) {
+		"!$key!"
 	}
 }

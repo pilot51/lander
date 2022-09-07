@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Mark Injerd
+ * Copyright 2011-2022 Mark Injerd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package lander
 
-package lander;
+import java.awt.FlowLayout
+import javax.swing.JFrame
 
-import java.awt.FlowLayout;
+class Main : JFrame("Lander") {
+	private val landerView = LanderView()
 
-import javax.swing.JFrame;
-
-public class Main extends JFrame {
-	private static final long serialVersionUID = 1L;
-	private LanderView mLanderView;
-	
-	public static void main(String[] args) {
-		new Main();
+	init {
+		layout = FlowLayout()
+		jMenuBar = landerView.menuBar
+		add(landerView)
+		setSize(800, 556)
+		isVisible = true
+		defaultCloseOperation = EXIT_ON_CLOSE
 	}
 
-	Main() {
-		super("Lander");
-		setLayout(new FlowLayout());
-		mLanderView = new LanderView();
-		setJMenuBar(mLanderView.menuBar);
-		add(mLanderView);
-		setSize(800, 556);
-		setVisible(true);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	companion object {
+		private const val serialVersionUID = 1L
+
+		@JvmStatic
+		fun main(args: Array<String>) {
+			Main()
+		}
 	}
 }
