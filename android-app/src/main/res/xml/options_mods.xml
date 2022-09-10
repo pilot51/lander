@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory android:title="@string/individual_mod">
+		<CheckBoxPreference
+			android:key="ModRotation"
+			android:title="@string/rotation"
+			android:summary="@string/rotation_summary"
+			android:defaultValue="false" />
+		<CheckBoxPreference
+			android:key="ModMapList"
+			android:title="@string/map_list"
+			android:summary="@string/map_list_summary"
+			android:defaultValue="false" />
+	</PreferenceCategory>
+</PreferenceScreen>

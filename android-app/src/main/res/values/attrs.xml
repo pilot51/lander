@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<declare-styleable name="SeekBarPreference">
+		<attr name="seekDefaultValue" format="float" />
+		<attr name="seekMin" format="float" />
+		<attr name="seekMax" format="float" />
+		<attr name="seekIncrement" format="float" />
+		<attr name="seekSubIncrement" format="float" />
+		<attr name="seekSteps" format="integer" />
+		<attr name="seekValueScale" format="float" />
+		<attr name="seekSuffix" format="string" />
+	</declare-styleable>
+</resources>

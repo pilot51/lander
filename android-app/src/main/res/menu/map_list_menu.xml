@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+	<item
+		android:id="@+id/menu_save_current"
+		android:title="@string/save_current" />
+	<item
+		android:id="@+id/menu_create"
+		android:title="@string/create_map" />
+	<item
+		android:id="@+id/menu_clear"
+		android:title="@string/clear_maps" />
+</menu>

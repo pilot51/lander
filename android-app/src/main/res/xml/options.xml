@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+	<PreferenceCategory android:title="@string/classic_options">
+		<com.pilot51.lander.SeekBarPreference
+			android:key="Gravity"
+			android:title="@string/gravity"
+			android:summary="@string/gravity_summary"
+			app:seekDefaultValue="3"
+			app:seekMin="1"
+			app:seekSubIncrement="3"
+			app:seekSteps="29" />
+		<com.pilot51.lander.SeekBarPreference
+			android:key="Fuel"
+			android:title="@string/fuel"
+			android:summary="@string/fuel_summary"
+			app:seekDefaultValue="1000"
+			app:seekMin="100"
+			app:seekIncrement="100"
+			app:seekSteps="29" />
+		<com.pilot51.lander.SeekBarPreference
+			android:key="Thrust"
+			android:title="@string/thrust"
+			android:summary="@string/thrust_summary"
+			app:seekDefaultValue="10000"
+			app:seekMin="2500"
+			app:seekIncrement="1250"
+			app:seekSteps="29" />
+		<CheckBoxPreference
+			android:key="DrawFlame"
+			android:title="@string/drawflame"
+			android:defaultValue="true" />
+		<CheckBoxPreference
+			android:key="ReverseSideThrust"
+			android:title="@string/reversesidethrust"
+			android:defaultValue="false" />
+		<Preference
+			android:key="DefaultClassic"
+			android:title="@string/default_title"
+			android:summary="@string/default_summary" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/extra_options">
+		<Preference
+			android:key="Controls"
+			android:title="@string/controls"
+			android:fragment="com.pilot51.lander.OptionsControls" />
+		<Preference
+			android:title="@string/improvements"
+			android:summary="@string/improvements_summary"
+			android:fragment="com.pilot51.lander.OptionsImprovements" />
+		<Preference
+			android:title="@string/gameplay_mod"
+			android:summary="@string/gameplay_mod_summary"
+			android:fragment="com.pilot51.lander.OptionsMods" />
+	</PreferenceCategory>
+</PreferenceScreen>

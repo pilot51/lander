@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory android:title="@string/presets">
+		<Preference
+			android:key="PresetImpClassic"
+			android:title="@string/classic" />
+		<Preference
+			android:key="PresetImproved"
+			android:title="@string/improved" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/individual_imp">
+		<CheckBoxPreference
+			android:key="ImpEndImg"
+			android:title="@string/imp_end_img"
+			android:summaryOn="@string/imp_end_img_color"
+			android:summaryOff="@string/imp_end_img_bw"
+			android:defaultValue="true" />
+		<CheckBoxPreference
+			android:key="ImpLanderAlpha"
+			android:title="@string/imp_lander_alpha"
+			android:summaryOn="@string/imp_lander_alpha_on"
+			android:summaryOff="@string/imp_lander_alpha_off"
+			android:defaultValue="true" />
+	</PreferenceCategory>
+</PreferenceScreen>

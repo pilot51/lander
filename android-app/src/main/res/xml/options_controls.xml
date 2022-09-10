@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+	<PreferenceCategory android:title="@string/onscreen_controls">
+		<com.pilot51.lander.SeekBarPreference
+			android:key="BtnScale"
+			android:title="@string/btn_scale"
+			app:seekDefaultValue="1"
+			app:seekMin="0.5"
+			app:seekMax="2.5"
+			app:seekIncrement="0.1"
+			app:seekSuffix="x" />
+		<com.pilot51.lander.SeekBarPreference
+			android:key="BtnAlpha"
+			android:title="@string/btn_alpha"
+			app:seekDefaultValue="255"
+			app:seekMin="0"
+			app:seekMax="255"
+			app:seekValueScale="2.55"
+			app:seekSuffix="%" />
+	</PreferenceCategory>
+	<PreferenceCategory
+		android:key="CatKeys"
+		android:title="@string/key_assignments">
+		<Preference
+			android:key="KeyThrust"
+			android:title="@string/thrust" />
+		<Preference
+			android:key="KeyLeft"
+			android:title="@string/left" />
+		<Preference
+			android:key="KeyRight"
+			android:title="@string/right" />
+		<Preference
+			android:key="KeyNew"
+			android:title="@string/word_new" />
+		<Preference
+			android:key="KeyRestart"
+			android:title="@string/restart" />
+		<Preference
+			android:key="KeyOptions"
+			android:title="@string/options" />
+	</PreferenceCategory>
+	<PreferenceCategory>
+		<Preference
+			android:key="DefaultControls"
+			android:title="@string/default_controls_title" />
+	</PreferenceCategory>
+</PreferenceScreen>
