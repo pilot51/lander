@@ -1,7 +1,7 @@
 package com.pilot51.lander
 
+import android.app.Activity
 import android.app.AlertDialog
-import android.app.ListActivity
 import android.content.Context
 import android.os.Bundle
 import android.view.*
@@ -12,19 +12,19 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.Toast
-import java.util.*
 
-class MapList : ListActivity() {
+class MapList : Activity() {
 	private lateinit var lv: ListView
 	private lateinit var adapter: MapListAdapter
 	private lateinit var list: MutableList<Ground>
 	private lateinit var dao: DatabaseHelper.MapDao
 
-	public override fun onCreate(savedInstanceState: Bundle?) {
+	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		dao = DatabaseHelper.getInstance(this).mapsDao()
 		list = dao.getMaps().toMutableList()
-		lv = listView
+		lv = ListView(this)
+		setContentView(lv)
 		lv.isTextFilterEnabled = true
 		adapter = MapListAdapter(this, list)
 		lv.adapter = adapter
@@ -86,7 +86,7 @@ class MapList : ListActivity() {
 	}
 
 	private fun sortList() {
-		list.sortWith(Comparator { map1, map2 -> map1.name.compareTo(map2.name, true) })
+		list.sortWith { map1, map2 -> map1.name.compareTo(map2.name, true) }
 	}
 
 	private fun editMap(selectedMap: Ground? = null) {

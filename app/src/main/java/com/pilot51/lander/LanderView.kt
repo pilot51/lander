@@ -4,17 +4,17 @@ import android.app.AlertDialog
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Message
-import android.preference.PreferenceManager
+import android.os.*
+import androidx.preference.PreferenceManager
 import android.util.AttributeSet
 import android.view.*
 import android.view.View.OnTouchListener
 import android.widget.Button
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import java.text.DecimalFormat
 import java.util.*
 import kotlin.math.abs
@@ -67,11 +67,9 @@ class LanderView(
 	/** Fuel in kilograms  */
 	private var fFuel = 0f
 
-	/**
-	 * Lander position in meters
-	 * @param landerY altitude
-	 */
+	/** Lander horizontal position in meters */
 	private var landerX = 0f
+	/** Lander altitude in meters */
 	private var landerY = 0f
 
 	/** Lander velocity in meters/sec  */
@@ -104,16 +102,16 @@ class LanderView(
 	private var hCrash2: Drawable? = null
 	private var hCrash3: Drawable? = null
 	private var hExpl = arrayOf(
-		resources.getDrawable(R.drawable.expl1),
-		resources.getDrawable(R.drawable.expl2),
-		resources.getDrawable(R.drawable.expl3),
-		resources.getDrawable(R.drawable.expl4),
-		resources.getDrawable(R.drawable.expl5),
-		resources.getDrawable(R.drawable.expl6),
-		resources.getDrawable(R.drawable.expl7),
-		resources.getDrawable(R.drawable.expl8),
-		resources.getDrawable(R.drawable.expl9),
-		resources.getDrawable(R.drawable.expl10))
+		ContextCompat.getDrawable(context, R.drawable.expl1),
+		ContextCompat.getDrawable(context, R.drawable.expl2),
+		ContextCompat.getDrawable(context, R.drawable.expl3),
+		ContextCompat.getDrawable(context, R.drawable.expl4),
+		ContextCompat.getDrawable(context, R.drawable.expl5),
+		ContextCompat.getDrawable(context, R.drawable.expl6),
+		ContextCompat.getDrawable(context, R.drawable.expl7),
+		ContextCompat.getDrawable(context, R.drawable.expl8),
+		ContextCompat.getDrawable(context, R.drawable.expl9),
+		ContextCompat.getDrawable(context, R.drawable.expl10))
 
 	//private Drawable hExpl[EXPL_SEQUENCE];
 	private val xGroundZero = 0
@@ -145,53 +143,47 @@ class LanderView(
 	private var angle = 0f
 	private var yScale = 0f
 	private var densityScale = 0f
-	private var firingMain = false
-	private var firingLeft = false
-	private var firingRight = false
+	private var isFiringMain = false
+	private var isFiringLeft = false
+	private var isFiringRight = false
 
 	/** The thread that actually draws the animation  */
 	private var thread: LanderThread
 
 	/** Message handler used by thread to interact with TextView  */
-	private var handler = object : Handler() {
+	private val handler = object : Handler(Looper.myLooper()!!) {
 		override fun handleMessage(m: Message) {
 			val data = m.data
-			val id = data.getInt("id")
-			if (id == HANDLE_ALT) {
-				textAlt!!.text = data.getString("text")
-			} else if (id == HANDLE_VELX) {
-				textVelX!!.text = data.getString("text")
-			} else if (id == HANDLE_VELY) {
-				textVelY!!.text = data.getString("text")
-			} else if (id == HANDLE_FUEL) {
-				textFuel!!.text = data.getString("text")
-			} else if (id == HANDLE_DIALOG) {
-				val msg = data.getString("text")
-				val title = msg!!.substring(0, msg.indexOf("\n"))
-				val message = msg.substring(msg.indexOf("\n") + 1, msg.length)
-				val img = if (byEndGameState == END_SAFE) safe else dead
-				AlertDialog.Builder(context)
-					.setIcon(img)
-					.setTitle(title)
-					.setMessage(message)
-					.setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
-					.setNeutralButton(R.string.word_new) { dialog, _ ->
-						dialog.dismiss()
-						Ground.current = null
-						byLanderState = LND_NEW
-					}
-					.setNegativeButton(R.string.restart) { dialog, _ ->
-						dialog.dismiss()
-						byLanderState = LND_RESTART
-					}
-					.create()
-					.show()
-			} else if (id == HANDLE_THRUST) {
-				btnThrust!!.isPressed = data.getBoolean("pressed")
-			} else if (id == HANDLE_LEFT) {
-				btnLeft!!.isPressed = data.getBoolean("pressed")
-			} else if (id == HANDLE_RIGHT) {
-				btnRight!!.isPressed = data.getBoolean("pressed")
+			when (data.getInt("id")) {
+				HANDLE_ALT -> textAlt!!.text = data.getString("text")
+				HANDLE_VELX -> textVelX!!.text = data.getString("text")
+				HANDLE_VELY -> textVelY!!.text = data.getString("text")
+				HANDLE_FUEL -> textFuel!!.text = data.getString("text")
+				HANDLE_DIALOG -> {
+					val msg = data.getString("text")
+					val title = msg!!.substring(0, msg.indexOf("\n"))
+					val message = msg.substring(msg.indexOf("\n") + 1, msg.length)
+					val img = if (byEndGameState == END_SAFE) safe else dead
+					AlertDialog.Builder(context)
+						.setIcon(img)
+						.setTitle(title)
+						.setMessage(message)
+						.setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
+						.setNeutralButton(R.string.word_new) { dialog, _ ->
+							dialog.dismiss()
+							Ground.current = null
+							byLanderState = LND_NEW
+						}
+						.setNegativeButton(R.string.restart) { dialog, _ ->
+							dialog.dismiss()
+							byLanderState = LND_RESTART
+						}
+						.create()
+						.show()
+				}
+				HANDLE_THRUST -> btnThrust!!.isPressed = data.getBoolean("pressed")
+				HANDLE_LEFT -> btnLeft!!.isPressed = data.getBoolean("pressed")
+				HANDLE_RIGHT -> btnRight!!.isPressed = data.getBoolean("pressed")
 			}
 		}
 	}
@@ -207,13 +199,11 @@ class LanderView(
 		setOnTouchListener(this)
 	}
 
-	override fun onKeyDown(keyCode: Int, msg: KeyEvent): Boolean {
-		return thread.doKeyDown(keyCode, msg)
-	}
+	override fun onKeyDown(keyCode: Int, msg: KeyEvent) =
+		thread.doKeyDown(keyCode)
 
-	override fun onKeyUp(keyCode: Int, msg: KeyEvent): Boolean {
-		return thread.doKeyUp(keyCode, msg)
-	}
+	override fun onKeyUp(keyCode: Int, msg: KeyEvent) =
+		thread.doKeyUp(keyCode)
 
 	fun setTextViewAlt(textView: TextView?) {
 		textAlt = textView
@@ -262,11 +252,6 @@ class LanderView(
 		lpBtnThrust.height = lpBtnLeft.width
 		lpBtnThrust.width = lpBtnThrust.height
 		(lpBtnThrust as RelativeLayout.LayoutParams).leftMargin = scaledSize / 2 + 1
-		if (Build.VERSION.SDK.toInt() <= 7) {
-			btnThrust!!.layoutParams = lpBtnThrust
-			btnLeft!!.layoutParams = lpBtnLeft
-			btnRight!!.layoutParams = lpBtnRight
-		}
 	}
 
 	override fun onTouch(src: View, event: MotionEvent): Boolean {
@@ -306,7 +291,7 @@ class LanderView(
 		}
 	}
 
-	inner class LanderThread() : Thread() {
+	inner class LanderThread : Thread() {
 		/** Indicate whether the surface has been created and is ready to draw  */
 		private var run = false
 		private val keyThrust: Int
@@ -327,32 +312,32 @@ class LanderView(
 			keyLeft = prefs.getInt("KeyLeft", 0)
 			keyRight = prefs.getInt("KeyRight", 0)
 			rand = Random(System.currentTimeMillis())
-			hLanderPict = resources.getDrawable(R.drawable.lander)
-			hBFlamePict = resources.getDrawable(R.drawable.bflame)
-			hLFlamePict = resources.getDrawable(R.drawable.lflame)
-			hRFlamePict = resources.getDrawable(R.drawable.rflame)
-			hCrash1 = resources.getDrawable(R.drawable.crash1)
-			hCrash2 = resources.getDrawable(R.drawable.crash2)
-			hCrash3 = resources.getDrawable(R.drawable.crash3)
-			hExpl = arrayOf(resources.getDrawable(R.drawable.expl1),
-				resources.getDrawable(R.drawable.expl2),
-				resources.getDrawable(R.drawable.expl3),
-				resources.getDrawable(R.drawable.expl4),
-				resources.getDrawable(R.drawable.expl5),
-				resources.getDrawable(R.drawable.expl6),
-				resources.getDrawable(R.drawable.expl7),
-				resources.getDrawable(R.drawable.expl8),
-				resources.getDrawable(R.drawable.expl9),
-				resources.getDrawable(R.drawable.expl10))
+			hLanderPict = ContextCompat.getDrawable(context, R.drawable.lander)
+			hBFlamePict = ContextCompat.getDrawable(context, R.drawable.bflame)
+			hLFlamePict = ContextCompat.getDrawable(context, R.drawable.lflame)
+			hRFlamePict = ContextCompat.getDrawable(context, R.drawable.rflame)
+			hCrash1 = ContextCompat.getDrawable(context, R.drawable.crash1)
+			hCrash2 = ContextCompat.getDrawable(context, R.drawable.crash2)
+			hCrash3 = ContextCompat.getDrawable(context, R.drawable.crash3)
+			hExpl = arrayOf(ContextCompat.getDrawable(context, R.drawable.expl1),
+				ContextCompat.getDrawable(context, R.drawable.expl2),
+				ContextCompat.getDrawable(context, R.drawable.expl3),
+				ContextCompat.getDrawable(context, R.drawable.expl4),
+				ContextCompat.getDrawable(context, R.drawable.expl5),
+				ContextCompat.getDrawable(context, R.drawable.expl6),
+				ContextCompat.getDrawable(context, R.drawable.expl7),
+				ContextCompat.getDrawable(context, R.drawable.expl8),
+				ContextCompat.getDrawable(context, R.drawable.expl9),
+				ContextCompat.getDrawable(context, R.drawable.expl10))
 			if (bColorEndImg) {
-				safe = resources.getDrawable(R.drawable.safe_color)
-				dead = resources.getDrawable(R.drawable.dead_color)
+				safe = ContextCompat.getDrawable(context, R.drawable.safe_color)
+				dead = ContextCompat.getDrawable(context, R.drawable.dead_color)
 			} else {
-				safe = resources.getDrawable(R.drawable.safe)
-				dead = resources.getDrawable(R.drawable.dead)
+				safe = ContextCompat.getDrawable(context, R.drawable.safe)
+				dead = ContextCompat.getDrawable(context, R.drawable.dead)
 			}
-			xLanderPict = hLanderPict!!.getIntrinsicWidth()
-			yLanderPict = hLanderPict!!.getIntrinsicHeight()
+			xLanderPict = hLanderPict!!.intrinsicWidth
+			yLanderPict = hLanderPict!!.intrinsicHeight
 			densityScale = context.resources.displayMetrics.density
 			paintWhite.color = Color.WHITE
 			paintWhite.style = Paint.Style.FILL
@@ -382,21 +367,21 @@ class LanderView(
 
 		private fun setFiringThrust(firing: Boolean) {
 			synchronized(surfaceHolder!!) {
-				firingMain = firing
+				isFiringMain = firing
 				setBtnState(HANDLE_THRUST, firing)
 			}
 		}
 
 		private fun setFiringLeft(firing: Boolean) {
 			synchronized(surfaceHolder!!) {
-				if (bReverseSideThrust) firingRight = firing else firingLeft = firing
+				if (bReverseSideThrust) isFiringRight = firing else isFiringLeft = firing
 				setBtnState(HANDLE_LEFT, firing)
 			}
 		}
 
 		private fun setFiringRight(firing: Boolean) {
 			synchronized(surfaceHolder!!) {
-				if (bReverseSideThrust) firingLeft = firing else firingRight = firing
+				if (bReverseSideThrust) isFiringLeft = firing else isFiringRight = firing
 				setBtnState(HANDLE_RIGHT, firing)
 			}
 		}
@@ -466,25 +451,29 @@ class LanderView(
 			}
 		}
 
-		fun doKeyDown(keyCode: Int, msg: KeyEvent): Boolean {
+		fun doKeyDown(keyCode: Int): Boolean {
 			synchronized(surfaceHolder!!) {
 				if (byLanderState == LND_ACTIVE) {
-					if (keyCode == keyThrust) {
-						setFiringThrust(true)
-						return true
-					} else if (keyCode == keyLeft) {
-						setFiringLeft(true)
-						return true
-					} else if (keyCode == keyRight) {
-						setFiringRight(true)
-						return true
+					when (keyCode) {
+						keyThrust -> {
+							setFiringThrust(true)
+							return true
+						}
+						keyLeft -> {
+							setFiringLeft(true)
+							return true
+						}
+						keyRight -> {
+							setFiringRight(true)
+							return true
+						}
 					}
 				}
 				return false
 			}
 		}
 
-		fun doKeyUp(keyCode: Int, msg: KeyEvent): Boolean {
+		fun doKeyUp(keyCode: Int): Boolean {
 			synchronized(surfaceHolder!!) {
 				if (byLanderState == LND_HOLD
 					&& ((keyCode == keyThrust) || (keyCode == keyLeft) || (keyCode == keyRight))
@@ -561,7 +550,8 @@ class LanderView(
 			val yTop = invertY(landerY.toInt() + yLanderPict)
 			val xLeft = landerX.toInt() - xLanderPict / 2
 			if (bLanderBox) {
-				landerPict!!.setColorFilter(Color.BLACK, PorterDuff.Mode.DST_OVER)
+				landerPict!!.colorFilter = BlendModeColorFilterCompat
+					.createBlendModeColorFilterCompat(Color.BLACK, BlendModeCompat.DST_OVER)
 			} else landerPict!!.colorFilter = null
 			landerPict!!.setBounds(xLeft, yTop, xLeft + xLanderPict, yTop + yLanderPict)
 			canvas.rotate(angle, landerX, yClient - landerY)
@@ -569,19 +559,19 @@ class LanderView(
 			if ((nFlameCount == 0) && bDrawFlame && (fFuel > 0f) && (byLanderState == LND_ACTIVE)) {
 				var yTopF: Int
 				var xLeftF: Int
-				if (firingMain) {
+				if (isFiringMain) {
 					yTopF = invertY(landerY.toInt() - (11 * densityScale).toInt() + hBFlamePict!!.intrinsicHeight / 2)
 					xLeftF = landerX.toInt() - hBFlamePict!!.intrinsicWidth / 2
 					hBFlamePict!!.setBounds(xLeftF, yTopF, xLeftF + hBFlamePict!!.intrinsicWidth, yTopF + hBFlamePict!!.intrinsicHeight)
 					hBFlamePict!!.draw(canvas)
 				}
-				if (firingLeft) {
+				if (isFiringLeft) {
 					yTopF = invertY(landerY.toInt() + (21 * densityScale).toInt() + hLFlamePict!!.intrinsicHeight / 2)
 					xLeftF = landerX.toInt() - (27 * densityScale).toInt() - hLFlamePict!!.intrinsicWidth / 2
 					hLFlamePict!!.setBounds(xLeftF, yTopF, xLeftF + hLFlamePict!!.intrinsicWidth, yTopF + hLFlamePict!!.intrinsicHeight)
 					hLFlamePict!!.draw(canvas)
 				}
-				if (firingRight) {
+				if (isFiringRight) {
 					yTopF = invertY(landerY.toInt() + (21 * densityScale).toInt() + hRFlamePict!!.intrinsicHeight / 2)
 					xLeftF = landerX.toInt() + (27 * densityScale).toInt() - hRFlamePict!!.intrinsicWidth / 2
 					hRFlamePict!!.setBounds(xLeftF, yTopF, xLeftF + hRFlamePict!!.intrinsicWidth, yTopF + hRFlamePict!!.intrinsicHeight)
@@ -602,19 +592,19 @@ class LanderView(
 			var dVy = -fGravity
 			var accel = 0f
 			if (fFuel > 0f) {
-				if (firingMain) {
+				if (isFiringMain) {
 					fBurn += fMainBurn
 					if (bRotation) accel = fMainForce / fMass else dVy += fMainForce / fMass
 				}
-				if (firingLeft) {
+				if (isFiringLeft) {
 					fBurn += fAttitudeBurn
 					if (bRotation) angle++ else dVx += fAttitudeForce / fMass
 				}
-				if (firingRight) {
+				if (isFiringRight) {
 					fBurn += fAttitudeBurn
 					if (bRotation) angle-- else dVx -= fAttitudeForce / fMass
 				}
-				fBurn = fBurn * dt
+				fBurn *= dt
 				if (fBurn > fFuel) fFuel = 0f else fFuel -= fBurn
 			}
 			if (bRotation) {
@@ -830,13 +820,13 @@ class LanderView(
 				/** Maximum height of terrain. (less than ySize)  */
 				val nMaxHeight = yClient / 6
 
-				/** point at which landing pad starts  */
-				val nLandingStart: Int
 				var x: Int
 				var nDy: Int
 				val mctySize = invertY(5)
 				var y = mctySize - rand!!.nextInt(nMaxHeight)
-				nLandingStart = rand!!.nextInt(CRG_POINTS - nPadSize) + 1
+
+				/** point at which landing pad starts  */
+				val nLandingStart: Int = rand!!.nextInt(CRG_POINTS - nPadSize) + 1
 				nInc = xClient / (CRG_POINTS - 1)
 				nIncExtra = xClient % (CRG_POINTS - 1)
 				val currentPlot = IntArray(CRG_POINTS)
@@ -863,12 +853,10 @@ class LanderView(
 			path!!.close()
 		}
 
-		private fun invertY(y: Int): Int {
-			return yClient - y
-		}
+		private fun invertY(y: Int) = yClient - y
 	}
 
-	private inner class Point(var x: Int, var y: Int) {
+	private class Point(var x: Int, var y: Int) {
 		override fun toString() = "x: $x | y: $y"
 	}
 

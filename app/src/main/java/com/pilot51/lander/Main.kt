@@ -5,10 +5,11 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
+import androidx.core.content.ContextCompat
 
 class Main : Activity() {
 	private var keyNew = 0
@@ -25,13 +26,13 @@ class Main : Activity() {
 		prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext).also {
 			if (it.getInt("KeyThrust", 0) == 0) {
 				it.edit()
-						.putInt("KeyThrust", KeyEvent.KEYCODE_DPAD_DOWN)
-						.putInt("KeyLeft", KeyEvent.KEYCODE_DPAD_LEFT)
-						.putInt("KeyRight", KeyEvent.KEYCODE_DPAD_RIGHT)
-						.putInt("KeyNew", KeyEvent.KEYCODE_2)
-						.putInt("KeyRestart", KeyEvent.KEYCODE_3)
-						.putInt("KeyOptions", KeyEvent.KEYCODE_4)
-						.commit()
+					.putInt("KeyThrust", KeyEvent.KEYCODE_DPAD_DOWN)
+					.putInt("KeyLeft", KeyEvent.KEYCODE_DPAD_LEFT)
+					.putInt("KeyRight", KeyEvent.KEYCODE_DPAD_RIGHT)
+					.putInt("KeyNew", KeyEvent.KEYCODE_2)
+					.putInt("KeyRestart", KeyEvent.KEYCODE_3)
+					.putInt("KeyOptions", KeyEvent.KEYCODE_4)
+					.apply()
 			}
 			keyNew = it.getInt("KeyNew", 0)
 			keyRestart = it.getInt("KeyRestart", 0)
@@ -85,13 +86,14 @@ class Main : Activity() {
 				val byOldState = landerView.byLanderState
 				landerView.byLanderState = LanderView.LND_INACTIVE
 				AlertDialog.Builder(this)
-						.setIcon(resources.getDrawable(R.drawable.icon))
-						.setTitle(getString(R.string.about) + " " + getString(R.string.app_name) + " v"
-										+ BuildConfig.VERSION_NAME).setMessage(R.string.about_text)
-						.setNeutralButton(android.R.string.ok) { dialog, _ ->
-							dialog.cancel()
-							landerView.byLanderState = byOldState
-						}.create().show()
+					.setIcon(ContextCompat.getDrawable(this, R.drawable.icon))
+					.setTitle(getString(R.string.about) + " " + getString(R.string.app_name) + " v" + BuildConfig.VERSION_NAME)
+					.setMessage(R.string.about_text)
+					.setNeutralButton(android.R.string.ok) { dialog, _ ->
+						dialog.cancel()
+						landerView.byLanderState = byOldState
+					}
+					.show()
 				return true
 			}
 		}
@@ -137,7 +139,6 @@ class Main : Activity() {
 	}
 
 	companion object {
-		const val TAG = "Lander"
 		@JvmField
 		var prefs: SharedPreferences? = null
 	}

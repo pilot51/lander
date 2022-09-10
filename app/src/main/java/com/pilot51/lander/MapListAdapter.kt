@@ -50,12 +50,12 @@ class MapListAdapter(
 				results.values = list
 				results.count = list.size
 			} else {
-				val prefixString = prefix.toString().toLowerCase()
+				val prefixString = prefix.toString().lowercase()
 				val newValues = ArrayList<Ground>(unfilteredData!!.size)
 				var map: Ground
 				for (i in unfilteredData!!.indices) {
 					map = unfilteredData!![i]
-					if (map.name.toLowerCase().contains(prefixString)
+					if (map.name.lowercase().contains(prefixString)
 						|| map.plotString.contains(prefixString)) newValues.add(map)
 				}
 				results.values = newValues
@@ -65,6 +65,7 @@ class MapListAdapter(
 		}
 
 		override fun publishResults(constraint: CharSequence, results: FilterResults) {
+			@Suppress("UNCHECKED_CAST")
 			data = results.values as List<Ground>
 			if (results.count > 0) notifyDataSetChanged() else notifyDataSetInvalidated()
 		}

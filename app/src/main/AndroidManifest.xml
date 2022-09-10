@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.pilot51.lander">
+	xmlns:tools="http://schemas.android.com/tools">
 	<uses-permission android:name="com.android.vending.BILLING" />
 	<uses-feature
 		android:name="android.hardware.touchscreen"
 		android:required="false" />
 	<application
 		android:icon="@drawable/icon"
-		android:label="@string/app_name">
+		android:label="@string/app_name"
+		android:allowBackup="true"
+		tools:ignore="AllowBackup">
 		<activity
 			android:name="Main"
 			android:theme="@style/Fullscreen"
 			android:configChanges="keyboardHidden"
-			android:screenOrientation="landscape">
+			android:screenOrientation="landscape"
+			android:exported="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
@@ -21,18 +24,10 @@
 		<activity
 			android:name="Options"
 			android:configChanges="keyboardHidden"
-			android:screenOrientation="landscape">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-			</intent-filter>
-		</activity>
+			android:screenOrientation="landscape" />
 		<activity
 			android:name="MapList"
 			android:configChanges="keyboardHidden"
-			android:screenOrientation="landscape">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-			</intent-filter>
-		</activity>
+			android:screenOrientation="landscape" />
 	</application>
 </manifest>

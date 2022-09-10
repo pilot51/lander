@@ -11,6 +11,7 @@
 		android:id="@+id/hud"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_alignParentEnd="true"
 		android:layout_alignParentRight="true"
 		android:layout_marginTop="10dp"
 		android:layout_marginBottom="10dp">
@@ -19,7 +20,7 @@
 			android:text="@string/altitude"
 			android:layout_width="80dp"
 			android:layout_height="wrap_content"
-			android:gravity="right"
+			android:gravity="end"
 			android:textStyle="bold"
 			android:textColor="#fff" />
 		<TextView
@@ -28,7 +29,7 @@
 			android:layout_width="80dp"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/altitude"
-			android:gravity="right"
+			android:gravity="end"
 			android:textStyle="bold"
 			android:textColor="#fff" />
 		<TextView
@@ -37,7 +38,7 @@
 			android:layout_width="80dp"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/velocity_x"
-			android:gravity="right"
+			android:gravity="end"
 			android:textStyle="bold"
 			android:textColor="#fff" />
 		<TextView
@@ -46,7 +47,7 @@
 			android:layout_width="80dp"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/velocity_y"
-			android:gravity="right"
+			android:gravity="end"
 			android:textStyle="bold"
 			android:textColor="#fff" />
 		<TextView
@@ -54,6 +55,7 @@
 			android:layout_width="100dp"
 			android:layout_height="wrap_content"
 			android:layout_alignBaseline="@+id/altitude"
+			android:layout_toEndOf="@+id/altitude"
 			android:layout_toRightOf="@+id/altitude"
 			android:gravity="center_horizontal"
 			android:textStyle="bold"
@@ -63,6 +65,7 @@
 			android:layout_width="100dp"
 			android:layout_height="wrap_content"
 			android:layout_alignBaseline="@+id/velocity_x"
+			android:layout_toEndOf="@+id/velocity_x"
 			android:layout_toRightOf="@+id/velocity_x"
 			android:gravity="center_horizontal"
 			android:textStyle="bold"
@@ -72,6 +75,7 @@
 			android:layout_width="100dp"
 			android:layout_height="wrap_content"
 			android:layout_alignBaseline="@+id/velocity_y"
+			android:layout_toEndOf="@+id/velocity_y"
 			android:layout_toRightOf="@+id/velocity_y"
 			android:gravity="center_horizontal"
 			android:textStyle="bold"
@@ -81,6 +85,7 @@
 			android:layout_width="100dp"
 			android:layout_height="wrap_content"
 			android:layout_alignBaseline="@+id/fuel"
+			android:layout_toEndOf="@+id/fuel"
 			android:layout_toRightOf="@+id/fuel"
 			android:gravity="center_horizontal"
 			android:textStyle="bold"
@@ -89,20 +94,24 @@
 	<RelativeLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_alignParentEnd="true"
 		android:layout_alignParentRight="true"
 		android:layout_below="@+id/hud"
+		android:layout_marginEnd="2dp"
 		android:layout_marginRight="2dp">
 		<Button
 			android:id="@+id/btnLeft"
 			android:background="@drawable/btn_left"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginEnd="2dp"
 			android:layout_marginRight="2dp" />
 		<Button
 			android:id="@+id/btnRight"
 			android:background="@drawable/btn_right"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_toEndOf="@+id/btnLeft"
 			android:layout_toRightOf="@+id/btnLeft" />
 		<Button
 			android:id="@+id/btnThrust"
@@ -110,6 +119,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/btnLeft"
+			android:layout_marginStart="25dp"
 			android:layout_marginLeft="25dp"
 			android:layout_marginTop="2dp" />
 	</RelativeLayout>

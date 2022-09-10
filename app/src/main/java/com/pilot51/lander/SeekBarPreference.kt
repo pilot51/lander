@@ -1,31 +1,34 @@
 package com.pilot51.lander
 
 import android.content.Context
-import android.preference.Preference
 import android.util.AttributeSet
-import android.view.View
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
+import androidx.preference.Preference
+import androidx.preference.PreferenceViewHolder
 import java.text.DecimalFormat
 
-class SeekBarPreference(context: Context?, attrs: AttributeSet) : Preference(context, attrs), OnSeekBarChangeListener {
+
+class SeekBarPreference(
+	context: Context, attrs: AttributeSet
+) : Preference(context, attrs), OnSeekBarChangeListener {
 	private lateinit var seekbar: SeekBar
 	private lateinit var valueText: TextView
-	private val xmlns = "http://schemas.android.com/apk/res/com.pilot51.lander"
-	private val steps = attrs.getAttributeIntValue(xmlns, "steps", 0)
-	private val fDefault = attrs.getAttributeFloatValue(xmlns, "defaultValue", 0f)
-	private val min = attrs.getAttributeFloatValue(xmlns, "min", 0f)
-	private val max = attrs.getAttributeFloatValue(xmlns, "max", 0f)
-	private val increment = attrs.getAttributeFloatValue(xmlns, "increment", 1f)
+	private val sAttrs = context.obtainStyledAttributes(attrs, R.styleable.SeekBarPreference, 0, 0)
+	private val steps = sAttrs.getInt(R.styleable.SeekBarPreference_seekSteps, 0)
+	private val fDefault = sAttrs.getFloat(R.styleable.SeekBarPreference_seekDefaultValue, 0f)
+	private val min = sAttrs.getFloat(R.styleable.SeekBarPreference_seekMin, 0f)
+	private val max = sAttrs.getFloat(R.styleable.SeekBarPreference_seekMax, 0f)
+	private val increment = sAttrs.getFloat(R.styleable.SeekBarPreference_seekIncrement, 1f)
 	/** Increment as a divisor of 1 */
-	private val subIncrement = attrs.getAttributeFloatValue(xmlns, "subIncrement", 1f)
+	private val subIncrement = sAttrs.getFloat(R.styleable.SeekBarPreference_seekSubIncrement, 1f)
 	/**
 	 * Divide by this to convert actual value to visible bar value, or multiply for the other direction.
 	 * Useful, for example, to display a color value as a percentage when the actual range is 0-255.
 	 */
-	private val scale = attrs.getAttributeFloatValue(xmlns, "valueScale", 1f)
-	private val suffix = attrs.getAttributeValue(xmlns, "suffix") ?: ""
+	private val scale = sAttrs.getFloat(R.styleable.SeekBarPreference_seekValueScale, 1f)
+	private val suffix = sAttrs.getString(R.styleable.SeekBarPreference_seekSuffix) ?: ""
 	private val barMin = convertToBarValue(min)
 	private val barMax = if (steps > 1) steps else convertToBarValue(max)
 	private val df = DecimalFormat("0.##")
@@ -37,17 +40,18 @@ class SeekBarPreference(context: Context?, attrs: AttributeSet) : Preference(con
 		setDefaultValue(fDefault)
 	}
 
+	@Deprecated("Deprecated in Java")
 	override fun onSetInitialValue(restorePersistedValue: Boolean, defaultValue: Any?) {
 		value = getPersistedFloat(fDefault)
 		if (!restorePersistedValue) persistFloat(value)
 	}
 
-	override fun onBindView(view: View) {
-		super.onBindView(view)
-		seekbar = view.findViewById<View>(R.id.seekbar) as SeekBar
+	override fun onBindViewHolder(holder: PreferenceViewHolder) {
+		super.onBindViewHolder(holder)
+		seekbar = holder.findViewById(R.id.seekbar) as SeekBar
 		seekbar.max = barMax
 		seekbar.setOnSeekBarChangeListener(this)
-		valueText = view.findViewById<View>(R.id.value) as TextView
+		valueText = holder.findViewById(R.id.value) as TextView
 		valueText.text = df.format(value / scale.toDouble()) + suffix
 		seekbar.progress = convertToBarValue(value)
 	}

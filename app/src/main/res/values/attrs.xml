@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<declare-styleable name="com.pilot51.lander">
-		<attr name="defaultValue" format="float" />
-		<attr name="min" format="float" />
-		<attr name="max" format="float" />
-		<attr name="increment" format="float" />
-		<attr name="subIncrement" format="float" />
-		<attr name="steps" format="integer" />
-		<attr name="valueScale" format="float" />
-		<attr name="suffix" format="string" />
+	<declare-styleable name="SeekBarPreference">
+		<attr name="seekDefaultValue" format="float" />
+		<attr name="seekMin" format="float" />
+		<attr name="seekMax" format="float" />
+		<attr name="seekIncrement" format="float" />
+		<attr name="seekSubIncrement" format="float" />
+		<attr name="seekSteps" format="integer" />
+		<attr name="seekValueScale" format="float" />
+		<attr name="seekSuffix" format="string" />
 	</declare-styleable>
 </resources>

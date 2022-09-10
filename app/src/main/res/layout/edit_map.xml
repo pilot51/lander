@@ -7,7 +7,10 @@
 		android:id="@+id/editMapName"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:hint="@string/map_name">
+		android:hint="@string/map_name"
+		android:lines="1"
+		android:inputType="textShortMessage"
+		android:importantForAutofill="no">
 	</EditText>
 	<EditText
 		android:id="@+id/editMapPlot"
@@ -15,5 +18,6 @@
 		android:layout_height="wrap_content"
 		android:digits="0123456789 "
 		android:hint="@string/map_plot"
-		android:inputType="phone" />
+		android:inputType="phone"
+		android:importantForAutofill="no" />
 </LinearLayout>

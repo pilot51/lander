@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
-	xmlns:lander="http://schemas.android.com/apk/res/com.pilot51.lander" xmlns:android="http://schemas.android.com/apk/res/android">
-	<PreferenceCategory
-		android:title="@string/classic_options">
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+	<PreferenceCategory android:title="@string/classic_options">
 		<com.pilot51.lander.SeekBarPreference
 			android:key="Gravity"
 			android:title="@string/gravity"
 			android:summary="@string/gravity_summary"
-			lander:defaultValue="3"
-			lander:min="1"
-			lander:subIncrement="3"
-			lander:steps="29" />
+			app:seekDefaultValue="3"
+			app:seekMin="1"
+			app:seekSubIncrement="3"
+			app:seekSteps="29" />
 		<com.pilot51.lander.SeekBarPreference
 			android:key="Fuel"
 			android:title="@string/fuel"
 			android:summary="@string/fuel_summary"
-			lander:defaultValue="1000"
-			lander:min="100"
-			lander:increment="100"
-			lander:steps="29" />
+			app:seekDefaultValue="1000"
+			app:seekMin="100"
+			app:seekIncrement="100"
+			app:seekSteps="29" />
 		<com.pilot51.lander.SeekBarPreference
 			android:key="Thrust"
 			android:title="@string/thrust"
 			android:summary="@string/thrust_summary"
-			lander:defaultValue="10000"
-			lander:min="2500"
-			lander:increment="1250"
-			lander:steps="29" />
+			app:seekDefaultValue="10000"
+			app:seekMin="2500"
+			app:seekIncrement="1250"
+			app:seekSteps="29" />
 		<CheckBoxPreference
 			android:key="DrawFlame"
 			android:title="@string/drawflame"
@@ -40,103 +40,18 @@
 			android:title="@string/default_title"
 			android:summary="@string/default_summary" />
 	</PreferenceCategory>
-	<PreferenceCategory
-		android:title="@string/extra_options">
-		<PreferenceScreen
+	<PreferenceCategory android:title="@string/extra_options">
+		<Preference
 			android:key="Controls"
-			android:title="@string/controls">
-			<PreferenceCategory
-				android:title="@string/onscreen_controls">
-				<com.pilot51.lander.SeekBarPreference
-					android:key="BtnScale"
-					android:title="@string/btn_scale"
-					lander:defaultValue="1"
-					lander:min="0.5"
-					lander:max="2.5"
-					lander:increment="0.1"
-					lander:suffix="x" />
-				<com.pilot51.lander.SeekBarPreference
-					android:key="BtnAlpha"
-					android:title="@string/btn_alpha"
-					lander:defaultValue="255"
-					lander:min="0"
-					lander:max="255"
-					lander:valueScale="2.55"
-					lander:suffix="%" />
-			</PreferenceCategory>
-			<PreferenceCategory
-				android:key="CatKeys"
-				android:title="@string/key_assignments">
-				<Preference
-					android:key="KeyThrust"
-					android:title="@string/thrust" />
-				<Preference
-					android:key="KeyLeft"
-					android:title="@string/left" />
-				<Preference
-					android:key="KeyRight"
-					android:title="@string/right" />
-				<Preference
-					android:key="KeyNew"
-					android:title="@string/word_new" />
-				<Preference
-					android:key="KeyRestart"
-					android:title="@string/restart" />
-				<Preference
-					android:key="KeyOptions"
-					android:title="@string/options" />
-			</PreferenceCategory>
-			<PreferenceCategory>
-				<Preference
-					android:key="DefaultControls"
-					android:title="@string/default_controls_title" />
-			</PreferenceCategory>
-		</PreferenceScreen>
-		<PreferenceScreen
+			android:title="@string/controls"
+			android:fragment="com.pilot51.lander.OptionsControls" />
+		<Preference
 			android:title="@string/improvements"
-			android:summary="@string/improvements_summary">
-			<PreferenceCategory
-				android:title="@string/presets">
-				<Preference
-					android:key="PresetImpClassic"
-					android:title="@string/classic" />
-				<Preference
-					android:key="PresetImproved"
-					android:title="@string/improved" />
-			</PreferenceCategory>
-			<PreferenceCategory
-				android:title="@string/individual_imp">
-				<CheckBoxPreference
-					android:key="ImpEndImg"
-					android:title="@string/imp_end_img"
-					android:summaryOn="@string/imp_end_img_color"
-					android:summaryOff="@string/imp_end_img_bw"
-					android:defaultValue="true" />
-				<CheckBoxPreference
-					android:key="ImpLanderAlpha"
-					android:title="@string/imp_lander_alpha"
-					android:summaryOn="@string/imp_lander_alpha_on"
-					android:summaryOff="@string/imp_lander_alpha_off"
-					android:defaultValue="true" />
-			</PreferenceCategory>
-		</PreferenceScreen>
-		<PreferenceScreen
-			android:key="ScreenMod"
+			android:summary="@string/improvements_summary"
+			android:fragment="com.pilot51.lander.OptionsImprovements" />
+		<Preference
 			android:title="@string/gameplay_mod"
-			android:summary="@string/gameplay_mod_summary">
-			<PreferenceCategory
-				android:title="@string/individual_mod">
-				<CheckBoxPreference
-					android:key="ModRotation"
-					android:title="@string/rotation"
-					android:summary="@string/rotation_summary"
-					android:defaultValue="false" />
-				<CheckBoxPreference
-					android:key="ModMapList"
-					android:title="@string/map_list"
-					android:summary="@string/map_list_summary"
-					android:defaultValue="false" />
-			</PreferenceCategory>
-		</PreferenceScreen>
+			android:summary="@string/gameplay_mod_summary"
+			android:fragment="com.pilot51.lander.OptionsMods" />
 	</PreferenceCategory>
 </PreferenceScreen>
