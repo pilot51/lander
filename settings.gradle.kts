@@ -1,2 +1,2 @@
 rootProject.name = "Lander"
-include("app")
+include("android-app")
