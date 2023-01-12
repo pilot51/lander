@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Lander</string>
-	<string name="word_new">New</string>
+	<string name="ok">OK</string>
+	<string name="cancel">Cancel</string>
+	<string name="new_">New</string>
 	<string name="restart">Restart</string>
 	<string name="maps">Maps</string>
 	<string name="options">Options</string>

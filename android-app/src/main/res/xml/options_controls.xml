@@ -34,7 +34,7 @@
 			android:title="@string/right" />
 		<Preference
 			android:key="KeyNew"
-			android:title="@string/word_new" />
+			android:title="@string/new_" />
 		<Preference
 			android:key="KeyRestart"
 			android:title="@string/restart" />

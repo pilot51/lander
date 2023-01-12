@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 	<item
 		android:id="@+id/menu_new"
-		android:title="@string/word_new" />
+		android:title="@string/new_" />
 	<item
 		android:id="@+id/menu_restart"
 		android:title="@string/restart" />

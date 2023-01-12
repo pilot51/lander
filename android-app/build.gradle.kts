@@ -6,11 +6,11 @@ plugins {
 
 android {
 	namespace = "com.pilot51.lander"
-	compileSdk = 31
+	compileSdk = 33
 	defaultConfig {
 		applicationId = "com.pilot51.lander"
 		minSdk = 14
-		targetSdk = 31
+		targetSdk = 33
 		versionCode = 5
 		versionName = "1.1.2"
 		javaCompileOptions {
@@ -28,9 +28,10 @@ android {
 		}
 	}
 }
+
 dependencies {
-	implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
+	implementation(project(":common"))
 	implementation("androidx.preference:preference-ktx:1.2.0")
-	implementation("androidx.room:room-ktx:2.4.3")
-	kapt("androidx.room:room-compiler:2.4.3")
+	implementation("androidx.room:room-ktx:2.5.0")
+	kapt("androidx.room:room-compiler:2.5.0")
 }
