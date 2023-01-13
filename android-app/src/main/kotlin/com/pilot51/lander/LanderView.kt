@@ -21,8 +21,6 @@ import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.*
 import android.view.View.OnTouchListener
-import com.pilot51.lander.LanderViewModel.PlatformType.ANDROID
-import com.pilot51.lander.Platform.Rendering.Color
 import com.pilot51.lander.Platform.Rendering.DrawSurface
 import com.pilot51.lander.Platform.Views.Button
 import com.pilot51.lander.Platform.prefs
@@ -33,7 +31,7 @@ import com.pilot51.lander.LanderViewModel.Companion as VM
 class LanderView(
 	context: Context, attrs: AttributeSet?
 ) : SurfaceView(context, attrs), SurfaceHolder.Callback, OnTouchListener {
-	val vm = LanderViewModel(ANDROID)
+	val vm = LanderViewModel(true)
 
 	/** The thread that actually draws the animation */
 	private var thread = LanderThread() // create thread only; it's started in surfaceCreated()
@@ -144,18 +142,19 @@ class LanderView(
 				try {
 					c = surfaceHolder.lockCanvas(null)
 					synchronized(surfaceHolder) {
-						val now = System.currentTimeMillis()
+						val now = Platform.currentTimeMillis
 						if (now - vm.lastUpdate >= VM.UPDATE_TIME) {
 							vm.updateLander()
 							vm.lastUpdate = now
 						}
 						if (run) {
-							val drawSurface = DrawSurface(c)
-							// Background
-							drawSurface.fillSurface(Color.BLACK)
-							// Draw the ground
-							drawSurface.drawPath(vm.path, Color.WHITE)
-							vm.drawLander(drawSurface)
+							DrawSurface(c).run {
+								// Background
+								fillSurface()
+								// Ground
+								drawPath(vm.path)
+								vm.drawLander(this)
+							}
 						}
 					}
 				} finally {

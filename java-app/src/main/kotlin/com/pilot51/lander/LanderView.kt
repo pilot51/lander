@@ -16,9 +16,15 @@
 
 package com.pilot51.lander
 
+import com.pilot51.lander.Platform.Rendering.DrawSurface
 import com.pilot51.lander.Platform.Resources.string
+import com.pilot51.lander.Platform.Views.Button
 import com.pilot51.lander.Res.ResImage
 import com.pilot51.lander.Res.ResString
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.event.KeyEvent
@@ -28,7 +34,7 @@ import java.awt.event.MouseListener
 import javax.swing.*
 
 class LanderView : JComponent(), KeyListener, MouseListener {
-	private val vm = LanderViewModel(LanderViewModel.PlatformType.JAVA)
+	private val vm = LanderViewModel()
 
 	var menuBar = JMenuBar()
 
@@ -58,79 +64,84 @@ class LanderView : JComponent(), KeyListener, MouseListener {
 	}
 
 	private fun createMenu() {
-		val menu = JMenu(ResString.GAME.string)
-		menu.mnemonic = KeyEvent.VK_G
-		menuBar.add(menu)
-		var menuItem = JMenuItem(ResString.NEW.string, KeyEvent.VK_N)
-		menuItem.addActionListener { vm.gameNew() }
-		menuItem.accelerator = KeyStroke.getKeyStroke(vm.keyCodeNew, 0)
-		menu.add(menuItem)
-		menuItem = JMenuItem(ResString.RESTART.string, KeyEvent.VK_R)
-		menuItem.addActionListener { vm.gameRestart() }
-		menuItem.accelerator = KeyStroke.getKeyStroke(vm.keyCodeRestart, 0)
-		menu.add(menuItem)
-		menuItem = JMenuItem(ResString.OPTIONS_ELLIPSIS.string, KeyEvent.VK_O)
-		menuItem.addActionListener {
-			vm.gameInactive()
-			// TODO Open options here
-			vm.gameRestart()
-		}
-		menuItem.accelerator = KeyStroke.getKeyStroke(vm.keyCodeOptions, 0)
-		menuItem.isEnabled = false
-		menu.add(menuItem)
-		menuItem = JMenuItem(ResString.EXIT.string, KeyEvent.VK_X)
-		menuItem.isEnabled = false
-		menu.add(menuItem)
-		menu.addSeparator()
-		menuItem = JMenuItem(ResString.ABOUT_LANDER.string, KeyEvent.VK_B)
-		menuItem.isEnabled = false
-		menu.add(menuItem)
+		menuBar.add(JMenu(ResString.GAME.string).apply {
+			mnemonic = KeyEvent.VK_G
+			add(JMenuItem(ResString.NEW.string, KeyEvent.VK_N).apply {
+				addActionListener { vm.gameNew() }
+				accelerator = KeyStroke.getKeyStroke(vm.keyCodeNew, 0)
+			})
+			add(JMenuItem(ResString.RESTART.string, KeyEvent.VK_R).apply {
+				addActionListener { vm.gameRestart() }
+				accelerator = KeyStroke.getKeyStroke(vm.keyCodeRestart, 0)
+			})
+			add(JMenuItem(ResString.OPTIONS_ELLIPSIS.string, KeyEvent.VK_O).apply {
+				addActionListener {
+					vm.gameInactive()
+					// TODO Open options here
+					vm.gameRestart()
+				}
+				accelerator = KeyStroke.getKeyStroke(vm.keyCodeOptions, 0)
+				isEnabled = false
+			})
+			add(JMenuItem(ResString.EXIT.string, KeyEvent.VK_X).apply {
+				isEnabled = false
+			})
+			addSeparator()
+			add(JMenuItem(ResString.ABOUT_LANDER.string, KeyEvent.VK_B).apply {
+				isEnabled = false
+			})
+		})
 	}
 
 	public override fun paintComponent(g: Graphics) {
 		super.paintComponent(g)
-		vm.updateLander()
-		val drawSurface = Platform.Rendering.DrawSurface(g)
-		// Background
-		drawSurface.fillSurface(Platform.Rendering.Color.BLACK)
-		// Draw the ground
-		drawSurface.drawPath(vm.path, Platform.Rendering.Color.WHITE)
-		// Status labels
-		drawSurface.drawString(ResString.ALTITUDE.string, vm.xClient - 158, 40, Platform.Rendering.Color.WHITE)
-		drawSurface.drawString(ResString.VELOCITY_X.string, vm.xClient - 170, 60, Platform.Rendering.Color.WHITE)
-		drawSurface.drawString(ResString.VELOCITY_Y.string, vm.xClient - 170, 80, Platform.Rendering.Color.WHITE)
-		drawSurface.drawString(ResString.FUEL.string, vm.xClient - 137, 100, Platform.Rendering.Color.WHITE)
-		vm.drawLander(drawSurface)
-		try {
-			Thread.sleep(LanderViewModel.UPDATE_TIME.toLong())
+		CoroutineScope(Dispatchers.Unconfined).launch {
+			val now = Platform.currentTimeMillis
+			if (now - vm.lastUpdate >= LanderViewModel.UPDATE_TIME) {
+				vm.updateLander()
+				vm.lastUpdate = now
+			}
+			runBlocking(Dispatchers.Default) {
+				DrawSurface(g).apply {
+					// Background
+					fillSurface()
+					// Ground
+					drawPath(vm.path)
+					// Status labels
+					drawString(ResString.ALTITUDE.string, vm.xClient - 178, 40)
+					drawString(ResString.VELOCITY_X.string, vm.xClient - 189, 60)
+					drawString(ResString.VELOCITY_Y.string, vm.xClient - 189, 80)
+					drawString(ResString.FUEL.string, vm.xClient - 156, 100)
+					vm.drawLander(this)
+				}
+			}
+			Utils.capFrameRate(120)
 			repaint()
-		} catch (e: InterruptedException) {
-			println(e)
 		}
 	}
 
 	override fun mouseClicked(arg0: MouseEvent) {}
 	override fun mouseEntered(e: MouseEvent) {
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			vm.buttonPressed(Platform.Views.Button.get(e.component as JButton), false)
+			vm.buttonPressed(Button.get(e.component as JButton), false)
 		}
 	}
 
 	override fun mouseExited(e: MouseEvent) {
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			vm.buttonReleased(Platform.Views.Button.get(e.component as JButton), true)
+			vm.buttonReleased(Button.get(e.component as JButton), true)
 		}
 	}
 
 	override fun mousePressed(e: MouseEvent) {
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			vm.buttonPressed(Platform.Views.Button.get(e.component as JButton))
+			vm.buttonPressed(Button.get(e.component as JButton))
 		}
 	}
 
 	override fun mouseReleased(e: MouseEvent) {
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			vm.buttonReleased(Platform.Views.Button.get(e.component as JButton))
+			vm.buttonReleased(Button.get(e.component as JButton))
 		}
 	}
 

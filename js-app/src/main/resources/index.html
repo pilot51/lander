@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title>Lander</title>
+		<style>
+	        body {
+	            background: #555555;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                user-select: none;
+	        }
+	        #container {
+	            position: relative;
+	        }
+	        #container div {
+				position: absolute;
+                font-family: sans-serif;
+		        font-size: 13px;
+		        font-weight: bold;
+			}
+            #container input {
+                position: absolute;
+            }
+	        .navbar {
+	            display: flex;
+	            background-color: #f0f0f0;
+	            font-family: sans-serif;
+	        }
+	        button {
+	            padding: 4px 16px;
+	            border-style: solid;
+	            border-width: thin;
+	            border-color: #a0a0a0;
+	        }
+	        .dropdown-content {
+	            display: none;
+	            position: absolute;
+	            background-color: #f0f0f0;
+	            border-style: solid;
+	            border-width: thin;
+	            border-color: #a0a0a0;
+		        z-index: 1;
+	        }
+	        .dropdown-content a {
+	            display: block;
+	            padding: 8px 16px;
+	            font-size: 14px;
+	            color: black;
+	            text-decoration: none;
+	            cursor: default;
+	        }
+	        .show {
+	            display: block;
+	        }
+		</style>
+	</head>
+	<body>
+		<div id="navbar" class="navbar">
+			<div class="dropdown-button">
+				<button id="btnGame" accesskey="G"><u>G</u>ame</button>
+				<div id="gameDropdown" class="dropdown-content">
+					<a href="#" id="gameNew" accesskey="n" draggable="false"><u>N</u>ew (F2)</a>
+					<a href="#" id="gameRestart" accesskey="r" draggable="false"><u>R</u>estart (F3)</a>
+					<a href="#" id="gameOptions" accesskey="o" draggable="false" style="color:lightgray"><u>O</u>ptions... (F4)</a>
+					<a href="#" id="gameExit" accesskey="x" draggable="false" style="color:lightgray">E<u>x</u>it</a>
+					<hr>
+					<a href="#" id="gameAbout" accesskey="b" draggable="false" style="color:lightgray">A<u>b</u>out Lander...</a>
+				</div>
+			</div>
+		</div>
+		<div id="container">
+			<div id="labelAlt"></div>
+			<div id="labelVelX"></div>
+			<div id="labelVelY"></div>
+			<div id="labelFuel"></div>
+			<div id="textAlt"></div>
+			<div id="textVelX"></div>
+			<div id="textVelY"></div>
+			<div id="textFuel"></div>
+			<input type="image" id="btnThrust" alt="Thrust" draggable="false" />
+			<input type="image" id="btnLeft" alt="Thrust" draggable="false" />
+			<input type="image" id="btnRight" alt="Thrust" draggable="false" />
+		</div>
+		<script src="js-app.js"></script>
+	</body>
+</html>

@@ -23,18 +23,19 @@ import com.pilot51.lander.Platform.Rendering.Path
 import com.pilot51.lander.Platform.Resources.Icon
 import com.pilot51.lander.Platform.Resources.Image
 import com.pilot51.lander.Platform.Resources.string
+import com.pilot51.lander.Platform.Utils.formatFixed
 import com.pilot51.lander.Platform.Views.Button
 import com.pilot51.lander.Platform.Views.Text
 import com.pilot51.lander.Res.ResImage
 import com.pilot51.lander.Res.ResString
-import java.text.DecimalFormat
-import java.util.*
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sin
+import kotlin.random.Random
 
 class LanderViewModel(
-	private val platform: PlatformType
+	private val isAndroid: Boolean = false
 ) {
 	/* Physical Settings & Options */
 	/** mass of the lander in kg */
@@ -133,8 +134,7 @@ class LanderViewModel(
 	private var nCount = 0
 	var lastUpdate: Long = 0
 	private var lastDraw: Long = 0
-	private var rand: Random = Random(System.currentTimeMillis())
-	private val df2 = DecimalFormat("0.00") // Fixed to 2 decimal places
+	private var rand = Random(Platform.currentTimeMillis)
 	private lateinit var landerPict: Image
 	private var safe = Icon(ResImage.SAFE)
 	private var dead = Icon(ResImage.DEAD)
@@ -206,6 +206,7 @@ class LanderViewModel(
 		setFiringThrust(false)
 		setFiringLeft(false)
 		setFiringRight(false)
+		origBtn = null
 	}
 
 	/**
@@ -213,8 +214,10 @@ class LanderViewModel(
 	 * If `false`, the target button is reactivated only if [origBtn] is set.
 	 */
 	fun buttonPressed(button: Button, newClick: Boolean = true) {
-		if (newClick && byLanderState == LND_HOLD) byLanderState = LND_ACTIVE
-		else if (byLanderState != LND_ACTIVE) return
+		if (byLanderState == LND_HOLD) {
+			if (!newClick) return
+			byLanderState = LND_ACTIVE
+		}
 		when (button) {
 			btnThrust -> if (newClick || origBtn == btnThrust) {
 				setFiringThrust(true)
@@ -225,7 +228,9 @@ class LanderViewModel(
 			btnRight -> if (newClick || origBtn == btnRight) {
 				setFiringRight(true)
 			}
+			else return
 		}
+		origBtn = button
 	}
 
 	/**
@@ -233,7 +238,6 @@ class LanderViewModel(
 	 * if the cursor reenters the button while the mouse is still clicked.
 	 */
 	fun buttonReleased(button: Button, remember: Boolean = false) {
-		if (byLanderState != LND_ACTIVE) return
 		when (button) {
 			btnThrust -> setFiringThrust(false)
 			btnLeft -> setFiringLeft(false)
@@ -244,11 +248,13 @@ class LanderViewModel(
 
 	/** @return `true` if key press handled */
 	fun keyPressed(keyCode: Int): Boolean {
-		if (byLanderState != LND_ACTIVE) return false
+		val isActive = byLanderState == LND_ACTIVE
 		when (keyCode) {
-			keyCodeThrust -> setFiringThrust(true)
-			keyCodeLeft -> setFiringLeft(true)
-			keyCodeRight -> setFiringRight(true)
+			keyCodeThrust -> if (isActive) setFiringThrust(true)
+			keyCodeLeft -> if (isActive) setFiringLeft(true)
+			keyCodeRight -> if (isActive) setFiringRight(true)
+			keyCodeNew -> gameNew()
+			keyCodeRestart -> gameRestart()
 			else -> return false
 		}
 		return true
@@ -263,7 +269,7 @@ class LanderViewModel(
 		)) {
 			byLanderState = LND_ACTIVE
 			return true
-		} else if (byLanderState != LND_ACTIVE) return false
+		}
 		when (keyCode) {
 			keyCodeThrust -> setFiringThrust(false)
 			keyCodeLeft -> setFiringLeft(false)
@@ -278,7 +284,7 @@ class LanderViewModel(
 		var msg = "${ResString.END_CRASH.string}\n"
 		when (byEndGameState) {
 			END_SAFE -> msg = ResString.END_SAFE.string
-			END_CRASHV -> when (Random().nextInt(3)) {
+			END_CRASHV -> when (rand.nextInt(3)) {
 				0 -> msg += ResString.END_CRASHV1.string
 				1 -> msg += ResString.END_CRASHV2.string
 				2 -> msg += ResString.END_CRASHV3.string
@@ -307,10 +313,10 @@ class LanderViewModel(
 
 	private fun drawStatus(bOverride: Boolean) {
 		if (nCount >= STATUS_DELAY || bOverride) {
-			textAlt.text = df2.format((landerY - yGroundZero) * yScale)
-			textVelX.text = df2.format(landerVx)
-			textVelY.text = df2.format(landerVy)
-			textFuel.text = df2.format(fFuel)
+			textAlt.text = ((landerY - yGroundZero) * yScale).formatFixed(2)
+			textVelX.text = landerVx.formatFixed(2)
+			textVelY.text = landerVy.formatFixed(2)
+			textFuel.text = fFuel.formatFixed(2)
 			nCount = 0
 		} else nCount++
 	}
@@ -328,9 +334,9 @@ class LanderViewModel(
 			var xLeftF: Int
 			if (isFiringMain) {
 				yTopF = invertY(
-					landerY.toInt() + when (platform) {
-						PlatformType.ANDROID -> -(11 * densityScale).toInt()
-						else -> yLanderPict / 2 - 25
+					landerY.toInt() + when (isAndroid) {
+						true -> -(11 * densityScale).toInt()
+						false -> yLanderPict / 2 - 25
 					} + hBFlamePict.height / 2
 				)
 				xLeftF = landerX.toInt() - hBFlamePict.width / 2
@@ -338,30 +344,30 @@ class LanderViewModel(
 			}
 			if (isFiringLeft) {
 				yTopF = invertY(
-					landerY.toInt() + when (platform) {
-						PlatformType.ANDROID -> (21 * densityScale).toInt()
-						else -> yLanderPict / 2 + 5
+					landerY.toInt() + when (isAndroid) {
+						true -> (21 * densityScale).toInt()
+						false -> yLanderPict / 2 + 5
 					} + hLFlamePict.height / 2
 				)
-				xLeftF = landerX.toInt() - when (platform) {
-					PlatformType.ANDROID -> (27 * densityScale).toInt()
-					else -> 29
+				xLeftF = landerX.toInt() - when (isAndroid) {
+					true -> (27 * densityScale).toInt()
+					false -> 29
 				} - hLFlamePict.width / 2
 				hLFlamePict.draw(drawSurface, xLeftF, yTopF)
 			}
 			if (isFiringRight) {
-				yTopF = invertY(landerY.toInt() + when (platform) {
-					PlatformType.ANDROID -> (21 * densityScale).toInt()
-					else -> yLanderPict / 2 + 5
+				yTopF = invertY(landerY.toInt() + when (isAndroid) {
+					true -> (21 * densityScale).toInt()
+					false -> yLanderPict / 2 + 5
 				} + hRFlamePict.height / 2)
-				xLeftF = landerX.toInt() + when (platform) {
-					PlatformType.ANDROID -> (27 * densityScale).toInt()
-					else -> 29
+				xLeftF = landerX.toInt() + when (isAndroid) {
+					true -> (27 * densityScale).toInt()
+					false -> 29
 				} - hRFlamePict.width / 2
 				hRFlamePict.draw(drawSurface, xLeftF, yTopF)
 			}
 		}
-		val now = System.currentTimeMillis()
+		val now = Platform.currentTimeMillis
 		if (now - lastDraw >= UPDATE_TIME) {
 			if (nFlameCount == 0) nFlameCount = FLAME_DELAY else nFlameCount--
 			lastDraw = now
@@ -397,7 +403,7 @@ class LanderViewModel(
 		}
 		if (bRotation) {
 			if (angle <= -180) angle += 360f else if (angle > 180) angle -= 360f
-			val radians = 2 * Math.PI.toFloat() * angle / 360
+			val radians = 2 * PI.toFloat() * angle / 360
 			dVx = sin(radians.toDouble()).toFloat() * accel
 			dVy += kotlin.math.cos(radians.toDouble()).toFloat() * accel
 		}
@@ -423,7 +429,7 @@ class LanderViewModel(
 				landerPict = hLanderPict
 				if (!bTimed) {
 					nTimerLoop = 0
-					dwTickCount = System.currentTimeMillis()
+					dwTickCount = Platform.currentTimeMillis
 					byLanderState = LND_TIMING
 				} else {
 					drawStatus(false)
@@ -437,7 +443,7 @@ class LanderViewModel(
 				drawStatus(false)
 				nTimerLoop++
 				if (nTimerLoop == MAX_TIMER) {
-					dt = (7.5 * (System.currentTimeMillis() - dwTickCount) / (1000 * nTimerLoop)).toFloat()
+					dt = (7.5 * (Platform.currentTimeMillis - dwTickCount) / (1000 * nTimerLoop)).toFloat()
 					bTimed = true
 					byLanderState = LND_HOLD
 				}
@@ -639,11 +645,6 @@ class LanderViewModel(
 
 	private class Point(var x: Int, var y: Int) {
 		override fun toString() = "x: $x | y: $y"
-	}
-
-	enum class PlatformType {
-		ANDROID,
-		JAVA
 	}
 
 	companion object {

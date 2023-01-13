@@ -31,10 +31,15 @@ import java.awt.Graphics as JavaGraphics
 import java.awt.Image as JavaImage
 
 actual object Platform {
+	actual val currentTimeMillis get() = System.currentTimeMillis()
 	private lateinit var parentComponent: Component
 
 	fun init(component: Component) {
 		parentComponent = component
+	}
+
+	actual object Utils {
+		actual fun Number.formatFixed(precision: Int) = String.format("%.${precision}f", this)
 	}
 
 	actual object Resources {
@@ -127,9 +132,13 @@ actual object Platform {
 
 
 	actual object Rendering {
-		actual object Color {
-			actual val BLACK: Int = JavaColor.BLACK.rgb
-			actual val WHITE: Int = JavaColor.WHITE.rgb
+		actual class Color(
+			internal val javaColor: JavaColor
+		) {
+			actual companion object {
+				actual val BLACK = Color(JavaColor.BLACK)
+				actual val WHITE = Color(JavaColor.WHITE)
+			}
 		}
 
 		actual class Path {
@@ -153,26 +162,26 @@ actual object Platform {
 		) {
 			private val g2d = g as Graphics2D
 
-			actual fun fillSurface(color: Int) {
-				g.color = JavaColor(color)
+			actual fun fillSurface(color: Color) {
+				g.color = color.javaColor
 				val rect = g.clipBounds
 				g.fillRect(0, 0, rect.width, rect.height)
 			}
 
 			actual fun fillArea(
-				xLeft: Int, yTop: Int, width: Int, height: Int, color: Int
+				xLeft: Int, yTop: Int, width: Int, height: Int, color: Color
 			) {
-				g.color = JavaColor(color)
+				g.color = color.javaColor
 				g.fillRect(xLeft, yTop, width, height)
 			}
 
-			actual fun drawPath(path: Path, color: Int) {
-				g.color = JavaColor(color)
+			actual fun drawPath(path: Path, color: Color) {
+				g.color = color.javaColor
 				g2d.fill(path.path.createTransformedShape(null))
 			}
 
-			fun drawString(text: String, x: Int, y: Int, color: Int) {
-				g.color = JavaColor(color)
+			fun drawString(text: String, x: Int, y: Int, color: Color = Color.WHITE) {
+				g.color = color.javaColor
 				g2d.drawString(text, x, y)
 			}
 		}

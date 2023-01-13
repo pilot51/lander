@@ -1,0 +1,23 @@
+{
+	"app_name": "Lander",
+	"game": "Game",
+	"new_": "New",
+	"restart": "Restart",
+	"options": "Options",
+	"options_ellipsis": "Options...",
+	"exit": "Exit",
+	"about_lander": "About Lander...",
+	"altitude": "Altitude",
+	"velocity_x": "Velocity X",
+	"velocity_y": "Velocity Y",
+	"fuel": "Fuel",
+	"end_crash": "CRASH!",
+	"end_crashh": "Too much horizontal velocity. Your horizontal motion must be less than 1 m/sec.",
+	"end_crasha": "Too steep of an angle. Your angle must be within 5° of level.",
+	"end_crashs": "Missed the landing site. You must land on flat terrain.",
+	"end_crashv1": "Too much vertical velocity. Your landing speed must be under 10 m/sec.",
+	"end_crashv2": "Nice crater! All that training really payed off.",
+	"end_crashv3": "You just dug a hole half way to Clavius.",
+	"end_outofrange": "Lander Lost!\nYou are out of range of the command module and presumed lost.",
+	"end_safe": "Congratulations!\nYou have landed safely."
+}

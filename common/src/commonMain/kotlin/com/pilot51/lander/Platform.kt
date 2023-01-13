@@ -20,6 +20,12 @@ import com.pilot51.lander.Res.ResImage
 import com.pilot51.lander.Res.ResString
 
 expect object Platform {
+	val currentTimeMillis: Long
+
+	object Utils {
+		fun Number.formatFixed(precision: Int): String
+	}
+
 	object Resources {
 		val ResString.string: String
 		fun ResString.getString(vararg args: Any): String
@@ -60,9 +66,11 @@ expect object Platform {
 	}
 
 	object Rendering {
-		object Color {
-			val BLACK: Int
-			val WHITE: Int
+		class Color {
+			companion object {
+				val BLACK: Color
+				val WHITE: Color
+			}
 		}
 
 		class Path() {
@@ -72,13 +80,13 @@ expect object Platform {
 		}
 
 		class DrawSurface {
-			fun fillSurface(color: Int)
+			fun fillSurface(color: Color = Color.BLACK)
 
 			fun fillArea(
-				xLeft: Int, yTop: Int, width: Int, height: Int, color: Int = Color.BLACK
+				xLeft: Int, yTop: Int, width: Int, height: Int, color: Color = Color.BLACK
 			)
 
-			fun drawPath(path: Path, color: Int)
+			fun drawPath(path: Path, color: Color = Color.WHITE)
 		}
 	}
 

@@ -165,3 +165,8 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/android,androidstudio
 
+
+# JavaScript
+kotlin-js-store/
+moko-resources-generated.js
+

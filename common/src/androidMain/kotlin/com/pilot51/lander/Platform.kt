@@ -40,6 +40,7 @@ import android.graphics.Path as AndPath
 import android.widget.Button as AndButton
 
 actual object Platform {
+	actual val currentTimeMillis get() = System.currentTimeMillis()
 	private lateinit var weakAppContext: WeakReference<Context>
 	private val appContext get() = weakAppContext.get()!!
 	private lateinit var weakActContext: WeakReference<Context>
@@ -51,6 +52,10 @@ actual object Platform {
 		weakAppContext = WeakReference(activity.applicationContext)
 		weakActContext = WeakReference(activity)
 		prefs = PreferenceManager.getDefaultSharedPreferences(appContext)
+	}
+
+	actual object Utils {
+		actual fun Number.formatFixed(precision: Int) = String.format("%.${precision}f", this)
 	}
 
 	actual object Resources {
@@ -148,9 +153,18 @@ actual object Platform {
 	}
 
 	actual object Rendering {
-		actual object Color {
-			actual val BLACK: Int = AndColor.BLACK
-			actual val WHITE: Int = AndColor.WHITE
+		actual class Color(
+			internal val int: Int
+		) {
+			internal val fillPaint = Paint().also {
+				it.style = Paint.Style.FILL
+				it.color = int
+			}
+
+			actual companion object {
+				actual val BLACK = Color(AndColor.BLACK)
+				actual val WHITE = Color(AndColor.WHITE)
+			}
 		}
 
 		actual class Path {
@@ -174,31 +188,24 @@ actual object Platform {
 		actual class DrawSurface(
 			internal val canvas: AndCanvas
 		) {
-			actual fun fillSurface(color: Int) {
-				canvas.drawColor(color)
+			actual fun fillSurface(color: Color) {
+				canvas.drawColor(color.int)
 			}
 
 			actual fun fillArea(
-				xLeft: Int, yTop: Int, width: Int, height: Int, color: Int
+				xLeft: Int, yTop: Int, width: Int, height: Int, color: Color
 			) {
 				canvas.drawRect(
 					xLeft.toFloat(),
 					yTop.toFloat(),
 					(xLeft + width).toFloat(),
 					(yTop + height).toFloat(),
-					Paint().also {
-						it.style = Paint.Style.FILL
-						it.color = color
-					}
+					color.fillPaint
 				)
 			}
 
-			actual fun drawPath(path: Path, color: Int) {
-				val paint = Paint().also {
-					it.style = Paint.Style.FILL
-					it.color = color
-				}
-				canvas.drawPath(path.path, paint)
+			actual fun drawPath(path: Path, color: Color) {
+				canvas.drawPath(path.path, color.fillPaint)
 			}
 		}
 	}

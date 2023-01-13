@@ -6,9 +6,17 @@ plugins {
 kotlin {
 	android()
 	jvm()
+	js(LEGACY) {
+		browser()
+		binaries.executable()
+	}
 
 	sourceSets {
-		val commonMain by getting
+		val commonMain by getting {
+			dependencies {
+				implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+			}
+		}
 		val androidMain by getting {
 			dependencies {
 				implementation("androidx.core:core-ktx:1.9.0")
@@ -18,6 +26,7 @@ kotlin {
 			}
 		}
 		val jvmMain by getting
+		val jsMain by getting
 	}
 }
 
