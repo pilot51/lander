@@ -2,6 +2,7 @@ package com.pilot51.lander
 
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
@@ -24,18 +25,23 @@ class OptionsControls : PreferenceFragmentCompat(), Preference.OnPreferenceClick
 		addPreferencesFromResource(R.xml.options_controls)
 		pDefControls = findPreference<Preference>("DefaultControls")!!
 			.also { it.onPreferenceClickListener = this }
-		pKeyThrust = findPreference<Preference>("KeyThrust")!!
-			.also { it.onPreferenceClickListener = this }
-		pKeyLeft = findPreference<Preference>("KeyLeft")!!
-			.also { it.onPreferenceClickListener = this }
-		pKeyRight = findPreference<Preference>("KeyRight")!!
-			.also { it.onPreferenceClickListener = this }
-		pKeyNew = findPreference<Preference>("KeyNew")!!
-			.also { it.onPreferenceClickListener = this }
-		pKeyRestart = findPreference<Preference>("KeyRestart")!!
-			.also { it.onPreferenceClickListener = this }
-		pKeyOptions = findPreference<Preference>("KeyOptions")!!
-			.also { it.onPreferenceClickListener = this }
+		if (resources.configuration.keyboard == Configuration.KEYBOARD_NOKEYS) {
+			findPreference<Preference>("CatKeys")!!.isVisible = false
+			Toast.makeText(context, R.string.controls_nokeys, Toast.LENGTH_LONG).show()
+		} else {
+			pKeyThrust = findPreference<Preference>("KeyThrust")!!
+				.also { it.onPreferenceClickListener = this }
+			pKeyLeft = findPreference<Preference>("KeyLeft")!!
+				.also { it.onPreferenceClickListener = this }
+			pKeyRight = findPreference<Preference>("KeyRight")!!
+				.also { it.onPreferenceClickListener = this }
+			pKeyNew = findPreference<Preference>("KeyNew")!!
+				.also { it.onPreferenceClickListener = this }
+			pKeyRestart = findPreference<Preference>("KeyRestart")!!
+				.also { it.onPreferenceClickListener = this }
+			pKeyOptions = findPreference<Preference>("KeyOptions")!!
+				.also { it.onPreferenceClickListener = this }
+		}
 	}
 
 	override fun onPreferenceClick(preference: Preference): Boolean {

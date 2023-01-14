@@ -23,6 +23,9 @@ class Main : Activity() {
 		super.onCreate(savedInstanceState)
 		// Load default preferences from xml if not saved
 		PreferenceManager.setDefaultValues(this, R.xml.options, true)
+		PreferenceManager.setDefaultValues(this, R.xml.options_controls, true)
+		PreferenceManager.setDefaultValues(this, R.xml.options_improvements, true)
+		PreferenceManager.setDefaultValues(this, R.xml.options_mods, true)
 		prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext).also {
 			if (it.getInt("KeyThrust", 0) == 0) {
 				it.edit()

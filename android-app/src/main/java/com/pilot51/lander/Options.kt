@@ -26,8 +26,6 @@ class Options : FragmentActivity() {
 			addPreferencesFromResource(R.xml.options)
 			pDefClassic = findPreference<Preference>("DefaultClassic")!!
 				.also { it.onPreferenceClickListener = this }
-			pControls = findPreference<Preference>("Controls")!!
-				.also { it.onPreferenceClickListener = this }
 		}
 
 		override fun onPreferenceClick(preference: Preference): Boolean {
@@ -40,12 +38,6 @@ class Options : FragmentActivity() {
 				findPreference<CheckBoxPreference>("ReverseSideThrust")!!.isChecked = false
 				Toast.makeText(ctx, R.string.classic_options_reset, Toast.LENGTH_LONG).show()
 				return true
-			} else if (preference === pControls) {
-				if (resources.configuration.keyboard == Configuration.KEYBOARD_NOKEYS) {
-					findPreference<Preference>("CatKeys")!!.isEnabled = false
-					Toast.makeText(ctx, R.string.controls_nokeys, Toast.LENGTH_LONG).show()
-					return true
-				}
 			}
 			return false
 		}
