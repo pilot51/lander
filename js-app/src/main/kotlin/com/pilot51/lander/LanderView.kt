@@ -20,6 +20,7 @@ import com.pilot51.lander.Platform.Rendering.DrawSurface
 import com.pilot51.lander.Platform.Resources.string
 import com.pilot51.lander.Platform.Views.Button
 import com.pilot51.lander.Platform.Views.Text
+import com.pilot51.lander.Res.ResImage
 import com.pilot51.lander.Res.ResString
 import kotlinx.browser.document
 import kotlinx.browser.window
@@ -32,7 +33,7 @@ import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.events.KeyboardEvent
-import org.w3c.dom.events.MouseEvent
+import org.w3c.dom.pointerevents.PointerEvent
 import kotlin.experimental.and
 
 class LanderView {
@@ -74,11 +75,11 @@ class LanderView {
 		vm.textVelY.init(getDiv("textVelY"), vm.xClient - 100, 68)
 		vm.textFuel.init(getDiv("textFuel"), vm.xClient - 100, 88)
 		vm.btnThrust.init(getInput("btnThrust"), vm.xClient - 105, 160,
-			Res.ResImage.THRUST, Res.ResImage.ITHRUST, ::onMouse)
+			ResImage.THRUST, ResImage.ITHRUST, ::onPointer)
 		vm.btnLeft.init(getInput("btnLeft"), vm.xClient - 130, 110,
-			Res.ResImage.LEFT, Res.ResImage.ILEFT, ::onMouse)
+			ResImage.LEFT, ResImage.ILEFT, ::onPointer)
 		vm.btnRight.init(getInput("btnRight"), vm.xClient - 80, 110,
-			Res.ResImage.RIGHT, Res.ResImage.IRIGHT, ::onMouse)
+			ResImage.RIGHT, ResImage.IRIGHT, ::onPointer)
 		setListeners()
 		window.onload = {
 			CoroutineScope(Dispatchers.Default).launch {
@@ -142,21 +143,21 @@ class LanderView {
 		}
 	}
 
-	private fun onMouse(event: MouseEvent) {
+	private fun onPointer(event: PointerEvent) {
 		val button = Button.get(event.target as HTMLInputElement)
-		val isLeftPressed = event.isLeftButtonPressed()
+		val isPrimaryPressed = event.isPrimaryPressed()
 		when (event.type) {
-			"mousedown" -> if (isLeftPressed) vm.buttonPressed(button)
-			"mouseup" -> if (!isLeftPressed) vm.buttonReleased(button)
-			"mouseenter" -> if (isLeftPressed) vm.buttonPressed(button, false)
-			"mouseleave" -> if (isLeftPressed) vm.buttonReleased(button, true)
+			"pointerdown" -> if (isPrimaryPressed) vm.buttonPressed(button)
+			"pointerup" -> if (!isPrimaryPressed) vm.buttonReleased(button)
+			"pointerenter" -> if (isPrimaryPressed) vm.buttonPressed(button, false)
+			"pointerleave" -> if (isPrimaryPressed) vm.buttonReleased(button, true)
 		}
 	}
 
-	private fun MouseEvent.isLeftButtonPressed(): Boolean {
-		val leftMouseId = 1.toShort()
-		val isLeftPressed = buttons and leftMouseId == leftMouseId
-		return isLeftPressed && !(metaKey || ctrlKey || altKey || shiftKey)
+	private fun PointerEvent.isPrimaryPressed(): Boolean {
+		val primaryButtonId = 1.toShort()
+		val isPrimaryPressed = (buttons and primaryButtonId) == primaryButtonId
+		return isPrimaryPressed && !(metaKey || ctrlKey || altKey || shiftKey)
 	}
 
 	private fun toggleGameMenu() {

@@ -24,7 +24,7 @@ import com.pilot51.lander.Res.ResString
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.*
-import org.w3c.dom.events.MouseEvent
+import org.w3c.dom.pointerevents.PointerEvent
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.js.Date
 import org.w3c.dom.Image as JsImage
@@ -113,7 +113,7 @@ actual object Platform {
 				btn: HTMLInputElement, x: Int, y: Int,
 				unpressedImgRes: ResImage,
 				pressedImgRes: ResImage,
-				mouseListener: (event: MouseEvent) -> Unit
+				listener: (event: PointerEvent) -> Unit
 			) {
 				unpressedImgSrc = unpressedImgRes.src
 				pressedImgSrc = pressedImgRes.src
@@ -123,17 +123,18 @@ actual object Platform {
 						left = "${x}px"
 						top = "${y}px"
 					}
-					addEventListener("mousedown", {
-						mouseListener(it as MouseEvent)
+					oncontextmenu = { false }
+					addEventListener("pointerdown", {
+						listener(it as PointerEvent)
 					})
-					addEventListener("mouseup", {
-						mouseListener(it as MouseEvent)
+					addEventListener("pointerup", {
+						listener(it as PointerEvent)
 					})
-					addEventListener("mouseenter", {
-						mouseListener(it as MouseEvent)
+					addEventListener("pointerenter", {
+						listener(it as PointerEvent)
 					})
-					addEventListener("mouseleave", {
-						mouseListener(it as MouseEvent)
+					addEventListener("pointerleave", {
+						listener(it as PointerEvent)
 					})
 				}
 				buttons.add(this)

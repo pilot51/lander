@@ -4,55 +4,56 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<title>Lander</title>
 		<style>
-	        body {
-	            background: #555555;
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                user-select: none;
-	        }
-	        #container {
-	            position: relative;
-	        }
-	        #container div {
-				position: absolute;
-                font-family: sans-serif;
-		        font-size: 13px;
-		        font-weight: bold;
+			body {
+				background: #555555;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				user-select: none;
 			}
-            #container input {
-                position: absolute;
-            }
-	        .navbar {
-	            display: flex;
-	            background-color: #f0f0f0;
-	            font-family: sans-serif;
-	        }
-	        button {
-	            padding: 4px 16px;
-	            border-style: solid;
-	            border-width: thin;
-	            border-color: #a0a0a0;
-	        }
-	        .dropdown-content {
-	            display: none;
-	            position: absolute;
-	            background-color: #f0f0f0;
-	            border-style: solid;
-	            border-width: thin;
-	            border-color: #a0a0a0;
-		        z-index: 1;
-	        }
-	        .dropdown-content a {
-	            display: block;
-	            padding: 8px 16px;
-	            font-size: 14px;
-	            color: black;
-	            text-decoration: none;
-	            cursor: default;
-	        }
-	        .show {
-	            display: block;
-	        }
+			#container {
+				position: relative;
+			}
+			#container div {
+				position: absolute;
+				font-family: sans-serif;
+				font-size: 13px;
+				font-weight: bold;
+			}
+			#container input {
+				position: absolute;
+				touch-action: none;
+			}
+			.navbar {
+				display: flex;
+				background-color: #f0f0f0;
+				font-family: sans-serif;
+			}
+			button {
+				padding: 4px 16px;
+				border-style: solid;
+				border-width: thin;
+				border-color: #a0a0a0;
+			}
+			.dropdown-content {
+				display: none;
+				position: absolute;
+				background-color: #f0f0f0;
+				border-style: solid;
+				border-width: thin;
+				border-color: #a0a0a0;
+				z-index: 1;
+			}
+			.dropdown-content a {
+				display: block;
+				padding: 8px 16px;
+				font-size: 14px;
+				color: black;
+				text-decoration: none;
+				cursor: default;
+			}
+			.show {
+				display: block;
+			}
 		</style>
 	</head>
 	<body>
